@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { createContext, useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { Provider as PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
@@ -7,10 +7,13 @@ import { TransitionSpecs } from '@react-navigation/stack';
 
 import Login from './src/pages/auth/Login';
 import HomePage from './src/pages/connected/Home/Home'
-import ElementsAMunirPage from './src/pages/ElementsAMunirPage/ElementsAMunirPage';
-import CompatibiliteeContrat from './src/pages/CompatibiliteeContrat/CompatibiliteeContrat';
+import ElementsAMunirPage from './src/pages/connected/ElementsAMunirPage/ElementsAMunirPage';
+import CompatibiliteeContrat from './src/pages/connected/CompatibiliteeContrat/CompatibiliteeContrat';
 import ContractConfigurationComponent from './src/pages/connected/ConfigurerContratPage/ConfigurerContratPage';
-
+import { getPajeId, getUserByPajeId, isLogedIn, logout } from './src/utils/user';
+import { isContratConfiguree, removeConfiguredContrat } from './src/utils/contrat';
+import User from './src/models/user';
+import LoadingScreen from './src/components/loading/LoadingScreens';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +47,8 @@ export const lightTheme = {
   }
 };
 
+export const connectedUserContext =createContext<{connectedUser:User,setConnectedUser:any} | undefined>(undefined);
+
 const App = () => {
   const config={
     transitionSpec: {
@@ -53,23 +58,56 @@ const App = () => {
     cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
   }
 
+  const [isLoading,setIsLoading]=useState<boolean>(true)
+  const [defaultRoute,setDefaultRoute]=useState<string>("Login")
+  const [connectedUser,setConnectedUser]=useState<User>(new User())
+
+  useEffect(function() {
+    (async function () {
+      if (!(await isLogedIn())) { //Non Connectée
+        setDefaultRoute("Login")
+      }else{ //Connectée
+        const pajeId = await getPajeId()
+        let loggedUser:User=new User();
+        if (pajeId) {
+          const response = await getUserByPajeId(pajeId)
+          loggedUser=response.data
+          setConnectedUser(loggedUser)
+        }
+
+        //Verififier la configuration d'un contrat
+        const isContratConfigured = await isContratConfiguree()
+        if (isContratConfigured) setDefaultRoute("Home")
+        else setDefaultRoute("ElementsAMunirPage")
+      }
+      setIsLoading(false)
+    })();
+  },[])
+
+  useEffect(function () {
+    console.log(connectedUser);
+    
+  },[connectedUser])
+
   return (
     <PaperProvider theme={lightTheme}>
       <NavigationContainer>
-        <View style={styles.container}>
-          <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="ConfigurerContrat">
-            
-            <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="Login" component={Login} />
-            <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ElementsAMunirPage" component={ElementsAMunirPage} />
-            <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
-            <Stack.Screen options={{ cardShadowEnabled: true }} name="ConfigurerContrat" component={ContractConfigurationComponent} />
-            <Stack.Screen options={{ cardShadowEnabled: true }} name="Home" component={HomePage} />
-            {/*
-            <Stack.Screen options={{ cardShadowEnabled: true }} name="PdfViewer">
-              {(props) => <PdfViewer {...props} />}
-            </Stack.Screen> */}
-          </Stack.Navigator>
-        </View>
+        <connectedUserContext.Provider value={{connectedUser,setConnectedUser}}>
+          {
+            isLoading?
+              <LoadingScreen></LoadingScreen>
+              :
+              <View style={styles.container}>
+                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={defaultRoute}>
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="Login" component={Login} />
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ElementsAMunirPage" component={ElementsAMunirPage} />
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ConfigurerContrat" component={ContractConfigurationComponent} />
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="Home" component={HomePage} />
+                </Stack.Navigator>
+              </View>
+          }
+        </connectedUserContext.Provider>
       </NavigationContainer>
     </PaperProvider>
   );
@@ -78,7 +116,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000', // Fond noir
+    color:'black'
   },
 });
 

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, } from "react-native";
+import { ConfigContratContext } from "../ConfigurerContratPage";
 
 interface RenderStep5Props {
     setStep: (step: number) => void;
@@ -25,6 +26,7 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
     const [selected,setSelected]=useState<{value:boolean,text:string}>();
     const [existe,setExiste]= useState<boolean>();
     const [nombreEnfant,setNombreEnfant]=useState<number>(0);
+    const configContrat = useContext(ConfigContratContext)
 
     const onclickContinue = ()=>{
         if (selected) {
@@ -36,24 +38,24 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
     const onclickOne = (selected:any)=>{
         setSelected(selected)
         setExiste(selected.value)
-        console.log(selected);
     }
 
     return (
         <ScrollView style={styles.scollView}>
             <View style={styles.container}>
-                <Text style={styles.title}>Congées supplémentaires</Text>
+                <Text style={styles.title}>Enfant a charge du salarié</Text>
                 <Text style={styles.subtitle}>
                     Votre assistant maternel a le droit a des congées supplementaires pour chaque enfant à sa charge
                 </Text>
 
                 <Text style={{...styles.subtitle,fontWeight:'bold'}}>
-                    ... a-t-elle des enfants a sa charge ?
+                    {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} a-t-elle des enfants a sa charge ?
                 </Text>
 
                 {
                     [OUI,NON,I_DUNO].map((item,index)=>(
                         <TouchableOpacity
+                            key={index}
                             style={{...styles.ModaliteItem, backgroundColor:(item.text == selected?.text)?'#f1f1f1':'#fff'}}
                             onPress={() => {onclickOne(item)}}
                         >

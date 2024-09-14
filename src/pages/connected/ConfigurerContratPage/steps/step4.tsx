@@ -37,14 +37,14 @@ const EN_JUIN={
     description:"L'integralité de l'indemmnitée de congés payes sera versée en juin"
 }
 
-const LORS_DE_LA_PRISE_DES_CONGES={
-    type:'LORS_DE_LA_PRISE_DES_CONGES',
+const LORS_PRISE_CONGES_PRINCIPAUX={
+    type:'LORS_PRISE_CONGES_PRINCIPAUX',
     titre:'Paiement lors de la prise des conges principaux',
     description:"L'integralité de l'indemnité de congées payés sera versées le mois de la prise des congés principaux"
 }
 
-const AU_FUR_ET_A_MESURE={
-    type:'AU_FUR_ET_A_MESURE',
+const LORS_PRISE_CONGES={
+    type:'LORS_PRISE_CONGES',
     titre:'Paiement au fur et a mesure de la prise des congés',
     description:"L'indemnité est versée proportionnelement au nombre de jours posées par mois"
 }
@@ -60,7 +60,6 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
     const handleMonthChange = (month:any) => {
         setSelectedMonth(month);
         setMoisPriseConge(month.month()+1)
-        console.log("Mois sélectionné (numéro) :", month.month() + 1);
     };
 
 
@@ -72,11 +71,11 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
         if (modePayement?.type==EN_JUIN.type) {
             setModePayementConge({mode:modePayement.type,mois:moisPriseConge || -1})
             setStep(5);
-        }else if (modePayement?.type==AU_FUR_ET_A_MESURE.type) {
+        }else if (modePayement?.type==LORS_PRISE_CONGES.type) {
             setModePayementConge({mode:modePayement.type,mois: moisPriseConge || -1})
             setStep(5);
-        }else if ((modePayement?.type==LORS_DE_LA_PRISE_DES_CONGES.type) || moisPriseConge) {
-            setModePayementConge({mode:LORS_DE_LA_PRISE_DES_CONGES.type,mois:moisPriseConge || -1})
+        }else if ((modePayement?.type==LORS_PRISE_CONGES_PRINCIPAUX.type) || moisPriseConge) {
+            setModePayementConge({mode:LORS_PRISE_CONGES_PRINCIPAUX.type,mois:moisPriseConge || -1})
             setStep(5);
         }else{
             throw new Error('Erreur lors du choix des modalitées de paiements')
@@ -91,7 +90,7 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
                 <Text style={styles.subtitle}>
                     Selectionner votre modalité de paiement des indemnitées des congées payés 
                 </Text>
-                {[EN_JUIN,LORS_DE_LA_PRISE_DES_CONGES,AU_FUR_ET_A_MESURE].map((modalite:ModePayement, index:number) => (index!=1)?(
+                {[EN_JUIN,LORS_PRISE_CONGES_PRINCIPAUX,LORS_PRISE_CONGES].map((modalite:ModePayement, index:number) => (index!=1)?(
                     <TouchableOpacity 
                         style={{...styles.ModaliteItem,borderWidth:(modalite.type == modePayement?.type)?1:0.5,backgroundColor:(modalite.type == modePayement?.type)?'#f1f1f1':'#fff'}} 
                         key={index} 
@@ -110,7 +109,7 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
                             <Text style={styles.TypeDob}>{modalite.description}</Text>
                         </TouchableOpacity>
 
-                        <View style={{...styles.inputContainer,display:(modePayement?.type==LORS_DE_LA_PRISE_DES_CONGES.type)?'flex':'none'}}>
+                        <View style={{...styles.inputContainer,display:(modePayement?.type==LORS_PRISE_CONGES_PRINCIPAUX.type)?'flex':'none'}}>
                             <Text style={{color:"#000"}}>Selectionner le mois de la prise des congées:</Text>
                             <MonthSelectorCalendar
                                 selectedDate={selectedMonth}
@@ -125,7 +124,7 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
 
                
             </View>
-            <TouchableOpacity onPress={onclickContinue} disabled={((modePayement?.type==EN_JUIN.type) || (modePayement?.type==AU_FUR_ET_A_MESURE.type) || (modePayement?.type==LORS_DE_LA_PRISE_DES_CONGES.type && moisPriseConge))?false:true} style={{...styles.button,opacity:((modePayement?.type==EN_JUIN.type) || (modePayement?.type==AU_FUR_ET_A_MESURE.type) || (modePayement?.type==LORS_DE_LA_PRISE_DES_CONGES.type && moisPriseConge))?1:0.5}}>
+            <TouchableOpacity onPress={onclickContinue} disabled={((modePayement?.type==EN_JUIN.type) || (modePayement?.type==LORS_PRISE_CONGES.type) || (modePayement?.type==LORS_PRISE_CONGES_PRINCIPAUX.type && moisPriseConge))?false:true} style={{...styles.button,opacity:((modePayement?.type==EN_JUIN.type) || (modePayement?.type==LORS_PRISE_CONGES.type) || (modePayement?.type==LORS_PRISE_CONGES_PRINCIPAUX.type && moisPriseConge))?1:0.5}}>
                 <Text style={styles.buttonText}>Continuer</Text>
             </TouchableOpacity>
         </ScrollView>

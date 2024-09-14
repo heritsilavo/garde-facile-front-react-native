@@ -1,26 +1,63 @@
 import { NavigationProp } from '@react-navigation/native';
-import React, { createContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
-import { Calendar, DateData } from 'react-native-calendars';
 import RenderStep1 from './steps/step1';
 import RenderStep2 from './steps/step2';
-import { ConfigContratData, Enfant, Planning } from './classes';
+import { RemunerationCongesPayes,EnfantsAChargeSalarie, Assmat, Parent } from './classes'
+import { ConfigContratData, Enfant, Planning, IndemniteType } from './classes';
 import RenderStep3 from './steps/step3';
 import RenderStep4 from './steps/step4';
-import { RemunerationCongesPayes,EnfantsAChargeSalarie } from './classes'
 import RenderStep5 from './steps/step5';
 import RenderStep6 from './steps/step6';
 import RenderStep7 from './steps/step7';
+import RenderStep8 from './steps/step8';
+import RenderStep9 from './steps/step9';
+import { IndemniteEntity } from '../../../models/indemnites';
+import RenderStep0 from './steps/step0';
+import { connectedUserContext } from '../../../../App';
+import User from '../../../models/user';
+import { createIndemniteForContrat, generateId, saveConfiguredContrat, saveContratInDatabase } from '../../../utils/contrat';
 
 export const ConfigContratContext = createContext<{
   configContrat: ConfigContratData;
   setConfigContrat: React.Dispatch<React.SetStateAction<ConfigContratData>>;
 } | null>(null);
 
+export const indemniteEntityContext = createContext<{
+  indemniteEntity: IndemniteEntity;
+  setIndemniteEntity: React.Dispatch<React.SetStateAction<IndemniteEntity>>;
+} | null>(null);
+
 
 const ContractConfigurationComponent = ({ navigation }:{navigation:NavigationProp<any>}) => {
-  const [step, setStep] = useState<number>(7);
+  const [step, setStep] = useState<number>(0);
   const [configContrat, setConfigContrat] = useState<ConfigContratData>(new ConfigContratData());
+  const [indemniteEntity,setIndemniteEntity] = useState<IndemniteEntity>(new IndemniteEntity)
+  const {connectedUser,setConnectedUser} : {connectedUser:User,setConnectedUser:any} | any = useContext(connectedUserContext)
+
+  //Add parent
+  useEffect(function () {
+    const parent: Parent = new Parent();
+    parent.civilite = connectedUser.civilite
+    parent.dateNaissance = connectedUser.dateNaissance
+    parent.nom = connectedUser.nom
+    parent.prenom = connectedUser.prenom
+    parent.pajeId = connectedUser.pajeId
+
+    let newConfig:ConfigContratData = {...configContrat};
+    newConfig.body.parent = parent;
+    newConfig.body.numeroPajeEmployeur = parent.pajeId;
+    setConfigContrat(newConfig)
+  },[])
+
+
+  //Step 0
+  const setSelectedAssMat = function(assmat:Assmat){
+    let newConfig:ConfigContratData = {...configContrat};
+    newConfig.body.assmat = assmat;
+    newConfig.body.numeroPajeSalarie = assmat.pajeId;
+    setConfigContrat(newConfig)
+  }
 
   //Step 1
   const setSelectedChild = function(child:Enfant) {
@@ -73,21 +110,65 @@ const ContractConfigurationComponent = ({ navigation }:{navigation:NavigationPro
     newConfig.body.nbHeuresNormalesMensu = nbHeuresNormalesMensu;
     newConfig.body.nbJoursMensu = nbJoursMensu;
     newConfig.body.indexJourRepos = indexJourRepos
+    newConfig.body.indexJoursChomes = [...newConfig.body.indexJoursChomes,indexJourRepos]
     newConfig.body.nbHeuresMajoreesHebdo = nbHeuresMajoreesHebdo
     newConfig.body.nbHeuresMajoreesMensu = nbHeuresMajoreesMensu
     newConfig.body.nbHeuresSpecifiquesHebdo = nbHeuresSpecifiquesHebdo
-    console.log(newConfig.body);
-    
     setConfigContrat(newConfig)
   }
 
   //Step 7
   const setCodePostateAndJourFerie=  (codePostale:string,jourFerie:string[]) => {
+    let newConfig:ConfigContratData = {...configContrat};
+    newConfig.body.codePostal = codePostale;
+    newConfig.body.joursFeriesTravailles = [...jourFerie];
+    
+    setConfigContrat(newConfig)
+  }
 
+  //Step 8
+  const setSalaires = (salaireHoraireNet: number,salaireHoraireBrut: number,salaireHoraireComplementaireNet: number,salaireHoraireComplementaireBrut: number,salaireHoraireMajoreNet: number,salaireHoraireMajoreBrut: number,salaireMajore: number,salaireMensuelNet: number) => {
+    let newConfig:ConfigContratData = {...configContrat};
+    newConfig.body.salaireHoraireBrut = salaireHoraireBrut;
+    newConfig.body.salaireHoraireNet = salaireHoraireNet;
+    newConfig.body.salaireHoraireComplementaireNet = salaireHoraireComplementaireNet;
+    newConfig.body.salaireHoraireComplementaireBrut = salaireHoraireComplementaireBrut;
+    newConfig.body.salaireHoraireMajoreNet = salaireHoraireMajoreNet;
+    newConfig.body.salaireHoraireMajoreBrut = salaireHoraireMajoreBrut;
+    newConfig.body.salaireMajore = salaireMajore;
+    newConfig.body.salaireMensuelNet = salaireMensuelNet;
+    
+    setConfigContrat(newConfig)
+  }
+
+  //Step 9
+  const setIndemnites =async (indemnite: IndemniteType) => {
+    let newContrat:ConfigContratData = {...configContrat};
+    newContrat.body.id = generateId()
+    newContrat.body.optionRepasQuotidien = indemnite.optionRepasQuotidien;
+    newContrat.body.dateCreation = (new Date()).toISOString();
+    setConfigContrat(newContrat)
+    //Save contrat
+    const contratId = await saveContratInDatabase(newContrat);
+
+    let newIndemniteEntity = new IndemniteEntity()
+    newIndemniteEntity.uuid = generateId();
+    newIndemniteEntity.contrat=contratId
+    newIndemniteEntity.entretien=indemnite.entretien
+    newIndemniteEntity.repas = indemnite.repas
+    newIndemniteEntity.kilometrique = indemnite.kilometrique
+    
+    //Save indemnite
+    const indemniteId = await createIndemniteForContrat(newIndemniteEntity);
+    navigation.navigate("Home");
+    
+    //Async storage
+    await saveConfiguredContrat(contratId);
   }
   
   const renderCurrentStep = () => {
     switch (step) {
+      case 0: return <RenderStep0 setStep={setStep} setSelectedssmat={setSelectedAssMat}/>;
       case 1: return <RenderStep1 setStep={setStep} setSelectedEnfant={setSelectedChild}/>;
       case 2: return <RenderStep2 setStep={setStep} setDateDebut={setDateDebut} />;
       case 3: return <RenderStep3 setStep={setStep} setSemmaindeDeGarde={setSemmaindeDeGarde} />;
@@ -95,31 +176,27 @@ const ContractConfigurationComponent = ({ navigation }:{navigation:NavigationPro
       case 5: return <RenderStep5 setStep={setStep}  setEnfantAChargeSalariee={setEnfantAChargeSalariee} />;
       case 6: return <RenderStep6 setStep={setStep}  setPlanning={setPlanning} />;
       case 7: return <RenderStep7 setStep={setStep}  setCodePostateAndJourFerie={setCodePostateAndJourFerie} />;
+      case 8: return <RenderStep8 setStep={setStep}  setSalaires={setSalaires} />;
+      case 9: return <RenderStep9 setStep={setStep}  setIndemnites={setIndemnites} />;
       default: return null;
     }
   };
 
   return (
-    <ConfigContratContext.Provider value={{ configContrat, setConfigContrat }}>
-      <View style={styles.container}>
-        <View style={{...styles.appBar,display:(step==1)?'none':'flex'}}>
-          <TouchableOpacity onPress={()=>(setStep(()=>(step-1)))}>
-            <Text style={{color:'#007AFF'}}> {'< Retour'} </Text>
-          </TouchableOpacity>
+    <indemniteEntityContext.Provider value={{indemniteEntity,setIndemniteEntity}}>
+      <ConfigContratContext.Provider value={{ configContrat, setConfigContrat }}>
+        <View style={styles.container}>
+          <View style={{...styles.appBar,display:(step==0)?'none':'flex'}}>
+            <TouchableOpacity onPress={()=>(setStep(()=>(step-1)))}>
+              <Text style={{color:'#007AFF'}}> {'< Retour'} </Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={styles.content}>
+            {renderCurrentStep()}
+          </ScrollView>
         </View>
-        <ScrollView contentContainerStyle={styles.content}>
-          {renderCurrentStep()}
-        </ScrollView>
-        <TouchableOpacity 
-          style={{...styles.button,display:([1,2,3,4,5,6,7].includes(step)?'none':'flex')}} 
-          onPress={() => {
-            console.log(configContrat);
-          }}
-        >
-          <Text style={styles.buttonText}>Continuer</Text>
-        </TouchableOpacity>
-      </View>
-    </ConfigContratContext.Provider>
+      </ConfigContratContext.Provider>
+    </indemniteEntityContext.Provider>
     
   );
 };

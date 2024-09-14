@@ -1,27 +1,32 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
-import { Enfant } from "../classes";
-import { ConfigContratContext } from "../ConfigurerContratPage";
-import { getEnfantByPajeIdParent } from "../../../../utils/user";
+import { Assmat } from "../classes";
+import { getAssociatedAssmatByPajeIdParent, logout } from "../../../../utils/user";
+import { connectedUserContext } from "../../../../../App";
+import User from "../../../../models/user";
 
-const RenderStep1 = ({setStep, setSelectedEnfant}:{setStep:any, setSelectedEnfant:any}) => {
-    const [Enfantren, setEnfantren] = useState<Enfant[]>([]);
+const RenderStep0 = ({setStep, setSelectedssmat}:{setStep:any, setSelectedssmat:any}) => {
+    const [Assmatren, setAssmatren] = useState<Assmat[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const configContrat = useContext(ConfigContratContext)
+    const {connectedUser,setConnectedUser} : {connectedUser:User,setConnectedUser:any} | any = useContext(connectedUserContext)
 
-    const fetchEnfants = async () => {
+    const fetchAssmats = async () => {
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 100));
-        if (configContrat?.configContrat.body.numeroPajeEmployeur) {
-            const val: Enfant[] = await getEnfantByPajeIdParent(configContrat?.configContrat.body.numeroPajeEmployeur)
-            setEnfantren(val);
-            setIsLoading(false);   
+        if (connectedUser.pajeId) {
+            const val: Assmat[] = await getAssociatedAssmatByPajeIdParent(connectedUser.pajeId)
+            setAssmatren(val);
+            setIsLoading(false);    
         }
     };
 
     useEffect(() => {
-        fetchEnfants();
+        fetchAssmats();
     }, []);
+
+    const handleChildSelection = (child: Assmat) => {
+        setSelectedssmat(child);
+        setStep(1);
+    };
         
     if (isLoading) {
         return (
@@ -32,29 +37,24 @@ const RenderStep1 = ({setStep, setSelectedEnfant}:{setStep:any, setSelectedEnfan
         );
     }
 
-    const handleChildSelection = (child: Enfant) => {
-        setSelectedEnfant(child);
-        setStep(2);
-    };
-
     return (
         <View style={styles.main}>
-            <Text style={styles.title}>Choix de l'enfant</Text>
-            <Text style={styles.subtitle}>Pour quel enfant gardé par <Text style={{fontWeight:'bold'}}> {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} </Text> souhaitez-vous configurer un contrat ?</Text>
+            <Text style={styles.title}>Choix de l'assistante maternelle</Text>
+            <Text style={styles.subtitle}>Pour quelle assistante maternelle, ratachée a votre compte voulez-vous configurer un contrat</Text>
             <ScrollView style={styles.listContainer}>
-                {Enfantren.map((enfant, index) => (
+                {Assmatren.map((assmat, index) => (
                     <TouchableOpacity 
-                        style={styles.EnfantItem} 
+                        style={styles.AssmatItem} 
                         key={index} 
-                        onPress={() => {handleChildSelection(enfant)}}
+                        onPress={() => {handleChildSelection(assmat)}}
                     >
-                        <Text style={styles.EnfantName}>{enfant.nom+' '+enfant.prenom}</Text>
-                        <Text style={styles.EnfantDob}>{enfant.dateNaissance}</Text>
+                        <Text style={styles.AssmatName}>{assmat.nom+' '+assmat.prenom}</Text>
+                        <Text style={styles.AssmatDob}>{assmat.pajeId}</Text>
                     </TouchableOpacity>
                 ))}
             </ScrollView>
             <Text style={styles.helpText}>
-                Vous ne trouvez pas votre enfant dans la liste ? Contactez l'admin qu'il procède à son enregistrement.
+                Vous ne trouvez pas votre assistante maternelle dans la liste ? Contactez l'admin qu'il procède à son enregistrement.
             </Text>
         </View>
     );
@@ -84,19 +84,19 @@ const styles = StyleSheet.create({
         textAlign: "center",
         paddingHorizontal: 20,
     },
-    EnfantItem: {
+    AssmatItem: {
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
         width: "90%",
         alignSelf: "center"
     },
-    EnfantName: {
+    AssmatName: {
         fontSize: 18,
         fontWeight: 'bold',
         color: "black"
     },
-    EnfantDob: {
+    AssmatDob: {
         fontSize: 14,
         color: '#666',
     },
@@ -114,4 +114,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default RenderStep1;
+export default RenderStep0;

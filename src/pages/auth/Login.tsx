@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, Modal, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationProp } from '@react-navigation/native';
+import { getUserByPajeId, loginUser, saveLoginToken } from '../../utils/user';
+import { isContratConfiguree } from '../../utils/contrat';
+import { connectedUserContext } from '../../../App';
+import User from '../../models/user';
 
 const LoginPage = ({ navigation }:{ navigation:NavigationProp<any> }) => {
   const [pajemploiId, setPajemploiId] = useState('');
@@ -9,37 +12,43 @@ const LoginPage = ({ navigation }:{ navigation:NavigationProp<any> }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [salaries, setSalaries] = useState<string[]>();
+  const {connectedUser,setConnectedUser} = useContext(connectedUserContext)
 
-  // Simuler la récupération des données avec un délai
-  const fetchSalaries:() => Promise<string[]> = async () => {
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simule un délai d'une seconde
-    setIsLoading(false);
-    return ['VALERIE VIDAL', 'ANTOINE NOBILE'];
-  };
 
-  // Affiche le menu de sélection des salariés
-  const showSalarieSelectionMenu = async () => {
-    const fetchedSalaries = await fetchSalaries();
-    setSalaries(fetchedSalaries);
-    setModalVisible(true); // Affiche le modal
-  };
-
-  const handleSalarieSelection = (salarie:any) => {
-    console.log(`Salarié sélectionné : ${salarie}`);
-    setModalVisible(false); // Cache le modal après la sélection
-
-    navigation.navigate('ElementsAMunirPage')
-  };
-
-  const validateAndSubmit = () => {
+  const validateAndSubmit = async () => {
     if (!pajemploiId || !password) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
     } else {
       console.log('Identifiant Pajemploi:', pajemploiId);
       console.log('Mot de passe:', password);
 
-      showSalarieSelectionMenu();
+      setIsLoading(true)
+      try {
+        var result = await loginUser({pajeId:pajemploiId, password:password});
+        if ( !!result && (result.status==200) && !!result.data.accessToken) {
+          const accessToken = result.data.accessToken
+          //Save token
+          const isTokenSaved = await saveLoginToken(accessToken,pajemploiId)
+          if (isTokenSaved) {
+            let loggedUser:User=new User();
+              const response = await getUserByPajeId(pajemploiId)
+              loggedUser=response.data
+              setConnectedUser(loggedUser)
+    
+            //Verififier la configuration d'un contrat
+            const isContratConfigured = await isContratConfiguree()
+            if (isContratConfigured) navigation.navigate('Home')
+            else navigation.navigate("ElementsAMunirPage")
+          }else throw new Error()
+        }else{
+          throw new Error()
+        }
+      } catch (error) {
+        Alert.alert('Erreur', 'Impossible de se connecter');
+        setIsLoading(false)
+      }
+      
+
     }
   };
 
@@ -84,40 +93,6 @@ const LoginPage = ({ navigation }:{ navigation:NavigationProp<any> }) => {
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Modal personnalisé pour la sélection des salariés */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(false);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Sélectionnez le salarié a rattacher au contrat </Text>
-            <FlatList
-              data={salaries}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.salarieItem}
-                  onPress={() => handleSalarieSelection(item)}
-                >
-                  <Text style={styles.salarieText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity
-              style={[styles.salarieItem, { backgroundColor: '#ccc',marginTop:10,borderRadius:3 }]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.salarieText}>Annuler</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };

@@ -13,7 +13,6 @@ const RenderStep2: React.FC<RenderStep2Props> = ({ setStep, setDateDebut }) => {
     const conf = useContext(ConfigContratContext)
 
     const onPressDay = (day: DateData) => {
-        console.log(day);
         setSelectedDay(day);
         setDateDebut(day.dateString)
     };

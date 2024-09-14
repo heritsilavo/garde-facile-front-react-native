@@ -116,6 +116,7 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
       <IconButton
         style={styles.helpButton}
         icon="calculator-variant"
+        iconColor="white"
         size={24}
         onPress={() => setShowHelpModal(true)}
       />
@@ -126,9 +127,9 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
             <Text style={styles.helpModalTitle}>Calculs</Text>
             <Text style={styles.helpModalText}>
               Soit <Text style={{fontWeight:'bold'}}>{nbHeuresNormalesHebdo}</Text> heures par semmaine, <Text style={{fontWeight:'bold'}}>{nbHeuresNormalesMensu}</Text> heures par mois et <Text style={{fontWeight:'bold'}}>{nbJoursMensu}</Text> jours par mois.
-              (<Text style={{fontWeight:'bold'}}>{"nbHeuresMajoreesHebdo="+nbHeuresMajoreesHebdo}</Text>, )
-              (<Text style={{fontWeight:'bold'}}>{"nbHeuresMajoreesMensu="+nbHeuresMajoreesMensu}</Text>, )
-              (<Text style={{fontWeight:'bold'}}>{"nbHeuresSpecifiquesHebdo="+nbHeuresSpecifiquesHebdo}</Text> )
+              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures majorees Hebdo="+nbHeuresMajoreesHebdo}</Text>, )
+              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures majorees Mensu="+nbHeuresMajoreesMensu}</Text>, )
+              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures specifiques Hebdo="+nbHeuresSpecifiquesHebdo}</Text> )
             </Text>
             <TouchableOpacity style={styles.helpModalCloseButton} onPress={() => setShowHelpModal(false)}>
               <Text style={styles.helpModalCloseButtonText}>Fermer</Text>

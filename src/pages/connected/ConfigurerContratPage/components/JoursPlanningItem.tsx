@@ -10,36 +10,21 @@ export interface JoursPlanningItemPropsType{
     planning: Planning
 }
 
-const hourToInt = function (hour:string):number {
-    // Set the constant date (September 9, 2024)
-    const constantDate = new Date('2024-09-09T00:00:00Z');
-    
-    // Split the hour string into hours and minutes
+const hourToInt = (hour: string): number => {
     const [hours, minutes] = hour.split(':').map(Number);
-    
-    // Create a new date object with the constant date and the parsed time
-    const dateTime = new Date(constantDate.getFullYear(), constantDate.getMonth(), constantDate.getDate(), hours, minutes);
-    
-    // Return the Unix timestamp 
-    
-    return dateTime.getTime();
+    return hours * 60 + minutes;
 }
 
-const intToHour = function (timestamp: number): string {
+const intToHour = (totalMinutes: number): string => {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
     
-    const dateTime = new Date(timestamp);
-    
-    // Extract hours and minutes from the date
-    const hours = dateTime.getHours();
-    const minutes = dateTime.getMinutes();
-    
-    // Format hours and minutes to ensure two digits
     const formattedHours = hours.toString().padStart(2, '0');
     const formattedMinutes = minutes.toString().padStart(2, '0');
     
-    // Return the formatted time as 'HH:mm'
     return `${formattedHours}:${formattedMinutes}`;
-};
+}
+
 
 const JoursPlanningItem = ({ jour,weekPlanning,setWeekPlanning }:{jour:JoursPlanningItemPropsType,weekPlanning:Planning[],setWeekPlanning:any}) => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -51,21 +36,29 @@ const JoursPlanningItem = ({ jour,weekPlanning,setWeekPlanning }:{jour:JoursPlan
     const [tranche2Debut,setTranche2Debut] = useState<string>()
     const [tranche2Fin,setTranche2Fin] = useState<string>()
 
-    //Tranche1
-    const [tranche1,setTranche1]=useState<TrancheHoraire>();
-    useEffect(function() {
-        let tmp:TrancheHoraire = {heureDebut:hourToInt(tranche1Debut || ''),heureFin:hourToInt(tranche1Fin || '')}
-        setTranche1(tmp);
-    },[tranche1Debut,tranche1Fin])
+    // Tranche1
+    const [tranche1, setTranche1] = useState<TrancheHoraire>();
+    useEffect(() => {
+        if (tranche1Debut && tranche1Fin) {
+            const tmp: TrancheHoraire = {
+                heureDebut: hourToInt(tranche1Debut),
+                heureFin: hourToInt(tranche1Fin)
+            };
+            setTranche1(tmp);
+        }
+    }, [tranche1Debut, tranche1Fin]);
 
-    //Tranche2
-    const [tranche2,setTranche2]=useState<TrancheHoraire>();
-    useEffect(function() {
-        let tmp:TrancheHoraire = {heureDebut:hourToInt(tranche2Debut || ''),heureFin:hourToInt(tranche2Fin || '')}
-        setTranche2(tmp);
-
-        
-    },[tranche2Debut,tranche2Fin])
+    // Tranche2
+    const [tranche2, setTranche2] = useState<TrancheHoraire>();
+    useEffect(() => {
+        if (tranche2Debut && tranche2Fin) {
+            const tmp: TrancheHoraire = {
+                heureDebut: hourToInt(tranche2Debut),
+                heureFin: hourToInt(tranche2Fin)
+            };
+            setTranche2(tmp);
+        }
+    }, [tranche2Debut, tranche2Fin]);
 
     //Planning
     const [planningDuJour,setPlanningDuJour] = useState<Planning>();

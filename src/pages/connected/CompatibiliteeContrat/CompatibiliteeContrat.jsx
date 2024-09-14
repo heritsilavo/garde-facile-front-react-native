@@ -50,7 +50,7 @@ const CompatibiliteeContrat = ({ navigation }) => {
         <View style={styles.center}>
           <TouchableOpacity 
             style={styles.button} 
-            onPress={() => navigation.navigate("Home")}
+            onPress={() => navigation.navigate("ConfigurerContrat")}
           >
             <Text style={styles.buttonText}>Mon contrat est compatible</Text>
           </TouchableOpacity>

@@ -36,38 +36,38 @@ export class ConfigContratData {
 
 export class Body {
 id: string;
-numeroPajeEmployeur: string;
-numeroPajeSalarie: string;
+numeroPajeEmployeur: string; // Defini
+numeroPajeSalarie: string; // Defini
+assmat: Assmat; // Defini
+parent: Parent; // Defini
 enfant: Enfant; // Defini
-assmat: Assmat; 
-parent: Parent; 
 modeDeGarde: string; // Defini
 anneeComplete: boolean; // Defini
 nbSemainesTravaillees: number; // Defini
 planning: Planning[]; // Defini
 indexJourRepos: number; // Defini
-indexJoursChomes: number[];
+indexJoursChomes: number[]; // Defini
 nbHeuresNormalesHebdo: number; // Defini
 nbHeuresMajoreesHebdo: number; // Defini
 nbHeuresSpecifiquesHebdo: number; // Defini
 nbHeuresMajoreesMensu: number; // Defini
 nbHeuresNormalesMensu: number; // Defini
 nbJoursMensu: number; // Defini
-salaireHoraireNet: number;
-salaireHoraireBrut: number;
-salaireHoraireComplementaireNet: number;
-salaireHoraireComplementaireBrut: number;
-salaireHoraireMajoreNet: number;
-salaireHoraireMajoreBrut: number;
-salaireMajore: number;
-salaireMensuelNet: number;
+salaireHoraireNet: number; // Defini
+salaireHoraireBrut: number; // Defini
+salaireHoraireComplementaireNet: number; // Defini
+salaireHoraireComplementaireBrut: number; // Defini
+salaireHoraireMajoreNet: number; // Defini
+salaireHoraireMajoreBrut: number; // Defini
+salaireMajore: number; // Defini
+salaireMensuelNet: number; // Defini
 enfantsAChargeSalarie: EnfantsAChargeSalarie; // Defini
-codePostal: string;
-joursFeriesTravailles: string[];
+codePostal: string; // Defini
+joursFeriesTravailles: string[]; // Defini
 remunerationCongesPayes: RemunerationCongesPayes; // Defini
-optionRepasQuotidien: boolean;
 dateDebut: string; // Defini
-dateCreation: string;
+optionRepasQuotidien: boolean; // Defini
+dateCreation: string; // Defini
 
 constructor(data?: any) {
     if (data) {
@@ -271,6 +271,33 @@ export class RemunerationCongesPayes {
         } else {
             this.mode = '';
             this.mois = 0;
+        }
+    }
+}
+
+export class IndemniteType{
+    entretien:number;
+    isKilometrique:boolean;
+    kilometrique:number;
+    isRepas:boolean;
+    repas:number;
+    optionRepasQuotidien:boolean;
+
+    constructor(data?: {optionRepasQuotidien:boolean, entretien:number, isKilometrique:boolean, kilometrique:number, isRepas:boolean, repas:number}) {
+        if (data) {
+            this.entretien = data.entretien
+            this.isKilometrique = data.isKilometrique
+            this.kilometrique = data.kilometrique
+            this.isRepas = data.isRepas
+            this.repas = data.repas
+            this.optionRepasQuotidien = data.optionRepasQuotidien
+        } else {
+            this.entretien = 0
+            this.isKilometrique = false
+            this.kilometrique = 0
+            this.isRepas = false
+            this.repas = 0
+            this.optionRepasQuotidien = false
         }
     }
 }
