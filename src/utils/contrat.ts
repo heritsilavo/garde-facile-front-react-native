@@ -137,3 +137,14 @@ export const getContratById=async function (constratId:string) {
         return response.data
     }else throw new Error("Vous n'etes pas connecté");
 }
+
+/**
+ * Recupere les details
+ * @returns 
+ */
+export const getDetailConfiguredContrat = async function () {
+    const configuredContrat = await getConfiguredContrat()
+    if (configuredContrat) {
+        return await getContratById(configuredContrat);
+    }else return null
+}

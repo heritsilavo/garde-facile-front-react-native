@@ -14,6 +14,11 @@ import { getPajeId, getUserByPajeId, isLogedIn, logout } from './src/utils/user'
 import { isContratConfiguree, removeConfiguredContrat } from './src/utils/contrat';
 import User from './src/models/user';
 import LoadingScreen from './src/components/loading/LoadingScreens';
+import CreerEvenementPage from './src/pages/connected/CreerEvenementPage/CreerEvenementPage';
+import CreerAmplitudeEvenementPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerAmplitudeEvenementPage';
+
+import Toast from 'react-native-toast-message';
+import CreerJourFerieTravaillPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerJourFerieTravaillPage';
 
 const Stack = createStackNavigator();
 
@@ -64,6 +69,8 @@ const App = () => {
 
   useEffect(function() {
     (async function () {
+      //await logout();
+      //await removeConfiguredContrat();
       if (!(await isLogedIn())) { //Non Connectée
         setDefaultRoute("Login")
       }else{ //Connectée
@@ -104,7 +111,14 @@ const App = () => {
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ConfigurerContrat" component={ContractConfigurationComponent} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="Home" component={HomePage} />
+                  <Stack.Screen name="CreerEvenementPage" component={CreerEvenementPage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen name="CreerAmplitudeEvenementPage" component={CreerAmplitudeEvenementPage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen name="CreerJourFerieTravaillPage" component={CreerJourFerieTravaillPage} options={{ cardShadowEnabled: true }}/>
                 </Stack.Navigator>
+                <Toast
+                  position='top'
+                  bottomOffset={20}
+                />
               </View>
           }
         </connectedUserContext.Provider>

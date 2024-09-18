@@ -1,67 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import HelpBox from "../components/HelpBox";
-
-interface ListeJourFerie {
-  [key: string]: {
-    type: string;
-    text: string;
-    date: string | null;
-  };
-}
-
-const ListeJourFerie: ListeJourFerie = {
-  JOUR_AN: {
-    type: 'JOUR_AN',
-    text: "Jour de l'An",
-    date: "1er janvier"
-  },
-  INSURRECTION: {
-    type: 'INSURRECTION',
-    text: "Insurrection de 1947",
-    date: "29 mars"
-  },
-  PAQUES: {
-    type: 'PAQUES',
-    text: "Lundi de Pâques",
-    date: null
-  },
-  FETE_TRAVAIL: {
-    type: 'FETE_TRAVAIL',
-    text: "Fête du Travail",
-    date: "1er mai"
-  },
-  ASCENSION: {
-    type: 'ASCENSION',
-    text: "Fête de l'Ascension",
-    date: null
-  },
-  PENTECOTE: {
-    type: 'PENTECOTE',
-    text: "Lundi de Pentecôte",
-    date: null
-  },
-  FETE_INDEPENDANCE: {
-    type: 'FETE_INDEPENDANCE',
-    text: "Fête de l'Indépendance",
-    date: "26 juin"
-  },
-  ASSOMPTION: {
-    type: 'ASSOMPTION',
-    text: "Assomption",
-    date: "15 août"
-  },
-  TOUSSAINT: {
-    type: 'TOUSSAINT',
-    text: "Toussaint",
-    date: "1er novembre"
-  },
-  NOEL: {
-    type: 'NOEL',
-    text: "Noël",
-    date: "25 décembre"
-  }
-};
+import { ListeJourFerie } from "../../../../utils/ListeJoursFerie";
 
 const ListeCodesPostaux = [
   "75001",

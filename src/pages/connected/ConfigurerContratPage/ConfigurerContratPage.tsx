@@ -160,10 +160,12 @@ const ContractConfigurationComponent = ({ navigation }:{navigation:NavigationPro
     
     //Save indemnite
     const indemniteId = await createIndemniteForContrat(newIndemniteEntity);
-    navigation.navigate("Home");
     
     //Async storage
     await saveConfiguredContrat(contratId);
+    
+    navigation.navigate("Home");
+    
   }
   
   const renderCurrentStep = () => {
