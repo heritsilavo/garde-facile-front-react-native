@@ -7,12 +7,11 @@ import { Body as ContratType } from '../ConfigurerContratPage/classes';
 import { isLogedIn } from '../../../utils/user';
 import { NavigationProp } from '@react-navigation/native';
 import { getConfiguredContrat, getContratById } from '../../../utils/contrat';
-
+import ProfileScreen from './HomeScreens/ProfileScreen';
 const DecalrationRoute = () => <Text>Decalration</Text>;
 
 const CongesRoute = () => <Text>Conges</Text>;
 
-const ProfileRoute = () => <Text>Profile</Text>;
 
 export interface configuredContratContextProps{
   configuredContrat:ContratType;
@@ -24,7 +23,7 @@ export const configuredContratContext=React.createContext<configuredContratConte
 const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: 'Planning', title: 'Favorites', focusedIcon: 'calendar-month-outline', unfocusedIcon: 'calendar-month-outline'},
+    { key: 'Planning', title: 'Planning', focusedIcon: 'calendar-month-outline', unfocusedIcon: 'calendar-month-outline'},
     { key: 'Decalration', title: 'Decalration', focusedIcon: 'file-document' },
     { key: 'Conges', title: 'Congés', focusedIcon: 'palm-tree' },
     { key: 'Profile', title: 'Profile', focusedIcon: 'face-woman-profile', unfocusedIcon: 'face-woman-profile' },
@@ -49,7 +48,7 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
     Planning: PlanningScreen,
     Decalration: DecalrationRoute,
     Conges: CongesRoute,
-    Profile: ProfileRoute,
+    Profile: ProfileScreen,
   });
 
   return (

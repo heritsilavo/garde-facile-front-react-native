@@ -77,6 +77,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
         newEvenement.id = generateGeneralId()
         newEvenement.amplitude.reel = nbJours
         newEvenement.amplitude.decompte = nbJours
+        newEvenement.famille=familleEvenement
 
         setEvent(newEvenement);
       }  
@@ -163,6 +164,8 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
           selectedPeriod={selectedPeriodDebut}
           setSelectedPeriod={setSelectedPeriodDebut}
           month={month}
+          needPeriod={true}
+          text='Date de début'
           >
         </DateSelector>}
 
@@ -174,6 +177,8 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
           selectedPeriod={selectedPeriodFin}
           setSelectedPeriod={setSelectedPeriodFin}
           month={month}
+          needPeriod={true}
+          text='Date de fin'
           >
         </DateSelector>}
       </ScrollView>

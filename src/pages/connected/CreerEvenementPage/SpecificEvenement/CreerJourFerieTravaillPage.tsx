@@ -16,7 +16,7 @@ import { generateGeneralId } from '../../../../utils/generateId';
 import Toast from 'react-native-toast-message';
 import { creerEvenement } from '../../../../utils/evenements/evenement';
 import { AxiosError } from 'axios';
-import { getJourFerieByType, JourFerie, ListeJourFerie } from '../../../../utils/ListeJoursFerie';
+import { getJourFerieByType, getListeJourFerieByMonth, JourFerie, ListeJourFerie } from '../../../../utils/ListeJoursFerie';
 
 type RootStackParamList = {
   CreerJourFerieTravaillPage: {
@@ -33,56 +33,47 @@ const CreerJourFerieTravaillPage = ({ navigation, route, }: { navigation: Naviga
   const [selectedType, setSelectedType] = useState<EventType>();
   const [selectedJourFerie, setSelectedJourFerie] = useState<JourFerie>();
 
-  const [selectedDateDebut, setSelectedDateDebut] = useState<string | null>(null);
-  const [selectedPeriodDebut, setSelectedPeriodDebut] = useState<'Matin' | 'Après-midi' | null>(null);
-
-  const [selectedDateFin, setSelectedDateFin] = useState<string | null>(null);
-  const [selectedPeriodFin, setSelectedPeriodFin] = useState<'Matin' | 'Après-midi' | null>(null);
-
   const [canContinue,setCanContinue] =useState<boolean>(false)
   const [event,setEvent]= useState<Evenement>(new Evenement())
 
 
   useEffect(() => {
    (async function () {
-      var valid = !!selectedDateDebut && !!selectedDateFin && !!selectedPeriodDebut && !!selectedPeriodFin && !!selectedType;
+      var valid = !!selectedJourFerie;
       setCanContinue(valid);
-      console.log(selectedDateDebut);
       
-      if(!!selectedDateDebut && !!selectedDateFin && !!selectedPeriodDebut && !!selectedPeriodFin && selectedType && !!selectedJourFerie){
+      if(selectedType && !!selectedJourFerie){
         
-        var amplitude:Amplitude = new  Amplitude()
-        amplitude.debutAmplitude = selectedDateDebut
-        amplitude.finAmplitude = selectedDateFin
-
+        
         var newEvenement:Evenement = new Evenement()
-        newEvenement.amplitude = amplitude
-        newEvenement.dateDebut = selectedDateDebut
-        newEvenement.dateFin = selectedDateFin
-        newEvenement.debutEvenementMidi = (selectedPeriodDebut == "Après-midi")
-        newEvenement.finEvenementMidi = (selectedPeriodFin == "Matin")
+        newEvenement.typeEvenement = selectedType.texte;
+        newEvenement.libelleExceptionnel = null
+        newEvenement.dateDebut = selectedJourFerie.getDate(month.year)
+        newEvenement.dateFin = selectedJourFerie.getDate(month.year)
         newEvenement.travaille = isTravaille(selectedType)
         newEvenement.remunere = isRemunere(selectedType)
-        newEvenement.debutMidi = (selectedPeriodDebut == "Après-midi")
-        newEvenement.finMidi = (selectedPeriodFin == "Matin")
+        newEvenement.famille = selectedType.famille
+        newEvenement.id = generateGeneralId()
+        var amplitude:Amplitude = new Amplitude({
+          debutAmplitude: selectedJourFerie.getDate(month.year),
+          finAmplitude: selectedJourFerie.getDate(month.year),
+          reel:1.0,
+          decompte:1.0
+        })
+        newEvenement.amplitude = amplitude
+        newEvenement.debutEvenementMidi = false
+        newEvenement.finEvenementMidi = false
         
         const contrat = await getDetailConfiguredContrat()
-        const [nbJours,nbHeures] = calculerDifferenceAvecPlanning(newEvenement.debutEvenementMidi, newEvenement.finEvenementMidi, selectedDateDebut,selectedDateFin,contrat.planning);
-        const {typeRetournée,libelléExceptionnel} = getTypeAndLibele(selectedType)
-
-        newEvenement.nbJours = nbJours
-        newEvenement.nbHeures = nbHeures
-        newEvenement.typeEvenement = typeRetournée
-        newEvenement.libelleExceptionnel = libelléExceptionnel
+        
         newEvenement.contratsId.push(contrat.id);
         newEvenement.dateCreation = new Date().toISOString()
-        newEvenement.id = generateGeneralId()
 
-        newEvenement.nomJourFerie = selectedJourFerie?.type
+        newEvenement.nomJourFerie = selectedJourFerie.type
         setEvent(newEvenement);
       }  
    })();
-  }, [selectedDateDebut,selectedDateFin,selectedPeriodDebut,selectedPeriodFin, selectedType,selectedJourFerie])
+  }, [selectedType,selectedJourFerie])
   
 
   useEffect(() => {
@@ -99,8 +90,8 @@ const CreerJourFerieTravaillPage = ({ navigation, route, }: { navigation: Naviga
     return <LoadingScreen />;
   }
 
-  const pickerItems = Object.values(ListeJourFerie).map((holyday: JourFerie) => ({
-    label: holyday.text,
+  const pickerItems = getListeJourFerieByMonth(month).map((holyday: JourFerie) => ({
+    label: holyday.text + "  " + holyday.getDate(month.year),
     value: holyday.type,
   }));
 
@@ -136,7 +127,7 @@ const CreerJourFerieTravaillPage = ({ navigation, route, }: { navigation: Naviga
       })
       setTimeout(() => {
         Toast.hide();
-      }, 2000);
+      }, 2500);
     }).finally(function () {
       setIsContinueLoading(false)
     })
@@ -156,27 +147,7 @@ const CreerJourFerieTravaillPage = ({ navigation, route, }: { navigation: Naviga
         />
 
 
-        {selectedType && <Text style={styles.text}> Debut de lévénement:  </Text>}
 
-        {selectedType && <DateSelector
-          selectedDate={selectedDateDebut}
-          setSelectedDate={setSelectedDateDebut}
-          selectedPeriod={selectedPeriodDebut}
-          setSelectedPeriod={setSelectedPeriodDebut}
-          month={month}
-          >
-        </DateSelector>}
-
-        {selectedType && <Text style={styles.text}> Fin de lévénement:  </Text>}
-
-        {selectedType && <DateSelector
-          selectedDate={selectedDateFin}
-          setSelectedDate={setSelectedDateFin}
-          selectedPeriod={selectedPeriodFin}
-          setSelectedPeriod={setSelectedPeriodFin}
-          month={month}
-          >
-        </DateSelector>}
       </ScrollView>
       
       <View style={styles.btnsContainer}>
@@ -229,6 +200,13 @@ const styles = StyleSheet.create({
     color:'black',
     width:'100%',
     marginTop:15
+  },
+  description:{
+    color:'black',
+    width:'100%',
+    marginTop:15,
+    fontSize:14,
+
   },
   container: {
     flex: 1,

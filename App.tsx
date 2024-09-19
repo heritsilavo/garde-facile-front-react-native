@@ -19,6 +19,8 @@ import CreerAmplitudeEvenementPage from './src/pages/connected/CreerEvenementPag
 
 import Toast from 'react-native-toast-message';
 import CreerJourFerieTravaillPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerJourFerieTravaillPage';
+import CreateIndemniteePage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreateIndemniteePage';
+import ContratProfile from './src/pages/connected/ContratProfile/ContratProfile';
 
 const Stack = createStackNavigator();
 
@@ -91,11 +93,6 @@ const App = () => {
     })();
   },[])
 
-  useEffect(function () {
-    console.log(connectedUser);
-    
-  },[connectedUser])
-
   return (
     <PaperProvider theme={lightTheme}>
       <NavigationContainer>
@@ -114,6 +111,8 @@ const App = () => {
                   <Stack.Screen name="CreerEvenementPage" component={CreerEvenementPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen name="CreerAmplitudeEvenementPage" component={CreerAmplitudeEvenementPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen name="CreerJourFerieTravaillPage" component={CreerJourFerieTravaillPage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen name="CreateIndemniteePage" component={CreateIndemniteePage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ContratProfile" component={ContratProfile} />
                 </Stack.Navigator>
                 <Toast
                   position='top'

@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView,Image } from 'reac
 import Icon from 'react-native-vector-icons/Entypo'
 import { FamilleEvenement, getFamilleExentText } from '../../../utils/evenements/famille-evenement';
 import HelpBox from '../ConfigurerContratPage/components/HelpBox';
+import { getListeJourFerieByMonth } from '../../../utils/ListeJoursFerie';
 
 export interface SelectedMonth {
   year: number;
@@ -40,7 +41,10 @@ const CreerEvenementPage = ({ navigation,route } : {navigation: NavigationProp<a
             familleEvenement:value
           });
         }else if(value == FamilleEvenement.INDEMNITE){
-
+          navigation.navigate("CreateIndemniteePage", {
+            month,
+            familleEvenement:value
+          });
         }else if (value == FamilleEvenement.HEURE_JOUR_COMPLEMENTAIRE){
 
         }else if (value == FamilleEvenement.PERIODE_ADAPTATION){
@@ -61,15 +65,17 @@ const CreerEvenementPage = ({ navigation,route } : {navigation: NavigationProp<a
         <Text style={styles.title}> Ajouter un événement éxceptionnel </Text>
         
         {
-            Object.entries(FamilleEvenement).map(([key,value],index) => (
-                <TouchableOpacity 
-                        style={styles.ListItem} 
-                        key={index} 
-                        onPress={() => {handleSelection(value)}}
-                    >
-                        <Text style={styles.ListItemText}>{getFamilleExentText(key)}</Text>
-                    </TouchableOpacity>
-            ))
+            Object.entries(FamilleEvenement).map(([key,value],index) => {
+              if (((key != "JOUR_FERIE") || ((key === "JOUR_FERIE") && (getListeJourFerieByMonth(month).length > 0))) && (key != "SEMAINE_NON_TRAVAILLEE")) {
+                return <TouchableOpacity 
+                    style={styles.ListItem} 
+                    key={index} 
+                    onPress={() => {handleSelection(value)}}
+                 >
+                    <Text style={styles.ListItemText}>{getFamilleExentText(key)}</Text>
+                </TouchableOpacity>
+              } else return null
+            })
         }
 
         <HelpBox style={{width:"90%", marginTop:20}} text="selectionner le type d'événement"></HelpBox>

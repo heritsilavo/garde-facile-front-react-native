@@ -5,6 +5,8 @@ import { getLoginToken, isLogedIn } from "../user";
 
 
 export const creerEvenement=async function (event:Evenement) {
+    console.log(event);
+    
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()

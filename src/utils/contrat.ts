@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IndemniteEntity } from "../models/indemnites";
 import { ConfigContratData } from "../pages/connected/ConfigurerContratPage/classes";
 import { SPRING_BOOT_URL } from "../constants/api";
-import { getLoginToken, isLogedIn } from "./user";
+import { getLoginToken, getUserByPajeId, isLogedIn } from "./user";
 import axios from "axios";
 
 export function generateId(): string {
@@ -145,6 +145,11 @@ export const getContratById=async function (constratId:string) {
 export const getDetailConfiguredContrat = async function () {
     const configuredContrat = await getConfiguredContrat()
     if (configuredContrat) {
-        return await getContratById(configuredContrat);
+        var contrat = await getContratById(configuredContrat);
+        var assmat = await getUserByPajeId(contrat.numeroPajeSalarie)
+        var parent = await getUserByPajeId(contrat.numeroPajeEmployeur)
+        contrat.assmat = assmat.data
+        contrat.parent = parent.data
+        return contrat
     }else return null
 }

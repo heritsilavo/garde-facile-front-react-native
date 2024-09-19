@@ -9,9 +9,11 @@ import { getDebutFinMois } from '../../../../../utils/date';
 interface DateSelectorProps {
   selectedDate: string | null;
   setSelectedDate: (date: string | null) => void;
-  selectedPeriod: 'Matin' | 'Après-midi' | null;
-  setSelectedPeriod: (period: 'Matin' | 'Après-midi' | null) => void;
-  month:SelectedMonth
+  selectedPeriod?: 'Matin' | 'Après-midi' | null;
+  setSelectedPeriod?: (period: 'Matin' | 'Après-midi' | null) => void;
+  month:SelectedMonth,
+  needPeriod?:boolean,
+  text:string
 }
 
 const DateSelector: React.FC<DateSelectorProps> = ({
@@ -19,7 +21,9 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   setSelectedDate,
   selectedPeriod,
   setSelectedPeriod,
-  month
+  month,
+  needPeriod,
+  text
 }) => {
     const [visible, setVisible] = useState(false);
 
@@ -37,7 +41,9 @@ const DateSelector: React.FC<DateSelectorProps> = ({
     };
 
     const handlePeriodSelect = (period: 'Matin' | 'Après-midi') => {
-        setSelectedPeriod(period);
+        if (!!setSelectedPeriod) {
+            setSelectedPeriod(period);
+        }
     };
 
     return (
@@ -49,12 +55,12 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                 >
                     <Icon name="calendar-day" size={18} color="#FFF" style={styles.addEventButtonIcon} />
                     <Text style={styles.addEventButtonText}>
-                        {selectedDate ? `Date de début: ${selectedDate}` : "Date de début"}
+                        {selectedDate ? `${text}: ${selectedDate}` : text}
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {selectedDate && 
+            {(selectedDate && needPeriod) && 
                 <View style={styles.selectDebutFin}>
                     <TouchableOpacity 
                         onPress={() => handlePeriodSelect('Matin')} 
