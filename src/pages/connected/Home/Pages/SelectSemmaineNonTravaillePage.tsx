@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Modal, Portal, Button, Checkbox } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Semaine } from '../../../../utils/date';
@@ -7,29 +7,39 @@ import { Semaine } from '../../../../utils/date';
 interface SelectSemmaineNonTravailleModalProps {
   visible: boolean;
   onDismiss: () => void;
-  onConfirm: (selectedWeeks: Semaine[]) => void;
+  onConfirm: (selectedWeeks: Semaine[]) => Promise<void>;
   semaines: Semaine[];
 }
 
 const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalProps> = ({visible,onDismiss,onConfirm,semaines}) => {
   const [selectedWeeks, setSelectedWeeks] = useState<Semaine[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleWeek = (week: Semaine) => {
     setSelectedWeeks((prevSelectedWeeks: Semaine[]) => {
-      const index = prevSelectedWeeks.findIndex(s => s.numeroSemmaine === week.numeroSemmaine);
+      const index = prevSelectedWeeks.findIndex(s => s.numeroSemaine === week.numeroSemaine);
       if (index !== -1) {
-        // La semaine est déjà sélectionnée, donc on la retire
-        return prevSelectedWeeks.filter(s => s.numeroSemmaine !== week.numeroSemmaine);
+        return prevSelectedWeeks.filter(s => s.numeroSemaine !== week.numeroSemaine);
       } else {
-        // La semaine n'est pas sélectionnée, donc on l'ajoute
+        if (prevSelectedWeeks.length == 2) {
+          var tmp = [...prevSelectedWeeks]
+          tmp.splice(0,1);
+          return [...tmp,week] 
+        }
         return [...prevSelectedWeeks, week];
       }
     });
   };
 
-  const handleConfirm = () => {
-    onConfirm(selectedWeeks);
-    onDismiss();
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await onConfirm(selectedWeeks);
+    } finally {
+      setIsLoading(false);
+      setSelectedWeeks([])
+      onDismiss();
+    }
   };
 
   return (
@@ -47,6 +57,7 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
               status={selectedWeeks.length === 0 ? 'checked' : 'unchecked'}
               onPress={() => setSelectedWeeks([])}
               style={styles.checkboxItem}
+              disabled={isLoading}
             />
 
             {semaines.map((semaine, index) => (
@@ -56,6 +67,7 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
                 status={selectedWeeks.map(w => w.label).includes(semaine.label) ? 'checked' : 'unchecked'}
                 onPress={() => toggleWeek(semaine)}
                 style={styles.checkboxItem}
+                disabled={isLoading}
               />
             ))}
           </ScrollView>
@@ -65,11 +77,25 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
           </Text>
 
           <View style={styles.buttonContainer}>
-            <Button mode="outlined" onPress={onDismiss} style={styles.button}>
+            <Button 
+              mode="outlined" 
+              onPress={onDismiss} 
+              style={styles.button}
+              disabled={isLoading}
+            >
               Annuler
             </Button>
-            <Button mode="contained" onPress={handleConfirm} style={styles.button}>
-              Confirmer
+            <Button 
+              mode="contained" 
+              onPress={handleConfirm} 
+              style={styles.button}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#ffffff" size="small" />
+              ) : (
+                'Confirmer'
+              )}
             </Button>
           </View>
         </SafeAreaView>

@@ -1,53 +1,82 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, Modal, FlatList } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { getUserByPajeId, loginUser, saveLoginToken } from '../../utils/user';
-import { isContratConfiguree } from '../../utils/contrat';
+import { getContratByPajeIdUser, isContratConfiguree } from '../../utils/contrat';
 import { connectedUserContext } from '../../../App';
 import User from '../../models/user';
+import Toast from 'react-native-toast-message';
 
-const LoginPage = ({ navigation }:{ navigation:NavigationProp<any> }) => {
+const LoginPage = ({ navigation }: { navigation: NavigationProp<any> }) => {
   const [pajemploiId, setPajemploiId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [salaries, setSalaries] = useState<string[]>();
-  const {connectedUser,setConnectedUser} = useContext(connectedUserContext)
+  const { connectedUser, setConnectedUser } = useContext(connectedUserContext)
 
+  useEffect(function () {
+    setIsLoading(false);
+  },[])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsLoading(false);
+      setPajemploiId("")
+      setPassword("")
+    }, [])
+  );
 
   const validateAndSubmit = async () => {
     if (!pajemploiId || !password) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      Toast.show({
+        type: 'error',
+        text1: "Impossible de se connecter",
+        autoHide: true
+      })
     } else {
       console.log('Identifiant Pajemploi:', pajemploiId);
       console.log('Mot de passe:', password);
 
       setIsLoading(true)
       try {
-        var result = await loginUser({pajeId:pajemploiId, password:password});
-        if ( !!result && (result.status==200) && !!result.data.accessToken) {
+        var result = await loginUser({ pajeId: pajemploiId, password: password });
+        if (!!result && (result.status == 200) && !!result.data.accessToken) {
           const accessToken = result.data.accessToken
           //Save token
-          const isTokenSaved = await saveLoginToken(accessToken,pajemploiId)
+          const isTokenSaved = await saveLoginToken(accessToken, pajemploiId)
           if (isTokenSaved) {
-            let loggedUser:User=new User();
-              const response = await getUserByPajeId(pajemploiId)
-              loggedUser=response.data
-              setConnectedUser(loggedUser)
-    
+            let loggedUser: User = new User();
+            const response = await getUserByPajeId(pajemploiId)
+            loggedUser = response.data
+            setConnectedUser(loggedUser)
+
             //Verififier la configuration d'un contrat
             const isContratConfigured = await isContratConfiguree()
-            if (isContratConfigured) navigation.navigate('Home')
-            else navigation.navigate("ElementsAMunirPage")
-          }else throw new Error()
-        }else{
+
+            if (loggedUser.profile === "PAJE_EMPLOYEUR") {
+              if (isContratConfigured) navigation.navigate('Home')
+              else navigation.navigate("ElementsAMunirPage")
+            } else {
+              const contrats: any[] = await getContratByPajeIdUser(loggedUser.pajeId);
+              if (!contrats.length) navigation.navigate("NoContractScreen");
+              else navigation.navigate("SelectParentpage");
+            }
+          } else throw new Error()
+        } else {
           throw new Error()
         }
+        setIsLoading(true)
       } catch (error) {
-        Alert.alert('Erreur', 'Impossible de se connecter');
+        Toast.show({
+          type:'error',
+          text1:'Impossible de se connecter',
+          visibilityTime:3000,
+          autoHide:true
+        })
         setIsLoading(false)
       }
-      
+
 
     }
   };
@@ -162,7 +191,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 20,
     alignItems: 'center',
-    maxHeight:"90%"
+    maxHeight: "90%"
   },
   modalTitle: {
     fontSize: 20,

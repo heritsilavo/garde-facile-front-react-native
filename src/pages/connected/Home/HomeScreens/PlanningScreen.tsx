@@ -1,14 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Button } from 'react-native-paper';
-import PlanningMonthSelector from '../../../../components/loading/PlanningMonthSelector';
+import { Button, Card } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
+import PlanningMonthSelector from '../../../../components/PlanningMonthSelector';
 import { configuredContratContext, configuredContratContextProps } from '../Home';
-import { obtenirSemaines, Semaine } from '../../../../utils/date';
+import { calculerDifferenceAvecPlanning, obtenirSemaines, Semaine } from '../../../../utils/date';
 import SelectSemmaineNonTravailleModal from '../Pages/SelectSemmaineNonTravaillePage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NavigationContext, useNavigation } from '@react-navigation/native';
-import { Evenement } from '../../../../models/evenements';
-
+import { Amplitude, Evenement } from '../../../../models/evenements';
+import EventsList from '../../../../components/EventsList';
+import { creerEvenement, getEvenementsByContratAndPeriode } from '../../../../utils/evenements/evenement';
+import { getConfiguredContrat, getDetailConfiguredContrat } from '../../../../utils/contrat';
+import { getTypeAndLibele, getTypeEventByText, isRemunere, isTravaille, TypeEvenement } from '../../../../utils/evenements/enum-type-evenement';
+import { generateGeneralId } from '../../../../utils/generateId';
+import Toast from 'react-native-toast-message';
+import ModalDeleteEvent from '../../../../components/ModalDeleteEvent';
+import ModalDetailEvent from '../../../../components/ModalDetailEvent';
+import { Body as ContratEntity } from '../../ConfigurerContratPage/classes';
+import { getJourFerieByLabel, getJourFerieByText } from '../../../../utils/ListeJoursFerie';
 interface SelectedMonth {
   year: number;
   monthIndex: number;
@@ -19,26 +29,200 @@ const PlanningScreen = () => {
   const { configuredContrat } = useContext<configuredContratContextProps>(configuredContratContext);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const navigation = useContext(NavigationContext)
+  const [loadEvents, setLoadEvents] = useState<boolean>(true);
+  const [events, setEvents] = useState<Evenement[]>([]);
+
+  const navigation = useContext(NavigationContext);
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false)
+  const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false)
+  const [selectedEvent, setSelectedEvent] = useState<Evenement>(new Evenement())
+
+  const fetchEvents = useCallback(async () => {
+    setLoadEvents(true);
+    const contratId = await getConfiguredContrat();
+    if (!!contratId) {
+      var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex + 1, selectedMonth.year);
+      var eventListType = listeEvenement.map(e => e.typeEvenement)
+
+      const contrat: ContratEntity = await getDetailConfiguredContrat()
+
+      var indexes: number[] = []
+      
+      eventListType.forEach((type, index) => {
+        if (type === TypeEvenement.JOUR_FERIE.texte) {
+          if (contrat.joursFeriesTravailles.includes(getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type || "%%%")) {
+            console.log("contrat.joursFeriesTravailles: ", contrat.joursFeriesTravailles, getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type);
+          } else indexes.push(index)
+        }
+      });
+
+      indexes.forEach(index => {
+        listeEvenement.splice(index,1);
+      });
+
+      setEvents(listeEvenement);
+      setLoadEvents(false);
+    }
+  }, [selectedMonth]);
 
   useEffect(() => {
     const now = new Date();
     setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() });
   }, []);
 
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [fetchEvents])
+  );
+
   const onclickAddSemmaineNonTravaille = () => {
     setModalVisible(true);
   };
 
-  const handleConfirmSelection = (selectedWeeks: Semaine[]) => {
-    const newEvenement:Evenement = new Evenement();
-    // Diniho tsara
+  const handleConfirmSelection = async (selectedWeeks: Semaine[]) => {
+    const createEventPromises = selectedWeeks.map(async (week) => {
+      try {
+        const newEvenement: Evenement = new Evenement();
+        const amplitude: Amplitude = new Amplitude();
+        amplitude.debutAmplitude = week.dateDebut.toISOString().split('T')[0];
+        amplitude.finAmplitude = week.dateFin.toISOString().split('T')[0];
+        newEvenement.amplitude = amplitude;
+        newEvenement.dateDebut = amplitude.debutAmplitude;
+        newEvenement.dateFin = amplitude.finAmplitude;
+        newEvenement.debutEvenementMidi = false;
+        newEvenement.finEvenementMidi = false;
+        newEvenement.travaille = isTravaille(TypeEvenement.SEMAINE_NON_TRAVAILLEE);
+        newEvenement.remunere = isRemunere(TypeEvenement.SEMAINE_NON_TRAVAILLEE);
+        newEvenement.debutMidi = false;
+        newEvenement.finMidi = false;
+
+        const contrat = await getDetailConfiguredContrat();
+        const [nbJours, nbHeures] = calculerDifferenceAvecPlanning(
+          newEvenement.debutEvenementMidi,
+          newEvenement.finEvenementMidi,
+          newEvenement.dateDebut,
+          newEvenement.dateFin,
+          contrat.planning
+        );
+
+        newEvenement.nbJours = nbJours;
+        newEvenement.nbHeures = nbHeures;
+        newEvenement.typeEvenement = TypeEvenement.SEMAINE_NON_TRAVAILLEE.texte;
+        newEvenement.libelleExceptionnel = null;
+        newEvenement.contratsId.push(contrat.id);
+        newEvenement.dateCreation = new Date().toISOString();
+        newEvenement.id = generateGeneralId();
+        newEvenement.amplitude.reel = nbJours;
+        newEvenement.amplitude.decompte = nbJours;
+        newEvenement.famille = TypeEvenement.SEMAINE_NON_TRAVAILLEE.famille;
+
+        return await creerEvenement(newEvenement);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    });
+
+    try {
+      const results = await Promise.allSettled(createEventPromises);
+      let successCount = 0;
+      let errorCount = 0;
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          successCount++;
+          console.log("Événement ajouté avec succès:", result.value.data);
+        } else {
+          errorCount++;
+          const error = result.reason;
+          const message = error?.response?.data?.message || error?.message || error.toString();
+          const description = error?.response?.data?.description || "";
+        }
+      });
+
+      if (successCount > 0) {
+        Toast.show({
+          type: "success",
+          text1: `${successCount} événement(s) ajouté(s) avec succès`,
+          visibilityTime: 2000,
+        });
+      }
+      if (errorCount > 0) {
+        Toast.show({
+          type: "error",
+          text1: `Erreur lors de l'ajout de ${errorCount} événement(s)`,
+          text2: "Veuillez vérifier les détails dans la console",
+          visibilityTime: 3000,
+        });
+      }
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.message || error.toString();
+      const description = error?.response?.data?.description || "";
+      Toast.show({
+        type: "error",
+        text1: message,
+        text2: message !== description ? description : undefined,
+        visibilityTime: 3000,
+      });
+    } finally {
+      setSelectedMonth((oldValue) => ({ ...oldValue }));
+    }
   };
 
-  const handleAddEvenement = function() {
+  const handleAddEvenement = function () {
     navigation?.navigate("CreerEvenementPage", {
-      month:selectedMonth,
+      month: selectedMonth,
     });
+  }
+
+  const renderAddSemmaineNonTravailleeButton = () => {
+    var isSemmaineNonTravailleExiste = false
+    events.forEach(E => {
+      if (getTypeEventByText(E.typeEvenement)?.texte == TypeEvenement.SEMAINE_NON_TRAVAILLEE.texte) {
+        isSemmaineNonTravailleExiste = true
+      }
+    });
+    if (isSemmaineNonTravailleExiste) {
+      return (
+        <Card style={styles.greenCard}>
+          <Card.Content style={styles.greenCardContent}>
+            <Icon name="check-circle" size={24} color="#4CAF50" />
+            <Text style={styles.greenCardText}>Semaine(s) non travaillée(s) déjà ajoutée(s)</Text>
+          </Card.Content>
+        </Card>
+      );
+    } else {
+      return (
+        <Button
+          onPress={onclickAddSemmaineNonTravaille}
+          style={styles.button}
+          mode="contained"
+          icon="calendar-blank-outline"
+        >
+          Ajouter une semaine non travaillée
+        </Button>
+      );
+    }
+  };
+
+  const onClickDelete = function (event: Evenement) {
+    setSelectedEvent(event)
+    setDeleteModalVisible(true);
+  }
+
+  const onConfirmDelete = async function (event: Evenement) {
+    console.log("DELETE, EVENEMENT: ", event);
+  }
+
+  const onClickShowDetails = function (event: Evenement) {
+    setSelectedEvent(event)
+    setDetailModalVisible(true)
+    console.log("DETAIL, EVENEMENT: ", event);
   }
 
   return (
@@ -49,23 +233,32 @@ const PlanningScreen = () => {
         selectedMonth={selectedMonth}
         setSelectedMonth={setSelectedMonth}
       />
-      <Button
-        onPress={onclickAddSemmaineNonTravaille}
-        style={styles.button}
-        mode="contained"
-        icon="calendar-blank-outline"
-      >
-        Ajouter une semaine non travaillée
-      </Button>
-      <ScrollView style={styles.eventViewer}>
-        {/* Contenu du planning */}
-      </ScrollView>
+
+      {!loadEvents && renderAddSemmaineNonTravailleeButton()}
+
+      <EventsList onDelete={onClickDelete} onShowDetails={onClickShowDetails} loading={loadEvents} setIsLoading={setLoadEvents} events={events} setEvents={setEvents} />
+
       <SelectSemmaineNonTravailleModal
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}
         onConfirm={handleConfirmSelection}
         semaines={obtenirSemaines(selectedMonth)}
       />
+
+
+      <ModalDeleteEvent
+        visible={deleteModalVisible}
+        event={selectedEvent}
+        onDismiss={() => setDeleteModalVisible(false)}
+        onConfirm={onConfirmDelete}
+      />
+
+      <ModalDetailEvent
+        visible={detailModalVisible}
+        event={selectedEvent}
+        onDismiss={() => setDetailModalVisible(false)}
+      />
+
       <View style={styles.addEventButtonContainer}>
         <TouchableOpacity
           onPress={handleAddEvenement}
@@ -75,6 +268,7 @@ const PlanningScreen = () => {
           <Text style={styles.addEventButtonText}>Ajouter un événement</Text>
         </TouchableOpacity>
       </View>
+
     </View>
   );
 };
@@ -90,10 +284,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     margin: 10,
-  },
-  eventViewer: {
-    flex: 1,
-    width: '100%',
   },
   button: {
     backgroundColor: '#007AFF',
@@ -133,6 +323,22 @@ const styles = StyleSheet.create({
   },
   addEventButtonText: {
     color: '#FFF',
+    fontWeight: 'bold',
+  },
+  greenCard: {
+    backgroundColor: '#E8F5E9',
+    width: '90%',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+  },
+  greenCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  greenCardText: {
+    color: '#4CAF50',
+    marginLeft: 10,
     fontWeight: 'bold',
   },
 });

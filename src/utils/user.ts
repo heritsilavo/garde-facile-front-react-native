@@ -2,7 +2,7 @@ import axios from 'axios';
 import Config from 'react-native-config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SPRING_BOOT_URL } from '../constants/api';
-import { Assmat, Enfant } from '../pages/connected/ConfigurerContratPage/classes';
+import { Assmat, Enfant, Parent } from '../pages/connected/ConfigurerContratPage/classes';
 
 export interface LoginRequest{
     pajeId: string,
@@ -100,6 +100,27 @@ export const getAssociatedAssmatByPajeIdParent=async function (pajeIdParent:stri
             }
             
             return assmatList;
+        }else return []
+    }else throw new Error("Vous n'etes pas connecté");
+}
+
+export const getAssociatedParentByPajeIdSalarie=async function (pajeIdSalarie:string) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response =await axios.get(`${SPRING_BOOT_URL}/AssociationComptes/getByPajeIdSalarie/${pajeIdSalarie}`,{
+            headers:{
+                'Authorization':`Bearer ${token}`
+            }
+        });
+        if (!!response.data?.length) {
+            let parentList: Parent[] = []
+            for (const association of response.data) {
+                let A =await getUserByPajeId(association.pajeIdParent);
+                parentList.push(A.data)
+            }
+            
+            return parentList;
         }else return []
     }else throw new Error("Vous n'etes pas connecté");
 }

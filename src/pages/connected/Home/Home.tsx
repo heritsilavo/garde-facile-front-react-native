@@ -8,6 +8,7 @@ import { isLogedIn } from '../../../utils/user';
 import { NavigationProp } from '@react-navigation/native';
 import { getConfiguredContrat, getContratById } from '../../../utils/contrat';
 import ProfileScreen from './HomeScreens/ProfileScreen';
+import { connectedUserContext, UserContextType } from '../../../../App';
 const DecalrationRoute = () => <Text>Decalration</Text>;
 
 const CongesRoute = () => <Text>Conges</Text>;
@@ -32,10 +33,18 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
 
   const [configuredContrat,setConfiguredContrat]= React.useState<ContratType>(new ContratType())
 
+  const {connectedUser} = React.useContext<UserContextType>(connectedUserContext)
+
   React.useEffect(function () {
     (async function () {
         const contratId:string = (await getConfiguredContrat()) || "";
-        if(!contratId) navigation.navigate("ElementsAMunirPage")
+        if(!contratId) {
+          if (connectedUser.profile==="PAJE_EMPLOYEUR") {
+            navigation.navigate("ElementsAMunirPage")
+          } else{
+            navigation.navigate("SelectParentpage")
+          }
+        }
         else{
           const response:ContratType = await getContratById(contratId);
           setConfiguredContrat(response);

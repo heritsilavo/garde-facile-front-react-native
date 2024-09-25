@@ -1,10 +1,10 @@
 import { FamilleEvenement } from "./famille-evenement"
 
-export  interface EventType {
-    titre:string;
-	texte: string;       
-    famille: number;  
-    description: string;    
+export interface EventType {
+    titre: string;
+    texte: string;
+    famille: number;
+    description: string;
 }
 
 export const TypeEvenement = {
@@ -16,7 +16,7 @@ export const TypeEvenement = {
     },
     SEMAINE_NON_TRAVAILLEE: {
         titre: "Semaine Non-Travaillée",
-        texte: "Semaine non-travaillée", 
+        texte: "Semaine non-travaillée",
         famille: FamilleEvenement.SEMAINE_NON_TRAVAILLEE,
         description: "Une semaine durant laquelle les employés ne sont pas tenus de travailler."
     },
@@ -81,83 +81,83 @@ export const TypeEvenement = {
         description: "Congés durant lesquels le salarié ne reçoit pas de salaire."
     },
     SALARIE_CITOYEN_JDC: {
-        titre:"Journée d'Appel de Préparation à la Défense (JAPD)",
-        texte:"JAPD",
-        famille :FamilleEvenement.ABSENCE_ASSMAT,
-    	description:"Participation à la Journée d'Appel de Préparation à la Défense (JAPD)."
-	},
-	SALARIE_PRO_FORMATION:{
-		titre:"Formation Professionnelle",
-		texte:"FORMATION",
-		famille :FamilleEvenement.ABSENCE_ASSMAT,
-		description:"Temps pris par un salarié pour suivre une formation professionnelle."
-	},
-	SALARIE_PARENTAL_MATERNITE:{
-		titre:"Congé Maternité",
-		texte:"MATERNITE",
-		famille :FamilleEvenement.ABSENCE_ASSMAT,
-		description:"Congé accordé à une mère après la naissance d'un enfant."
-	},
-	SALARIE_FAMILLE_NOUVEL_ENFANT:{
-		titre:"Naissance ou Arrivée d'Enfant",
-		texte:"NAISSANCE_OU_ARRIVEE_ENFANT",
-		famille :FamilleEvenement.ABSENCE_ASSMAT,
-		description:"Absence liée à la naissance ou à l'arrivée d'un nouvel enfant dans la famille."
-	},
-	SALARIE_FAMILLE_MARIAGE:{
-		titre:"Mariage ou PACS",
-		texte:"MARIAGE_OU_PACS",
-		famille :FamilleEvenement.ABSENCE_ASSMAT,
-		description:"Absence liée à la célébration du mariage ou du PACS."
-	},
-	SALARIE_FAMILLE_MARIAGE_ENFANT:{
-		titre:"Mariage ou PACS Enfant",
-		texte:"MARIAGE_OU_PACS_ENFANT",
-		famille :FamilleEvenement.ABSENCE_ASSMAT,
-		description:"Absence pour le mariage ou le PACS d'un enfant."
-	},
-	SALARIE_FAMILLE_DECES_CONJOINT:{
-    	titre:"Décès Conjoint/Partenaire/PACS/Concubin", 
-    	texte:"DECES_EPOUX_PARTENAIRE_PACSE_CONCUBIN", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès du conjoint, partenaire PACS ou concubin." 
-   },
-	SALARIE_FAMILLE_DECES_ENFANT:{
-    	titre:"Décès Enfant", 
-    	texte:"DECES_ENFANT", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès d'un enfant." 
-   },
-	SALARIE_FAMILLE_DECES_DESCENDANT:{
-    	titre:"Décès Descendant", 
-    	texte:"DECES_DESCENDANT", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès d'un descendant (petit-enfant, etc.)." 
-   },
-	SALARIE_FAMILLE_DECES_PARENT:{
-    	titre:"Décès Parent/Beau-Parent", 
-    	texte:"DECES_PARENT_OU_BEAU_PARENT", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès d'un parent ou beau-parent." 
-   },
-	SALARIE_FAMILLE_DECES_GRAN_PARENT:{
-    	titre:"Décès Grand-Parent", 
-    	texte:"DECES_GRAND_PARENT", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès d'un grand-parent." 
-   },
-	SALARIE_FAMILLE_DECES_FRATERNITE:{
-    	titre:"Décès Frère/Sœur", 
-    	texte:"DECES_FRERE_OU_SOEUR", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence due au décès d'un frère ou d'une sœur." 
-   },
-	SALARIE_FAMILLE_ANNONCE_HANDICAP:{
-    	titre:"Annonce Handicap Enfant", 
-    	texte:"ANNONCE_HANDICAP_ENFANT", 
-    	famille :FamilleEvenement.ABSENCE_ASSMAT, 
-    	description:"Absence liée à l'annonce du handicap." 
-   }
+        titre: "Journée d'Appel de Préparation à la Défense (JAPD)",
+        texte: "JAPD",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Participation à la Journée d'Appel de Préparation à la Défense (JAPD)."
+    },
+    SALARIE_PRO_FORMATION: {
+        titre: "Formation Professionnelle",
+        texte: "FORMATION",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Temps pris par un salarié pour suivre une formation professionnelle."
+    },
+    SALARIE_PARENTAL_MATERNITE: {
+        titre: "Congé Maternité",
+        texte: "MATERNITE",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Congé accordé à une mère après la naissance d'un enfant."
+    },
+    SALARIE_FAMILLE_NOUVEL_ENFANT: {
+        titre: "Naissance ou Arrivée d'Enfant",
+        texte: "NAISSANCE_OU_ARRIVEE_ENFANT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence liée à la naissance ou à l'arrivée d'un nouvel enfant dans la famille."
+    },
+    SALARIE_FAMILLE_MARIAGE: {
+        titre: "Mariage ou PACS",
+        texte: "MARIAGE_OU_PACS",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence liée à la célébration du mariage ou du PACS."
+    },
+    SALARIE_FAMILLE_MARIAGE_ENFANT: {
+        titre: "Mariage ou PACS Enfant",
+        texte: "MARIAGE_OU_PACS_ENFANT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence pour le mariage ou le PACS d'un enfant."
+    },
+    SALARIE_FAMILLE_DECES_CONJOINT: {
+        titre: "Décès Conjoint/Partenaire/PACS/Concubin",
+        texte: "DECES_EPOUX_PARTENAIRE_PACSE_CONCUBIN",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès du conjoint, partenaire PACS ou concubin."
+    },
+    SALARIE_FAMILLE_DECES_ENFANT: {
+        titre: "Décès Enfant",
+        texte: "DECES_ENFANT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès d'un enfant."
+    },
+    SALARIE_FAMILLE_DECES_DESCENDANT: {
+        titre: "Décès Descendant",
+        texte: "DECES_DESCENDANT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès d'un descendant (petit-enfant, etc.)."
+    },
+    SALARIE_FAMILLE_DECES_PARENT: {
+        titre: "Décès Parent/Beau-Parent",
+        texte: "DECES_PARENT_OU_BEAU_PARENT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès d'un parent ou beau-parent."
+    },
+    SALARIE_FAMILLE_DECES_GRAN_PARENT: {
+        titre: "Décès Grand-Parent",
+        texte: "DECES_GRAND_PARENT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès d'un grand-parent."
+    },
+    SALARIE_FAMILLE_DECES_FRATERNITE: {
+        titre: "Décès Frère/Sœur",
+        texte: "DECES_FRERE_OU_SOEUR",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence due au décès d'un frère ou d'une sœur."
+    },
+    SALARIE_FAMILLE_ANNONCE_HANDICAP: {
+        titre: "Annonce Handicap Enfant",
+        texte: "ANNONCE_HANDICAP_ENFANT",
+        famille: FamilleEvenement.ABSENCE_ASSMAT,
+        description: "Absence liée à l'annonce du handicap."
+    }
 }
 
 export const TypeEvenementByFamille = {
@@ -208,7 +208,7 @@ export const TypeEvenementByFamille = {
  * @param {number} famille - The identifier for the family of events.
  * @returns {Array} - An array of event types associated with the given family.
  */
-export function getListeTypesEvenementsByFamille(famille:number) {
+export function getListeTypesEvenementsByFamille(famille: number) {
     if (TypeEvenementByFamille[famille]) {
         return TypeEvenementByFamille[famille];
     } else {
@@ -224,9 +224,9 @@ export function getListeTypesEvenementsByFamille(famille:number) {
  */
 export function getTypeEventByText(text: string): EventType | null {
     var res = null
-	Object.entries(TypeEvenement).forEach(([key,value]) => {
-		if (value.texte === text) res = value
-	});
+    Object.entries(TypeEvenement).forEach(([key, value]) => {
+        if (value.texte === text) res = value
+    });
     return res;
 }
 
@@ -254,7 +254,7 @@ export function isTravaille(evenement: EventType): boolean {
     }
 
     // Vérifier si l'événement appartient à la famille ABSENCE_ENFANT ou ABSENCE_ASSMAT
-    if (evenement.famille === FamilleEvenement.ABSENCE_ENFANT || 
+    if (evenement.famille === FamilleEvenement.ABSENCE_ENFANT ||
         evenement.famille === FamilleEvenement.ABSENCE_ASSMAT) {
         return false;
     }
@@ -333,18 +333,15 @@ export function isRemunere(evenement: EventType): boolean {
  * Un objet contenant le type retourné et un libellé exceptionnel, si applicable.
  */
 export function getTypeAndLibele(type: EventType) {
-  const congésPayés = ["Congés payés", "Congés sans solde", "Absence maladie", "Absence familiale", "Heures complémentaires", "Jours complémentaires", "Repas", "Kilométrique", "Période d'adaptation", "Jour férié", "Semaine non-travaillée", "Congés maladie"];
-  const congésExceptionnels = ['NAISSANCE_OU_ARRIVEE_ENFANT', 'JAPD', 'MARIAGE_OU_PACS', 'MARIAGE_OU_PACS_ENFANT',
-    'DECES_EPOUX_PARTENAIRE_PACSE_CONCUBIN', 'DECES_ENFANT', 'DECES_DESCENDANT',
-    'DECES_PARENT_OU_BEAU_PARENT', 'DECES_FRERE_OU_SOEUR', 'DECES_GRAND_PARENT',
-    'ANNONCE_HANDICAP_ENFANT', 'FORMATION', 'MATERNITE'];
+    const congésPayés = ["Congés payés", "Congés sans solde", "Absence maladie", "Absence familiale", "Heures complémentaires", "Jours complémentaires", "Repas", "Kilométrique", "Période d'adaptation", "Jour férié", "Semaine non-travaillée", "Congés maladie"];
+    const congésExceptionnels = ['NAISSANCE_OU_ARRIVEE_ENFANT', 'JAPD', 'MARIAGE_OU_PACS', 'MARIAGE_OU_PACS_ENFANT', 'DECES_EPOUX_PARTENAIRE_PACSE_CONCUBIN', 'DECES_ENFANT', 'DECES_DESCENDANT', 'DECES_PARENT_OU_BEAU_PARENT', 'DECES_FRERE_OU_SOEUR', 'DECES_GRAND_PARENT', 'ANNONCE_HANDICAP_ENFANT', 'FORMATION', 'MATERNITE'];
 
-  let typeRetournée: string = type.texte;
-  let libelléExceptionnel: string | null = null;
+    let typeRetournée: string = type.texte;
+    let libelléExceptionnel: string | null = null;
 
-  if (congésExceptionnels.includes(type.texte)) {
-    libelléExceptionnel = type.texte;
-  }
+    if (congésExceptionnels.includes(type.texte)) {
+        libelléExceptionnel = type.texte;
+    }
 
-  return { typeRetournée, libelléExceptionnel };
+    return { typeRetournée, libelléExceptionnel };
 }

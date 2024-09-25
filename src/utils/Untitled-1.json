@@ -1,0 +1,79 @@
+[
+    {
+        "indexJour": 0,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 1,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 2,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 3,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 4,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 5,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    },
+    {
+        "indexJour": 6,
+        "trancheHoraire1": {
+            "heureDebut": 420,
+            "heureFin": 1020
+        },
+        "trancheHoraire2": {
+            "heureDebut": null,
+            "heureFin": null
+        }
+    }
+]

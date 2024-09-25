@@ -4,6 +4,7 @@ import { ConfigContratData } from "../pages/connected/ConfigurerContratPage/clas
 import { SPRING_BOOT_URL } from "../constants/api";
 import { getLoginToken, getUserByPajeId, isLogedIn } from "./user";
 import axios from "axios";
+import { Body as ContratEntity } from "../pages/connected/ConfigurerContratPage/classes";
 
 export function generateId(): string {
     const generateSegment = (length: number): string => {
@@ -68,6 +69,8 @@ export const removeConfiguredContrat = async function () {
 export const isContratConfiguree =async function () {
     try {
         const value = await AsyncStorage.getItem(CONFIG_CONTRAT);
+        console.log(value);
+        
         if (value) return true
         else return false
     } catch (error) {
@@ -139,6 +142,37 @@ export const getContratById=async function (constratId:string) {
 }
 
 /**
+ * Get contrat by PajeIdParent or pajeIdSalarie
+ * @param pajeId PajeIdParent ou salarie
+ * @returns 
+ */
+export const getContratByPajeIdUser=async function (pajeId:string) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response = await axios.get(`${SPRING_BOOT_URL}/contrats/paje/${pajeId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.data
+    }else throw new Error("Vous n'etes pas connecté");
+}
+
+export const getContratByPajeIdParentAndSalarie=async function (pajeIdParent:string,pajeIdSalarie:string) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response = await axios.get(`${SPRING_BOOT_URL}/contrats/byUsers/${pajeIdSalarie}/${pajeIdParent}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.data[0]
+    }else throw new Error("Vous n'etes pas connecté");
+}
+
+/**
  * Recupere les details
  * @returns 
  */
@@ -152,4 +186,22 @@ export const getDetailConfiguredContrat = async function () {
         contrat.parent = parent.data
         return contrat
     }else return null
+}
+
+/**
+ * Supprimer un contrat avec les elements liées avec lui
+ * @param idContrat 
+ * @returns 
+ */
+export const deleteContrat=async function (idContrat:string) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response = await axios.delete(`${SPRING_BOOT_URL}/contrats/${idContrat}/delete`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        return response.data
+    }else throw new Error("Vous n'etes pas connecté");
 }

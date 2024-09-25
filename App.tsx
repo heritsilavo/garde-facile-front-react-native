@@ -11,7 +11,7 @@ import ElementsAMunirPage from './src/pages/connected/ElementsAMunirPage/Element
 import CompatibiliteeContrat from './src/pages/connected/CompatibiliteeContrat/CompatibiliteeContrat';
 import ContractConfigurationComponent from './src/pages/connected/ConfigurerContratPage/ConfigurerContratPage';
 import { getPajeId, getUserByPajeId, isLogedIn, logout } from './src/utils/user';
-import { isContratConfiguree, removeConfiguredContrat } from './src/utils/contrat';
+import { getContratByPajeIdUser, isContratConfiguree, removeConfiguredContrat } from './src/utils/contrat';
 import User from './src/models/user';
 import LoadingScreen from './src/components/loading/LoadingScreens';
 import CreerEvenementPage from './src/pages/connected/CreerEvenementPage/CreerEvenementPage';
@@ -21,6 +21,10 @@ import Toast from 'react-native-toast-message';
 import CreerJourFerieTravaillPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerJourFerieTravaillPage';
 import CreateIndemniteePage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreateIndemniteePage';
 import ContratProfile from './src/pages/connected/ContratProfile/ContratProfile';
+import CreerHeureComplementairePage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerHeureComplementairePage';
+import CreerPeriodeAdaptationPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerPeriodeAdaptationPage';
+import NoContractScreen from './src/pages/connected/NoContrat/NoContratScreen';
+import SelectParentpage from './src/pages/connected/SelectParentPage/SelectParentPage';
 
 const Stack = createStackNavigator();
 
@@ -54,7 +58,12 @@ export const lightTheme = {
   }
 };
 
-export const connectedUserContext =createContext<{connectedUser:User,setConnectedUser:any} | undefined>(undefined);
+export interface UserContextType {
+  connectedUser:User;
+  setConnectedUser:any;
+} 
+
+export const connectedUserContext =createContext<UserContextType>({connectedUser:new User(),setConnectedUser:null} );
 
 const App = () => {
   const config={
@@ -71,11 +80,9 @@ const App = () => {
 
   useEffect(function() {
     (async function () {
-      //await logout();
-      //await removeConfiguredContrat();
-      if (!(await isLogedIn())) { //Non Connectée
+      if (!(await isLogedIn())) {
         setDefaultRoute("Login")
-      }else{ //Connectée
+      }else{
         const pajeId = await getPajeId()
         let loggedUser:User=new User();
         if (pajeId) {
@@ -84,10 +91,18 @@ const App = () => {
           setConnectedUser(loggedUser)
         }
 
-        //Verififier la configuration d'un contrat
-        const isContratConfigured = await isContratConfiguree()
-        if (isContratConfigured) setDefaultRoute("Home")
-        else setDefaultRoute("ElementsAMunirPage")
+        console.log(loggedUser);
+        
+        
+        if(loggedUser.profile == "PAJE_EMPLOYEUR"){
+          const isContratConfigured = await isContratConfiguree()
+          if (isContratConfigured) setDefaultRoute("Home")
+          else setDefaultRoute("ElementsAMunirPage");
+        }else{
+          const contrats:any[] = await getContratByPajeIdUser(loggedUser.pajeId);
+          if(!contrats.length)setDefaultRoute("NoContractScreen");
+          else setDefaultRoute("SelectParentpage");
+        }
       }
       setIsLoading(false)
     })();
@@ -107,12 +122,16 @@ const App = () => {
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ElementsAMunirPage" component={ElementsAMunirPage} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ConfigurerContrat" component={ContractConfigurationComponent} />
+                  <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="NoContractScreen" component={NoContractScreen} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="Home" component={HomePage} />
                   <Stack.Screen name="CreerEvenementPage" component={CreerEvenementPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen name="CreerAmplitudeEvenementPage" component={CreerAmplitudeEvenementPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen name="CreerJourFerieTravaillPage" component={CreerJourFerieTravaillPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen name="CreateIndemniteePage" component={CreateIndemniteePage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen name="CreerHeureComplementairePage" component={CreerHeureComplementairePage} options={{ cardShadowEnabled: true }}/>
+                  <Stack.Screen name="CreerPeriodeAdaptationPage" component={CreerPeriodeAdaptationPage} options={{ cardShadowEnabled: true }}/>
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config}} name="ContratProfile" component={ContratProfile} />
+                  <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
                 </Stack.Navigator>
                 <Toast
                   position='top'

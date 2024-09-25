@@ -6,6 +6,7 @@ import { getDetailConfiguredContrat } from '../../../utils/contrat';
 import { NavigationContext } from '@react-navigation/native';
 import { getIndemniteByContratId, updateEntretieByContraId, updateKilometriqueByContraId, updateRepasByContraId } from '../../../utils/indemnite';
 import Toast from 'react-native-toast-message';
+import { connectedUserContext, UserContextType } from '../../../../App';
 
 enum IndemniteType {
     Entretien = "entretien",
@@ -48,7 +49,8 @@ const ContratProfile: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [indemnities, setIndemnities] = useState<IndemniteEntity>(new IndemniteEntity());
-    const [isLoadingChangeIndemnite,setIsLoadingChangeIndemnite] = useState<boolean>(false)
+    const [isLoadingChangeIndemnite,setIsLoadingChangeIndemnite] = useState<boolean>(false);
+    const {connectedUser} = useContext<UserContextType>(connectedUserContext)
 
     const navigation = useContext(NavigationContext)
 
@@ -234,12 +236,14 @@ const ContratProfile: React.FC = () => {
                         {Object.values(IndemniteType).map((type) => (
                             <View key={type} style={styles.indemnityContainer}>
                                 <Text style={styles.indemnityText}>{`Indemnité ${type}: ${indemnities[type] || 0} €`}</Text>
-                                <IconButton
-                                    icon="pencil"
-                                    size={20}
-                                    onPress={() => handleModifyIndemnity(type)}
-                                    style={styles.modifyButton}
-                                />
+                                {
+                                    connectedUser.profile == "PAJE_EMPLOYEUR" && <IconButton
+                                        icon="pencil"
+                                        size={20}
+                                        onPress={() => handleModifyIndemnity(type)}
+                                        style={styles.modifyButton}
+                                    />
+                                }
                             </View>
                         ))}
                     </Card.Content>

@@ -48,7 +48,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
       console.log(selectedDateDebut);
       
       if(!!selectedDateDebut && !!selectedDateFin && !!selectedPeriodDebut && !!selectedPeriodFin && selectedType){
-        
+        setIsContinueLoading(true)
         var amplitude:Amplitude = new  Amplitude()
         amplitude.debutAmplitude = selectedDateDebut
         amplitude.finAmplitude = selectedDateFin
@@ -70,7 +70,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
 
         newEvenement.nbJours = nbJours
         newEvenement.nbHeures = nbHeures
-        newEvenement.typeEvenement = typeRetournée
+        newEvenement.typeEvenement = selectedType.texte
         newEvenement.libelleExceptionnel = libelléExceptionnel
         newEvenement.contratsId.push(contrat.id);
         newEvenement.dateCreation = new Date().toISOString()
@@ -80,6 +80,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
         newEvenement.famille=familleEvenement
 
         setEvent(newEvenement);
+        setIsContinueLoading(false)
       }  
    })();
   }, [selectedDateDebut,selectedDateFin,selectedPeriodDebut,selectedPeriodFin, selectedType])

@@ -1,15 +1,16 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Avatar, Button, Text, Card } from 'react-native-paper';
-import { connectedUserContext } from '../../../../../App';
+import { connectedUserContext, UserContextType } from '../../../../../App';
 import User from '../../../../models/user';
 import { logout } from '../../../../utils/user';
 import { NavigationContext } from '@react-navigation/native';
+import { removeConfiguredContrat } from '../../../../utils/contrat';
 
 
 const ProfileScreen = () => {
 
-    const userContext = useContext(connectedUserContext)
+    const { connectedUser } = useContext<UserContextType>(connectedUserContext)
     const navigation  = useContext(NavigationContext);
 
     const handleLogout =async () => {
@@ -17,9 +18,9 @@ const ProfileScreen = () => {
         await logout();
     };
 
-    const handleUnlinkContract = () => {
-        // Logic for unlinking the contract
-        console.log('Contract unlinked');
+    const handleUnlinkContract =async () => {
+        await removeConfiguredContrat();
+        (connectedUser.profile === "PAJE_EMPLOYEUR") ? navigation?.navigate("ElementsAMunirPage") : navigation?.navigate("Login");
     };
 
     const handleContractSettings = () => {
@@ -30,9 +31,9 @@ const ProfileScreen = () => {
         <View style={styles.container}>
             <Card style={styles.card}>
                 <Card.Content style={styles.cardContent}>
-                    <Avatar.Text size={80} label={userContext?.connectedUser.nom.charAt(0) || 'U'} />
-                    <Text style={styles.userName}>{userContext?.connectedUser.nom || "userName"}</Text>
-                    <Text style={styles.userId}>{userContext?.connectedUser.pajeId || "userId"}</Text>
+                    <Avatar.Text size={80} label={connectedUser.nom.charAt(0) || 'U'} />
+                    <Text style={styles.userName}>{connectedUser.nom || "userName"}</Text>
+                    <Text style={styles.userId}>{connectedUser.pajeId || "userId"}</Text>
                 </Card.Content>
             </Card>
 
@@ -43,7 +44,7 @@ const ProfileScreen = () => {
                 <Button mode="outlined" onPress={handleUnlinkContract} style={styles.button}>
                     Délier le contrat de l'application
                 </Button>
-                <Button mode="text" onPress={handleContractSettings} style={styles.button}>
+                <Button mode="outlined" onPress={handleContractSettings} style={styles.button}>
                     Configuration de contrat
                 </Button>
             </View>

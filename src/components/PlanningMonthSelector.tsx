@@ -14,12 +14,12 @@ interface SelectedMonth {
 }
 
 interface PlanningMonthSelectorProps {
-    dateDebutContrat: string; // Format "YYYY-MM-DD",
-    selectedMonth:SelectedMonth;
-    setSelectedMonth:React.Dispatch<React.SetStateAction<SelectedMonth>>
-  }
+  dateDebutContrat: string; // Format "YYYY-MM-DD",
+  selectedMonth: SelectedMonth;
+  setSelectedMonth: React.Dispatch<React.SetStateAction<SelectedMonth>>
+}
 
-const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebutContrat,selectedMonth,setSelectedMonth }) => {
+const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebutContrat, selectedMonth, setSelectedMonth }) => {
   const [months, setMonths] = useState<Month[]>([]);
   const flatListRef = useRef<FlatList>(null);
 
@@ -30,7 +30,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
     const generateMonths = () => {
       const startDate = new Date(dateDebutContrat);
       const monthNames = [
-        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
         'Juillet', 'Août', 'Sept. ', 'Octobre', 'Novembre', 'Décembre'
       ];
 
@@ -47,10 +47,10 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
 
       const currentDate = new Date();
       const currentMonthIndex = next12Months.findIndex(
-        month => month.monthIndex === currentDate.getMonth() && 
-                 month.year === currentDate.getFullYear()
+        month => month.monthIndex === currentDate.getMonth() &&
+          month.year === currentDate.getFullYear()
       );
-      setSelectedMonth(currentMonthIndex !== -1 
+      setSelectedMonth(currentMonthIndex !== -1
         ? { year: next12Months[currentMonthIndex].year, monthIndex: next12Months[currentMonthIndex].monthIndex }
         : { year: next12Months[0].year, monthIndex: next12Months[0].monthIndex }
       );
@@ -129,7 +129,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
         ]}
         getItemLayout={getItemLayout}
         initialScrollIndex={0}
-        onScrollToIndexFailed={() => {}}
+        onScrollToIndexFailed={() => { }}
       />
     </View>
   );
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   flatListContent: {
-    // Le paddingHorizontal est défini dynamiquement
+    
   },
   monthContainer: {
     width: Dimensions.get('window').width / 3,

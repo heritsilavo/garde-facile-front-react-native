@@ -7,7 +7,7 @@ export default class User {
   pajeId: string;
   password: string;
   prenom: string;
-  profile: string;
+  profile: "PAJE_EMPLOYEUR" | "PAJE_SALARIE";
   role: string;
 
   constructor(
@@ -19,7 +19,7 @@ export default class User {
     pajeId: string = '',
     password: string = '',
     prenom: string = '',
-    profile: string = '',
+    profile: "PAJE_EMPLOYEUR" | "PAJE_SALARIE" = "PAJE_EMPLOYEUR",
     role: string = ''
   ) {
     this.civilite = civilite;

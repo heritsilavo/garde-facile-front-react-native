@@ -46,9 +46,17 @@ const CreerEvenementPage = ({ navigation,route } : {navigation: NavigationProp<a
             familleEvenement:value
           });
         }else if (value == FamilleEvenement.HEURE_JOUR_COMPLEMENTAIRE){
-
+          //CreerHeureComplementairePage
+          navigation.navigate("CreerHeureComplementairePage", {
+            month,
+            familleEvenement:value
+          });
         }else if (value == FamilleEvenement.PERIODE_ADAPTATION){
-
+          //CreerPeriodeAdaptationPage
+          navigation.navigate("CreerPeriodeAdaptationPage", {
+            month,
+            familleEvenement:value
+          });
         }else if (value == FamilleEvenement.SEMAINE_NON_TRAVAILLEE){
 
         }
