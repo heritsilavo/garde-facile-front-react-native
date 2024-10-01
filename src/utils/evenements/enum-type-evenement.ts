@@ -9,7 +9,7 @@ export interface EventType {
 
 export const TypeEvenement = {
     JOUR_FERIE: {
-        titre: "Jour Férié travaillé",
+        titre: "Jour Férié",
         texte: "Jour férié",
         famille: FamilleEvenement.JOUR_FERIE,
         description: "Les jours fériés chômés sont rémunérés sauf s'ils tombent lors d'une période d'absence. Si travaillés, ils sont majorés de 10%. Le 1er mai est majoré de 100%."

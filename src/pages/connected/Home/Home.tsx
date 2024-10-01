@@ -34,7 +34,8 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
   ]);
   const [dataLoaded,setDataloaded] = React.useState(false)
   const [isLoadingProfile,setIsLoadingProfile] = React.useState<boolean>(true);
-  const [ListeContrat, setListeContrat] = React.useState<ContratType[]>([])
+  const [ListeContrat, setListeContrat] = React.useState<ContratType[]>([]);
+  const [refreshPlanningValue,setRefreshPlanningValue] = React.useState<Date>(new Date());
 
   const [configuredContrat,setConfiguredContrat]= React.useState<ContratType>(new ContratType())
 
@@ -77,11 +78,13 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
   const handleTabPress = function({route}:{route:BaseRoute}) {
     if (route.key === 'Profile') {
       fetchContratEnfant()
+    }else if(route.key === 'Planning') {
+      setRefreshPlanningValue(old => new Date())
     }
   }
 
   const renderScene = BottomNavigation.SceneMap({
-    Planning: PlanningScreen,
+    Planning: ()=><PlanningScreen refreshValue={refreshPlanningValue}></PlanningScreen>,
     Decalration: DecalrationRoute,
     Conges: CongesRoute,
     Profile: () => <ProfileScreen isLoading={isLoadingProfile} setIsLoading={setIsLoadingProfile} listeContrat={ListeContrat}/>,

@@ -193,6 +193,8 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
                     onConfirm={onConfirmStartTime}
                     hours={startTime ? parseInt(startTime.split(':')[0]) : undefined}
                     minutes={startTime ? parseInt(startTime.split(':')[1]) : undefined}
+                    inputFontSize={40}
+                    label=''
                 />
 
                 <TimePickerModal
@@ -201,6 +203,8 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
                     onConfirm={onConfirmEndTime}
                     hours={endTime ? parseInt(endTime.split(':')[0]) : undefined}
                     minutes={endTime ? parseInt(endTime.split(':')[1]) : undefined}
+                    inputFontSize={40}
+                    label=''
                 />
             </ScrollView>
 

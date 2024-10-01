@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, TouchableOpacity, Text, NativeEventEmitter
 import { TimePickerModal } from 'react-native-paper-dates';
 import { Planning } from "../classes";
 
-export default function TimePicker({ placeholder,value, setValue }: { placeholder: string, setValue: Function,value:string | undefined }) {
+export default function TimePicker({ placeholder, value, setValue }: { placeholder: string, setValue: Function, value: string | undefined }) {
     const [visible, setVisible] = React.useState(false);
     const [selectedTime, setSelectedTime] = React.useState<{ hours: number, minutes: number } | undefined>(undefined);
 
@@ -26,12 +26,12 @@ export default function TimePicker({ placeholder,value, setValue }: { placeholde
 
     const myEventEmitter = new NativeEventEmitter(NativeModules.RCTDeviceInfo);
 
-    useEffect(function() {
+    useEffect(function () {
         if (!!value) {
-            const [hours,minutes]=value.split(':');
+            const [hours, minutes] = value.split(':');
             setSelectedTime({ hours: parseInt(hours), minutes: parseInt(minutes) })
         }
-    },[value])
+    }, [value])
 
 
     return (
@@ -47,6 +47,8 @@ export default function TimePicker({ placeholder,value, setValue }: { placeholde
                 onConfirm={onConfirm}
                 hours={selectedTime?.hours || 0}
                 minutes={selectedTime?.minutes || 0}
+                inputFontSize={40}
+                label=''
             />
         </View>
     );

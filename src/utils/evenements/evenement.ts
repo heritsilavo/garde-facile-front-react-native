@@ -141,3 +141,51 @@ function formatDate(dateString: string): string {
 
     return `${nomJour} ${jour}/${moisFormatte}`;
 }
+
+/**
+ * Recuperer les jours feries en fonction du contrat et du periode
+ * @param contratId 
+ * @param mois 
+ * @param annee 
+ * @returns 
+ */
+export const getJourFeriesByContratAndPeriode = async function (contratId: string, mois: number, annee: number) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken();
+        const {data}:{data:Evenement[]} = await axios.get(`${SPRING_BOOT_URL}/evenements/findJourFerieByContratIdAndPeriod`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            params: {
+                contratId: contratId,
+                mois: mois,
+                annee: annee
+            }
+        })
+        return data
+    } else throw new Error("Vous n'etes pas connecté");
+}
+
+/**
+ * Recuperer les jours feries en fonction du contrat et du periode
+ * @param contratId 
+ * @param mois 
+ * @param annee 
+ * @returns 
+ */
+export const setIsJourFerieTravaille = async function (idEvenement: string, isTravaille: boolean) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken();
+        const {data}:{data:Evenement} = await axios.put(`${SPRING_BOOT_URL}/evenements/setIsJourFerieTravaille/${idEvenement}`,null, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            params: {
+                isTravaille: isTravaille
+            }
+        })
+        return data
+    } else throw new Error("Vous n'etes pas connecté");
+}
