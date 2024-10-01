@@ -69,9 +69,11 @@ export const removeConfiguredContrat = async function () {
 export const isContratConfiguree =async function () {
     try {
         const value = await AsyncStorage.getItem(CONFIG_CONTRAT);
-        console.log(value);
         
-        if (value) return true
+        if (value) {
+            const contrat = await getContratById(value);
+            return !!contrat && true;
+        }
         else return false
     } catch (error) {
         return false
@@ -137,7 +139,12 @@ export const getContratById=async function (constratId:string) {
                 simple:false
             }
         });
-        return response.data
+        var contrat = response.data
+        var assmat = await getUserByPajeId(contrat.numeroPajeSalarie)
+        var parent = await getUserByPajeId(contrat.numeroPajeEmployeur)
+        contrat.assmat = assmat.data
+        contrat.parent = parent.data
+        return contrat
     }else throw new Error("Vous n'etes pas connecté");
 }
 
@@ -168,7 +175,7 @@ export const getContratByPajeIdParentAndSalarie=async function (pajeIdParent:str
                 'Authorization': `Bearer ${token}`
             },
         });
-        return response.data[0]
+        return response.data
     }else throw new Error("Vous n'etes pas connecté");
 }
 
@@ -180,10 +187,6 @@ export const getDetailConfiguredContrat = async function () {
     const configuredContrat = await getConfiguredContrat()
     if (configuredContrat) {
         var contrat = await getContratById(configuredContrat);
-        var assmat = await getUserByPajeId(contrat.numeroPajeSalarie)
-        var parent = await getUserByPajeId(contrat.numeroPajeEmployeur)
-        contrat.assmat = assmat.data
-        contrat.parent = parent.data
         return contrat
     }else return null
 }
@@ -201,6 +204,23 @@ export const deleteContrat=async function (idContrat:string) {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
+        });
+        return response.data
+    }else throw new Error("Vous n'etes pas connecté");
+}
+
+
+export const recupererContratBySalarieParentAndEnfant = async function (pajeIdParent:string, pajeIdSalarie:string, idEnfant:number) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response = await axios.get(`${SPRING_BOOT_URL}/contrats/byUsersAndEnfants/${pajeIdSalarie}/${pajeIdParent}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            params: {
+                idEnfant:idEnfant
+            }
         });
         return response.data
     }else throw new Error("Vous n'etes pas connecté");

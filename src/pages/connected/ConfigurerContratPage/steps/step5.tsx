@@ -1,160 +1,175 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, } from "react-native";
+import React, { useContext, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { ConfigContratContext } from "../ConfigurerContratPage";
 
 interface RenderStep5Props {
     setStep: (step: number) => void;
-    setEnfantAChargeSalariee: ({nbEnfantsMoins15Ans,existent}:{nbEnfantsMoins15Ans:number,existent:boolean}) => void;
+    setEnfantAChargeSalariee: (params: { nbEnfantsMoins15Ans: number; existent: boolean }) => void;
 }
 
-const OUI = {
-    value:true,
-    text:'Oui'
+interface Option {
+    value: boolean;
+    text: string;
 }
 
-const NON = {
-    value:false,
-    text:'Non'
-}
-
-const I_DUNO = {
-    value:false,
-    text:'Je ne sais pas'
-}
+const OPTIONS: Option[] = [
+    { value: true, text: 'Oui' },
+    { value: false, text: 'Non' },
+    { value: false, text: 'Je ne sais pas' }
+];
 
 const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSalariee }) => {
-    const [selected,setSelected]=useState<{value:boolean,text:string}>();
-    const [existe,setExiste]= useState<boolean>();
-    const [nombreEnfant,setNombreEnfant]=useState<number>(0);
-    const configContrat = useContext(ConfigContratContext)
+    const [selected, setSelected] = useState<Option | undefined>();
+    const [nombreEnfant, setNombreEnfant] = useState<string>('');
+    const configContrat = useContext(ConfigContratContext);
 
-    const onclickContinue = ()=>{
+    const onClickContinue = () => {
         if (selected) {
             setStep(6);
-            setEnfantAChargeSalariee({existent:existe || false,nbEnfantsMoins15Ans:nombreEnfant})
+            setEnfantAChargeSalariee({
+                existent: selected.value,
+                nbEnfantsMoins15Ans: selected.value ? parseInt(nombreEnfant) || 0 : 0
+            });
         }
-    }
+    };
 
-    const onclickOne = (selected:any)=>{
-        setSelected(selected)
-        setExiste(selected.value)
-    }
+    const isButtonDisabled = !selected || (selected.value && !nombreEnfant);
 
     return (
-        <ScrollView style={styles.scollView}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Enfant a charge du salarié</Text>
+        <View style={styles.container}>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                <Text style={styles.title}>Enfant à charge du salarié</Text>
                 <Text style={styles.subtitle}>
-                    Votre assistant maternel a le droit a des congées supplementaires pour chaque enfant à sa charge
+                    Votre assistant maternel a le droit à des congés supplémentaires pour chaque enfant à sa charge
                 </Text>
 
-                <Text style={{...styles.subtitle,fontWeight:'bold'}}>
-                    {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} a-t-elle des enfants a sa charge ?
+                <Text style={styles.question}>
+                    {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} a-t-elle des enfants à sa charge ?
                 </Text>
 
-                {
-                    [OUI,NON,I_DUNO].map((item,index)=>(
-                        <TouchableOpacity
-                            key={index}
-                            style={{...styles.ModaliteItem, backgroundColor:(item.text == selected?.text)?'#f1f1f1':'#fff'}}
-                            onPress={() => {onclickOne(item)}}
-                        >
-                            <Text style={styles.TypeName}>{item.text}</Text>
-                        </TouchableOpacity>
-                    ))
-                }
+                {OPTIONS.map((item, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        style={[
+                            styles.modaliteItem,
+                            item.text === selected?.text && styles.selectedModaliteItem
+                        ]}
+                        onPress={() => setSelected(item)}
+                    >
+                        <Text style={styles.typeName}>{item.text}</Text>
+                    </TouchableOpacity>
+                ))}
 
-                {
-                    existe && (
-                        <View style={{...styles.inputContainer}}>
-                            <Text style={{color:"#000"}}>Nombre d'enfant de moins de 15 ans:</Text>
-                            <TextInput onChangeText={(text:string)=>{setNombreEnfant(parseInt(text))}} style={styles.input} keyboardType="numeric"></TextInput>
-                        </View>
-                    )
-                }
+                {selected?.value && (
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputLabel}>Nombre d'enfants de moins de 15 ans :</Text>
+                        <TextInput
+                            onChangeText={setNombreEnfant}
+                            style={styles.input}
+                            keyboardType="numeric"
+                            value={nombreEnfant}
+                        />
+                    </View>
+                )}
+            </ScrollView>
+
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    style={[styles.button, isButtonDisabled && styles.disabledButton]}
+                    disabled={isButtonDisabled}
+                    onPress={onClickContinue}
+                >
+                    <Text style={styles.buttonText}>Continuer</Text>
+                </TouchableOpacity>
             </View>
-
-            <TouchableOpacity style={{...styles.button,opacity:((selected?.text==NON.text) || (selected?.text==I_DUNO.text) || (selected?.text==OUI.text && nombreEnfant))?1:0.5}} disabled={((selected?.text==NON.text) || (selected?.text==I_DUNO.text) || (selected?.text==OUI.text && nombreEnfant))?false:true} onPress={onclickContinue}>
-                <Text style={styles.buttonText}>Continuer</Text>
-            </TouchableOpacity>
-        </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
-    scollView:{
-        flex:1,
-        display:'flex'
-    },
     container: {
         flex: 1,
-        alignItems: "center",
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        padding: 16,
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
         color: "black",
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 16,
         marginBottom: 16,
         color: "black",
-        paddingHorizontal: 20,
+        textAlign: 'center',
+    },
+    question: {
+        fontSize: 16,
+        marginBottom: 16,
+        color: "black",
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    buttonContainer: {
+        padding: 16,
+        backgroundColor: 'white',
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
     },
     button: {
         backgroundColor: '#007AFF',
         padding: 16,
         alignItems: 'center',
-        marginHorizontal: 16,
-        marginBottom: 16,
         borderRadius: 8,
+    },
+    disabledButton: {
+        opacity: 0.5,
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
     },
-    helpText: {
-        marginTop: 16,
-        fontSize: 14,
-        color: '#666',
-        textAlign: "center",
-        paddingHorizontal: 20,
-    },
-    ModaliteItem: {
+    modaliteItem: {
         padding: 16,
-        borderRadius:5,
-        marginBottom:10,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#ccc',
-        width: "90%",
-        alignSelf: "center"
+        borderRadius: 5,
+        marginBottom: 10,
+        borderWidth: 0.5,
+        borderColor: '#ccc',
     },
-    TypeName: {
+    selectedModaliteItem: {
+        backgroundColor: '#f1f1f1',
+        borderWidth: 1,
+    },
+    typeName: {
         fontSize: 18,
         fontWeight: 'bold',
         color: "black",
-        textAlign:'center'
+        textAlign: 'center',
     },
-    TypeDob: {
-        fontSize: 14,
-        color: '#666',
+    inputContainer: {
+        width: '100%',
+        marginTop: 16,
     },
-    inputContainer:{
-        width:'90%'
+    inputLabel: {
+        color: "black",
+        marginBottom: 8,
     },
-    input:{
+    input: {
         height: 50,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 12,
-        marginBottom: 12,
         fontSize: 16,
-        width: '100%',
         color: "black",
-    }
+    },
 });
 
 export default RenderStep5;

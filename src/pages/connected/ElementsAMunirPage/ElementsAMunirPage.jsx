@@ -1,55 +1,69 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { logout } from '../../../utils/user';
 
 const ElementsAMunirPage = ({ navigation }) => {
+  const handleLogout = async function () {
+    await logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+
+  }
+
   return (
     <View style={styles.container}>
-      {/* <View style={styles.appBar}>
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.backButton}>{"< Back"}</Text>
+      <View style={styles.navBar}>
+        <TouchableOpacity onPress={() => { }}></TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Icon name="log-out-outline" size={28} color="#007AFF" />
         </TouchableOpacity>
-      </View> */}
+      </View>
+
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.center}>
           <Image source={{ uri: 'asset:/illustrations/signing_a_contract.png' }} style={styles.image} />
         </View>
+
         <View style={styles.spacing} />
-        {/* Texte principal */}
+
         <Text style={styles.title}>
           Je configure l'application avec mon contrat
         </Text>
+
         <View style={styles.spacing} />
-        {/* Texte d'instruction */}
+
         <Text style={styles.instruction}>
-          Afin de configurer l'application munissez-vous des éléments suivants:
+          Afin de configurer l'application, munissez-vous des éléments suivants:
         </Text>
+
         <View style={styles.smallSpacing} />
-        {/* Liste des éléments */}
+
         <View>
           <View style={styles.listItem}>
-            <Text style={styles.listIcon}>✔️</Text>
-            <Text style={styles.listText}>
-              Le contrat signé avec l'assistant maternelle
-            </Text>
+            <Icon name="checkmark-circle" size={20} color="green" style={styles.listIcon} />
+            <Text style={styles.listText}>Le contrat signé avec l'assistant maternelle</Text>
           </View>
           <View style={styles.listItem}>
-            <Text style={styles.listIcon}>✔️</Text>
-            <Text style={styles.listText}>
-              Le nombre d'enfant de votre assistant maternelle et leurs âges
-            </Text>
+            <Icon name="checkmark-circle" size={20} color="green" style={styles.listIcon} />
+            <Text style={styles.listText}>Le nombre d'enfants de votre assistant maternelle et leurs âges</Text>
           </View>
         </View>
+
         <View style={styles.flexSpacer} />
-        {/* Bouton */}
-        <View style={styles.center}>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => navigation.navigate("CompatibiliteDuContratPage")}
-          >
-            <Text style={styles.buttonText}>Continuer</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
+
+      {/* Bouton "Continuer" */}
+      <View style={styles.center}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("CompatibiliteDuContratPage")}
+        >
+          <Text style={styles.buttonText}>Continuer</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -58,38 +72,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    display:'flex',
   },
-  appBar: {
+  navBar: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 16,
+    padding: 10,
     backgroundColor: '#F5F5F5',
+    elevation: 1,
   },
-  backButton: {
-    color: '#007AFF',
-    fontSize: 16,
+  logoutButton: {
+    paddingHorizontal: 10,
   },
   content: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   center: {
     alignItems: 'center',
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 22,
     color: '#000',
+    textAlign: 'center',
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
     marginBottom: 20,
   },
   instruction: {
     fontSize: 16,
     color: '#000',
+    textAlign: 'center',
   },
   spacing: {
     height: 20,
@@ -103,7 +119,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   listIcon: {
-    color: 'green',
     marginRight: 10,
   },
   listText: {
@@ -112,7 +127,6 @@ const styles = StyleSheet.create({
   },
   flexSpacer: {
     flex: 1,
-    height:20
   },
   button: {
     backgroundColor: '#007AFF',
@@ -121,8 +135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
     marginBottom: 20,
-    width: '100%',
-
+    width: '90%',
   },
   buttonText: {
     color: '#fff',

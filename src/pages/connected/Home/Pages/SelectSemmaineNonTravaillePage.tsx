@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { Modal, Portal, Button, Checkbox } from 'react-native-paper';
+import { Modal, Portal, Button, Checkbox, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Semaine } from '../../../../utils/date';
 
@@ -11,7 +11,8 @@ interface SelectSemmaineNonTravailleModalProps {
   semaines: Semaine[];
 }
 
-const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalProps> = ({visible,onDismiss,onConfirm,semaines}) => {
+const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalProps> = ({visible, onDismiss, onConfirm, semaines}) => {
+  const { fonts } = useTheme();
   const [selectedWeeks, setSelectedWeeks] = useState<Semaine[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,10 +22,10 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
       if (index !== -1) {
         return prevSelectedWeeks.filter(s => s.numeroSemaine !== week.numeroSemaine);
       } else {
-        if (prevSelectedWeeks.length == 2) {
-          var tmp = [...prevSelectedWeeks]
-          tmp.splice(0,1);
-          return [...tmp,week] 
+        if (prevSelectedWeeks.length === 2) {
+          var tmp = [...prevSelectedWeeks];
+          tmp.splice(0, 1);
+          return [...tmp, week];
         }
         return [...prevSelectedWeeks, week];
       }
@@ -37,7 +38,7 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
       await onConfirm(selectedWeeks);
     } finally {
       setIsLoading(false);
-      setSelectedWeeks([])
+      setSelectedWeeks([]);
       onDismiss();
     }
   };
@@ -46,11 +47,11 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
     <Portal>
       <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.modalContainer}>
         <SafeAreaView style={styles.safeArea}>
-          <Text style={styles.title}>Sélection des semaines non travaillées</Text>
-          <Text style={styles.subtitle}>
+          <Text style={{...styles.title, ...fonts.titleLarge}}>Sélection des semaines non travaillées</Text>
+          <Text style={{...styles.subtitle, ...fonts.bodyMedium}}>
             Sélectionnez les semaines non travaillées pour ce mois-ci.
           </Text>
-          
+
           <ScrollView style={styles.weeksList}>
             <Checkbox.Item
               label="Pas de semaine non travaillée"
@@ -72,7 +73,7 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
             ))}
           </ScrollView>
 
-          <Text style={styles.totalText}>
+          <Text style={{...styles.totalText, ...fonts.bodyMedium}}>
             Total : {selectedWeeks.length} semaine{selectedWeeks.length !== 1 ? 's' : ''} non travaillée{selectedWeeks.length !== 1 ? 's' : ''}
           </Text>
 
@@ -107,10 +108,10 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
 const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: 'white',
-    margin: 20,
+    margin: 10,
     borderRadius: 5,
     overflow: 'hidden',
-    height:'95%'
+    height: '95%'
   },
   safeArea: {
     flex: 1,

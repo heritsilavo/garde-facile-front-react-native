@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'; // Importing lamp icon
 
 interface HelpBoxPropsType {
     text: string,
-    style?: Object
+    style?: ViewStyle
 }
 
 const HelpBox = ({text,style}:HelpBoxPropsType) => {

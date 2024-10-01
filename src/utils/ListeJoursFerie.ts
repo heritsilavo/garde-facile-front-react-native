@@ -12,8 +12,6 @@ interface ListeJourFerie {
     [key: string]: JourFerie;
 }
 
-
-
 export const ListeJourFerie: ListeJourFerie = {
     JOUR_AN: {
         type: 'JOUR_AN',

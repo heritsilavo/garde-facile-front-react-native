@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, Menu, IconButton } from 'react-native-paper';
+import { Text, Menu, IconButton, useTheme } from 'react-native-paper';
 import { Evenement } from '../models/evenements';
 import { EventType, getTypeEventByText, TypeEvenement } from '../utils/evenements/enum-type-evenement';
 import { generateColorForEvent } from '../utils/evenements/famille-evenement';
 import { getDescriptionByEvent } from '../utils/evenements/evenement';
 
 const EventListItem: React.FC<{ event: Evenement, onDelete: (event: Evenement) => void, onDetails: (event: Evenement) => void }> = ({ event, onDelete, onDetails }) => {
+    const {fonts} = useTheme()
     const [visible, setVisible] = useState(false);
     const eventType: EventType | null = getTypeEventByText(event.typeEvenement);
     const familleEvenement = eventType?.famille ?? 1;
@@ -19,8 +20,8 @@ const EventListItem: React.FC<{ event: Evenement, onDelete: (event: Evenement) =
     return (
         <View style={[styles.container, { borderColor: generateColorForEvent(familleEvenement) }]}>
             <View style={styles.contentContainer}>
-                <Text style={styles.titre}>{eventType?.titre || 'Événement inconnu'}</Text>
-                <Text style={styles.desc}>{getDescriptionByEvent(event)}</Text>
+                <Text style={{...styles.titre, ...fonts.bodyLarge}}>{eventType?.titre || 'Événement inconnu'}</Text>
+                <Text style={{...styles.desc, ...fonts.bodySmall}}>{getDescriptionByEvent(event)}</Text>
             </View>
             
             <Menu

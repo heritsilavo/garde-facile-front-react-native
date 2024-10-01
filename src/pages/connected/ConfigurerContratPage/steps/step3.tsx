@@ -42,8 +42,8 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
     
 
     return (
-        <ScrollView style={{flex:1}}>
-            <View style={styles.container}>
+        <View style={{flex:1}}>
+            <ScrollView contentContainerStyle={{alignItems:"center"}} style={styles.container}>
                 <Text style={styles.title}>Acceuil annuel</Text>
                 <Text style={styles.subtitle}>
                     Il existe deux types de contrat selon le nombre de semmaine d'acceuil dans une années
@@ -63,18 +63,17 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
                     <Text style={{color:"#000"}}>Nombre de semmaine de garde:</Text>
                     <TextInput onChangeText={(text:string)=>{setNbrSemmaine(parseInt(text))}} style={styles.input} keyboardType="numeric"></TextInput>
                 </View>
-            </View>
+            </ScrollView>
             <TouchableOpacity onPress={onclickContinue} disabled={((selectedType=='A') || (selectedType=='B' && !!nbrSemmaine))?false:true} style={{...styles.button,opacity:((selectedType=='A') || (selectedType=='B' && nbrSemmaine))?1:0.5}}>
                 <Text style={styles.buttonText}>Continuer</Text>
             </TouchableOpacity>
-        </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
     },
     title: {
         fontSize: 24,

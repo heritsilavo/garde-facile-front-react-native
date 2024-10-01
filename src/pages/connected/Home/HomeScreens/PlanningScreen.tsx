@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { Button, Card, useTheme } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import PlanningMonthSelector from '../../../../components/PlanningMonthSelector';
 import { configuredContratContext, configuredContratContextProps } from '../Home';
@@ -25,6 +25,7 @@ interface SelectedMonth {
 }
 
 const PlanningScreen = () => {
+  const {fonts} = useTheme()
   const [selectedMonth, setSelectedMonth] = useState<SelectedMonth>({ year: 0, monthIndex: 0 });
   const { configuredContrat } = useContext<configuredContratContextProps>(configuredContratContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,23 +44,23 @@ const PlanningScreen = () => {
     const contratId = await getConfiguredContrat();
     if (!!contratId) {
       var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex + 1, selectedMonth.year);
-      var eventListType = listeEvenement.map(e => e.typeEvenement)
+      // var eventListType = listeEvenement.map(e => e.typeEvenement)
 
-      const contrat: ContratEntity = await getDetailConfiguredContrat()
+      // const contrat: ContratEntity = await getDetailConfiguredContrat()
 
-      var indexes: number[] = []
+      // var indexes: number[] = []
       
-      eventListType.forEach((type, index) => {
-        if (type === TypeEvenement.JOUR_FERIE.texte) {
-          if (contrat.joursFeriesTravailles.includes(getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type || "%%%")) {
-            console.log("contrat.joursFeriesTravailles: ", contrat.joursFeriesTravailles, getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type);
-          } else indexes.push(index)
-        }
-      });
+      // eventListType.forEach((type, index) => {
+      //   if (type === TypeEvenement.JOUR_FERIE.texte) {
+      //     if (contrat.joursFeriesTravailles.includes(getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type || "%%%")) {
+      //       console.log("contrat.joursFeriesTravailles: ", contrat.joursFeriesTravailles, getJourFerieByLabel(listeEvenement[index].nomJourFerie)?.type);
+      //     } else indexes.push(index)
+      //   }
+      // });
 
-      indexes.forEach(index => {
-        listeEvenement.splice(index,1);
-      });
+      // indexes.forEach(index => {
+      //   listeEvenement.splice(index,1);
+      // });
 
       setEvents(listeEvenement);
       setLoadEvents(false);
@@ -200,7 +201,7 @@ const PlanningScreen = () => {
       return (
         <Button
           onPress={onclickAddSemmaineNonTravaille}
-          style={styles.button}
+          style={{...styles.button, ...fonts.bodyLarge}}
           mode="contained"
           icon="calendar-blank-outline"
         >
@@ -227,7 +228,7 @@ const PlanningScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Planning</Text>
+      <Text style={{...styles.title,...fonts.titleLarge}}>Planning</Text>
       <PlanningMonthSelector
         dateDebutContrat={configuredContrat.dateDebut}
         selectedMonth={selectedMonth}
@@ -265,7 +266,7 @@ const PlanningScreen = () => {
           style={styles.addEventButton}
         >
           <Icon name="add-circle-outline" size={24} color="#FFF" style={styles.addEventButtonIcon} />
-          <Text style={styles.addEventButtonText}>Ajouter un événement</Text>
+          <Text style={{...styles.addEventButtonText, ...fonts.bodyMedium}}>Ajouter un événement</Text>
         </TouchableOpacity>
       </View>
 
@@ -281,7 +282,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'black',
-    fontWeight: 'bold',
     fontSize: 20,
     margin: 10,
   },

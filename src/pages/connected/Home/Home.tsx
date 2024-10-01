@@ -6,12 +6,15 @@ import User from '../../../models/user';
 import { Body as ContratType } from '../ConfigurerContratPage/classes';
 import { isLogedIn } from '../../../utils/user';
 import { NavigationProp } from '@react-navigation/native';
-import { getConfiguredContrat, getContratById } from '../../../utils/contrat';
+import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat } from '../../../utils/contrat';
 import ProfileScreen from './HomeScreens/ProfileScreen';
 import { connectedUserContext, UserContextType } from '../../../../App';
+import CongeScreen from './HomeScreens/CongesScreen/CongeScreen';
+import { BaseRoute } from 'react-native-paper/lib/typescript/components/BottomNavigation/BottomNavigation';
+
 const DecalrationRoute = () => <Text>Decalration</Text>;
 
-const CongesRoute = () => <Text>Conges</Text>;
+const CongesRoute = () => <CongeScreen></CongeScreen>
 
 
 export interface configuredContratContextProps{
@@ -30,10 +33,20 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
     { key: 'Profile', title: 'Profile', focusedIcon: 'face-woman-profile', unfocusedIcon: 'face-woman-profile' },
   ]);
   const [dataLoaded,setDataloaded] = React.useState(false)
+  const [isLoadingProfile,setIsLoadingProfile] = React.useState<boolean>(true);
+  const [ListeContrat, setListeContrat] = React.useState<ContratType[]>([])
 
   const [configuredContrat,setConfiguredContrat]= React.useState<ContratType>(new ContratType())
 
   const {connectedUser} = React.useContext<UserContextType>(connectedUserContext)
+
+  const fetchContratEnfant = async () => {
+    setIsLoadingProfile(true)
+    
+    const listeContrats: ContratType[] = await getContratByPajeIdParentAndSalarie(configuredContrat.parent.pajeId, configuredContrat.assmat.pajeId);
+    setListeContrat(listeContrats);
+    setIsLoadingProfile(false)
+  }
 
   React.useEffect(function () {
     (async function () {
@@ -47,17 +60,31 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
         }
         else{
           const response:ContratType = await getContratById(contratId);
+          
           setConfiguredContrat(response);
           setDataloaded(true)
         }
     })();
   },[])
 
+  const handleChangeIndex = (index:number) => {
+    setIndex(index);
+    if (index = 3) {
+      fetchContratEnfant()
+    }
+  }
+
+  const handleTabPress = function({route}:{route:BaseRoute}) {
+    if (route.key === 'Profile') {
+      fetchContratEnfant()
+    }
+  }
+
   const renderScene = BottomNavigation.SceneMap({
     Planning: PlanningScreen,
     Decalration: DecalrationRoute,
     Conges: CongesRoute,
-    Profile: ProfileScreen,
+    Profile: () => <ProfileScreen isLoading={isLoadingProfile} setIsLoading={setIsLoadingProfile} listeContrat={ListeContrat}/>,
   });
 
   return (
@@ -65,7 +92,8 @@ const HomePage = ({ navigation }:{navigation:NavigationProp<any>}) => {
       <configuredContratContext.Provider value={{configuredContrat,setConfiguredContrat}}>
         <BottomNavigation
           navigationState={{ index, routes }}
-          onIndexChange={setIndex}
+          onIndexChange={handleChangeIndex}
+          onTabPress={handleTabPress}
           renderScene={renderScene}
           activeColor='#0088ff'
         />

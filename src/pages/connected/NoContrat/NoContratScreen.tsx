@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
+import { View, Button, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContext, useNavigation } from '@react-navigation/native';
 import { getContratByPajeIdUser, isContratConfiguree } from '../../../utils/contrat';
 import { connectedUserContext } from '../../../../App';
 import { logout } from '../../../utils/user';
 
 const NoContractScreen = () => {
+    const { fonts } = useTheme();
     const navigation = useContext(NavigationContext);
     const [isLoading, setIsLoading] = useState(false);
     const { connectedUser } = useContext(connectedUserContext);

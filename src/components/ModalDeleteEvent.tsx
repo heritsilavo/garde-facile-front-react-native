@@ -2,6 +2,7 @@ import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } f
 import React, { useState } from 'react';
 import { Evenement } from '../models/evenements';
 import { Modal, Portal, Button } from 'react-native-paper';
+import { useTheme } from 'react-native-paper';
 import { getTypeEventByText } from '../utils/evenements/enum-type-evenement';
 
 interface ModalDeleteEventProps {
@@ -13,8 +14,7 @@ interface ModalDeleteEventProps {
 
 const ModalDeleteEvent: React.FC<ModalDeleteEventProps> = ({ visible, onDismiss, onConfirm, event }) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    
+    const theme = useTheme();
 
     const handleConfirm = async () => {
         setIsLoading(true);
@@ -25,18 +25,18 @@ const ModalDeleteEvent: React.FC<ModalDeleteEventProps> = ({ visible, onDismiss,
 
     return (
         <Portal>
-            <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.modalContainer}>
-                <SafeAreaView style={styles.safeArea}>
-                    <Text style={styles.title}>Confirmer la suppression</Text>
-                    <Text style={styles.subtitle}>
-                        Vous voulez vraiment supprimer l'événement <Text style={styles.boldText}>{getTypeEventByText(event.typeEvenement)?.titre}</Text> ?
+            <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles(theme).modalContainer}>
+                <SafeAreaView style={styles(theme).safeArea}>
+                    <Text style={styles(theme).title}>Confirmer la suppression</Text>
+                    <Text style={styles(theme).subtitle}>
+                        Vous voulez vraiment supprimer l'événement <Text style={styles(theme).boldText}>{getTypeEventByText(event.typeEvenement)?.titre}</Text> ?
                     </Text>
 
-                    <View style={styles.buttonContainer}>
+                    <View style={styles(theme).buttonContainer}>
                         <Button
                             mode="outlined"
                             onPress={onDismiss}
-                            style={[styles.button, styles.cancelButton]}
+                            style={[styles(theme).button, styles(theme).cancelButton]}
                             disabled={isLoading}
                         >
                             Annuler
@@ -44,7 +44,7 @@ const ModalDeleteEvent: React.FC<ModalDeleteEventProps> = ({ visible, onDismiss,
                         <Button
                             mode="contained"
                             onPress={handleConfirm}
-                            style={[styles.button, styles.confirmButton]}
+                            style={[styles(theme).button, styles(theme).confirmButton]}
                             disabled={isLoading}
                         >
                             {isLoading ? (
@@ -60,9 +60,9 @@ const ModalDeleteEvent: React.FC<ModalDeleteEventProps> = ({ visible, onDismiss,
     );
 };
 
-const styles = StyleSheet.create({
+const styles = (theme:any) => StyleSheet.create({
     modalContainer: {
-        backgroundColor: '#f9f9f9',
+        backgroundColor: theme.colors.background, // Utiliser la couleur de fond du thème
         margin: 20,
         borderRadius: 10,
         overflow: 'hidden',
@@ -74,13 +74,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
+        fontFamily: theme.fonts.titleMedium.fontFamily, // Police pour le titre
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 10,
-        color: '#0056b3',
+        color: theme.colors.primary, // Utiliser la couleur primaire du thème
     },
     subtitle: {
         fontSize: 16,
+        fontFamily: theme.fonts.bodyMedium.fontFamily, // Police pour le sous-titre
         textAlign: 'center',
         marginBottom: 20,
         color: '#555',
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
         borderColor: '#b0b0b0',
     },
     confirmButton: {
-        backgroundColor: '#d1213c',
+        backgroundColor: theme.colors.error, // Utiliser la couleur d'erreur du thème
     },
 });
 

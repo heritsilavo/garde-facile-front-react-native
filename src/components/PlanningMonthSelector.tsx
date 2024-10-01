@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-
+import { useTheme } from 'react-native-paper';
 
 interface Month {
   label: string;
@@ -20,18 +20,19 @@ interface PlanningMonthSelectorProps {
 }
 
 const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebutContrat, selectedMonth, setSelectedMonth }) => {
+  const { fonts } = useTheme(); // Accéder aux polices du thème
   const [months, setMonths] = useState<Month[]>([]);
   const flatListRef = useRef<FlatList>(null);
 
   const ITEM_WIDTH = Dimensions.get('window').width / 3;
   const ITEM_OFFSET = ITEM_WIDTH;
 
-  useEffect(function () {
+  useEffect(() => {
     const generateMonths = () => {
       const startDate = new Date(dateDebutContrat);
       const monthNames = [
         'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-        'Juillet', 'Août', 'Sept. ', 'Octobre', 'Novembre', 'Décembre'
+        'Juillet', 'Août', 'Sept.', 'Octobre', 'Novembre', 'Décembre'
       ];
 
       const next12Months = [];
@@ -77,7 +78,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
     setSelectedMonth({ year: month.year, monthIndex: month.monthIndex });
   };
 
-  const renderItem = ({ item, index }: { item: Month; index: number }) => {
+  const renderItem = ({ item }: { item: Month }) => {
     const isSelected = item.year === selectedMonth.year && item.monthIndex === selectedMonth.monthIndex;
     const currentDate = new Date();
     const isCurrentMonth = item.year === currentDate.getFullYear() && item.monthIndex === currentDate.getMonth();
@@ -94,7 +95,8 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
         <Text style={[
           styles.monthText,
           isSelected && styles.selectedText,
-          isCurrentMonth && styles.currentMonthText
+          isCurrentMonth && styles.currentMonthText,
+          { ...fonts.bodyMedium } // Appliquer les polices du thème ici
         ]}>
           {item.label}
         </Text>
@@ -118,7 +120,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
         ref={flatListRef}
         data={months}
         renderItem={renderItem}
-        keyExtractor={(item, index) => `${item.year}-${item.monthIndex}`}
+        keyExtractor={(item) => `${item.year}-${item.monthIndex}`}
         horizontal
         showsHorizontalScrollIndicator={false}
         snapToInterval={ITEM_WIDTH}
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   flatListContent: {
-    
+    // Peut contenir des styles supplémentaires
   },
   monthContainer: {
     width: Dimensions.get('window').width / 3,

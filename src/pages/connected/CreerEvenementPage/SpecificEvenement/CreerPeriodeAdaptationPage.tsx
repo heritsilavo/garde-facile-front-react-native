@@ -22,12 +22,12 @@ interface SelectedMonth {
 }
 
 type RootStackParamList = {
-    CreerJourFerieTravaillPage: {
+    CreerPeriodeAdaptationPage: {
         month: SelectedMonth;
     };
 };
 
-const CreerPeriodeAdaptationPage = ({ route }: { route: RouteProp<RootStackParamList, 'CreerJourFerieTravaillPage'> }) => {
+const CreerPeriodeAdaptationPage = ({ route }: { route: RouteProp<RootStackParamList, 'CreerPeriodeAdaptationPage'> }) => {
     const navigation = useContext(NavigationContext);
     const { month } = route.params
 

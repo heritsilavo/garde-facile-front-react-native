@@ -72,7 +72,7 @@ export const TypeEvenement = {
         titre: "Congés Payés",
         texte: "Congés payés",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Congés durant lesquels le salarié continue à recevoir son salaire habituel."
+        description: "Le salarié a droit a 2.5 jours de congées par mois. Donc 30jours(5 semmaines) par an"
     },
     SALARIE_CONGES_SANS_SOLDES: {
         titre: "Congés Sans Solde",

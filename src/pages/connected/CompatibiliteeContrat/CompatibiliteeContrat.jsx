@@ -1,42 +1,43 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView,Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { Appbar } from 'react-native-paper';
 
 const CompatibiliteeContrat = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.appBar}>
-        <TouchableOpacity onPress={() => navigation.navigate("ElementsAMunirPage")}>
-          <Text style={styles.backButton}>{"< Back"}</Text>
-        </TouchableOpacity>
-      </View>
+      {/* AppBar plus discret */}
+      <Appbar.Header style={styles.appBar}>
+        <Appbar.BackAction onPress={() => navigation.navigate("ElementsAMunirPage")} />
+      </Appbar.Header>
+      
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.center}>
-        <Image source={{ uri: 'asset:/illustrations/documents_rafiki.png' }} style={styles.image} />
+          <Image source={{ uri: 'asset:/illustrations/documents_rafiki.png' }} style={styles.image} />
         </View>
+        
         <View style={styles.spacing} />
+        
         {/* Texte principal */}
-        <Text style={styles.title}>
-          Votre Contrat Est-il bien compatible ?
-        </Text>
+        <Text style={styles.title}>Votre Contrat Est-il bien compatible ?</Text>
+        
         <View style={styles.spacing} />
+        
         {/* Texte d'instruction */}
         <Text style={styles.instruction}>
           Pour continuer, votre contrat doit être :
         </Text>
+        
         <View style={styles.smallSpacing} />
+        
         {/* Liste des éléments */}
         <View>
           <View style={styles.listItem}>
             <Text style={styles.listIcon}>●</Text>
-            <Text style={styles.listText}>
-              Un contrat d'assistance maternelle
-            </Text>
+            <Text style={styles.listText}>Un contrat d'assistance maternelle</Text>
           </View>
           <View style={styles.listItem}>
             <Text style={styles.listIcon}>●</Text>
-            <Text style={styles.listText}>
-              Un contrat CDI
-            </Text>
+            <Text style={styles.listText}>Un contrat CDI</Text>
           </View>
           <View style={styles.listItem}>
             <Text style={styles.listIcon}>●</Text>
@@ -45,17 +46,19 @@ const CompatibiliteeContrat = ({ navigation }) => {
             </Text>
           </View>
         </View>
+        
         <View style={styles.flexSpacer} />
-        {/* Bouton */}
-        <View style={styles.center}>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => navigation.navigate("ConfigurerContrat")}
-          >
-            <Text style={styles.buttonText}>Mon contrat est compatible</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
+
+      {/* Bouton */}
+      <View style={styles.center}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("ConfigurerContrat")}
+        >
+          <Text style={styles.buttonText}>Mon contrat est compatible</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -66,15 +69,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   appBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 16,
-    backgroundColor: '#F5F5F5',
-  },
-  backButton: {
-    color: '#007AFF',
-    fontSize: 16,
+    backgroundColor: 'transparent', // AppBar transparent pour un style plus discret
+    elevation: 0, // Retirer l'ombre pour plus de légèreté
   },
   content: {
     padding: 16,
@@ -84,12 +80,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 22,
     color: '#000',
+    textAlign: 'center',
   },
   instruction: {
     fontSize: 16,
     color: '#000',
+    textAlign: 'center',
   },
   spacing: {
     height: 20,
@@ -100,12 +98,12 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 5,
+    marginVertical: 8,
   },
   listIcon: {
-    color: '#000',
+    color: '#007AFF',
     marginRight: 10,
-    fontSize: 12,
+    fontSize: 16,
   },
   listText: {
     fontSize: 16,
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
     marginBottom: 20,
-    width: '100%',
+    width: '90%',
   },
   buttonText: {
     color: '#fff',
@@ -132,7 +130,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 20,
-  }
+  },
 });
 
 export default CompatibiliteeContrat;
