@@ -34,8 +34,8 @@ const EventListItem: React.FC<{ event: Evenement, onDelete: (event: Evenement) =
                     />
                 }
             >
-                {/* <Menu.Item leadingIcon="trash-can-outline" onPress={() => { onDelete(event); closeMenu();}} title="Supprimer" /> */}
                 <Menu.Item leadingIcon="information-outline" onPress={() => {onDetails(event); closeMenu();}} title="Détails" />
+                {(eventType?.texte != TypeEvenement.JOUR_FERIE.texte) && <Menu.Item leadingIcon="trash-can-outline" onPress={() => { onDelete(event); closeMenu();}} title="Supprimer" />}
             </Menu>
         </View>
     );

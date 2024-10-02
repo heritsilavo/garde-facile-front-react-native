@@ -189,3 +189,19 @@ export const setIsJourFerieTravaille = async function (idEvenement: string, isTr
         return data
     } else throw new Error("Vous n'etes pas connecté");
 }
+
+/**
+ * Supprimer un evenement
+ * @param idEvenement id de l'evenement a supprimer
+ */
+export const deleteEvenement =async (idEvenement:string) => {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken();
+        return axios.delete(`${SPRING_BOOT_URL}/evenements/${idEvenement}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    } else throw new Error("Vous n'etes pas connecté");
+}

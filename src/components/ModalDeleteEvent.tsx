@@ -1,14 +1,14 @@
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import React, { useState } from 'react';
 import { Evenement } from '../models/evenements';
-import { Modal, Portal, Button } from 'react-native-paper';
+import { Dialog, Portal, Button } from 'react-native-paper';
 import { useTheme } from 'react-native-paper';
 import { getTypeEventByText } from '../utils/evenements/enum-type-evenement';
 
 interface ModalDeleteEventProps {
     visible: boolean;
     onDismiss: () => void;
-    onConfirm: (event: Evenement) => Promise<void>;
+    onConfirm: (event: Evenement) => Promise<any>;
     event: Evenement;
 }
 
@@ -25,64 +25,42 @@ const ModalDeleteEvent: React.FC<ModalDeleteEventProps> = ({ visible, onDismiss,
 
     return (
         <Portal>
-            <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles(theme).modalContainer}>
-                <SafeAreaView style={styles(theme).safeArea}>
-                    <Text style={styles(theme).title}>Confirmer la suppression</Text>
+            <Dialog visible={visible} onDismiss={onDismiss} dismissable={!isLoading}>
+                <Dialog.Title style={styles(theme).title}>Confirmer la suppression</Dialog.Title>
+                <Dialog.Content>
                     <Text style={styles(theme).subtitle}>
                         Vous voulez vraiment supprimer l'événement <Text style={styles(theme).boldText}>{getTypeEventByText(event.typeEvenement)?.titre}</Text> ?
                     </Text>
-
-                    <View style={styles(theme).buttonContainer}>
-                        <Button
-                            mode="outlined"
-                            onPress={onDismiss}
-                            style={[styles(theme).button, styles(theme).cancelButton]}
-                            disabled={isLoading}
-                        >
-                            Annuler
-                        </Button>
-                        <Button
-                            mode="contained"
-                            onPress={handleConfirm}
-                            style={[styles(theme).button, styles(theme).confirmButton]}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <ActivityIndicator color="#ffffff" size="small" />
-                            ) : (
-                                'Confirmer'
-                            )}
-                        </Button>
-                    </View>
-                </SafeAreaView>
-            </Modal>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={onDismiss} mode="outlined" style={[styles(theme).button, styles(theme).cancelButton]} disabled={isLoading}>
+                        Annuler
+                    </Button>
+                    <Button onPress={handleConfirm} mode="contained" style={[styles(theme).button, styles(theme).confirmButton]} disabled={isLoading}>
+                        {isLoading ? (
+                            <ActivityIndicator color="#ffffff" size="small" />
+                        ) : (
+                            'Confirmer'
+                        )}
+                    </Button>
+                </Dialog.Actions>
+            </Dialog>
         </Portal>
     );
 };
 
 const styles = (theme:any) => StyleSheet.create({
-    modalContainer: {
-        backgroundColor: theme.colors.background, // Utiliser la couleur de fond du thème
-        margin: 20,
-        borderRadius: 10,
-        overflow: 'hidden',
-        height: '40%',
-    },
-    safeArea: {
-        flex: 1,
-        padding: 20,
-    },
     title: {
         fontSize: 24,
-        fontFamily: theme.fonts.titleMedium.fontFamily, // Police pour le titre
+        fontFamily: theme.fonts.titleMedium.fontFamily,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 10,
-        color: theme.colors.primary, // Utiliser la couleur primaire du thème
+        color: theme.colors.primary,
     },
     subtitle: {
         fontSize: 16,
-        fontFamily: theme.fonts.bodyMedium.fontFamily, // Police pour le sous-titre
+        fontFamily: theme.fonts.bodyMedium.fontFamily,
         textAlign: 'center',
         marginBottom: 20,
         color: '#555',
@@ -90,11 +68,6 @@ const styles = (theme:any) => StyleSheet.create({
     boldText: {
         fontWeight: 'bold',
         color: '#333',
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
     },
     button: {
         width: '48%',
@@ -104,7 +77,7 @@ const styles = (theme:any) => StyleSheet.create({
         borderColor: '#b0b0b0',
     },
     confirmButton: {
-        backgroundColor: theme.colors.error, // Utiliser la couleur d'erreur du thème
+        backgroundColor: theme.colors.error,
     },
 });
 

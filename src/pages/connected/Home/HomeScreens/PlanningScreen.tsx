@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NavigationContext, useNavigation } from '@react-navigation/native';
 import { Amplitude, Evenement } from '../../../../models/evenements';
 import EventsList from '../../../../components/EventsList';
-import { creerEvenement, getEvenementsByContratAndPeriode } from '../../../../utils/evenements/evenement';
+import { creerEvenement, deleteEvenement, getEvenementsByContratAndPeriode } from '../../../../utils/evenements/evenement';
 import { getConfiguredContrat, getDetailConfiguredContrat } from '../../../../utils/contrat';
 import { getTypeAndLibele, getTypeEventByText, isRemunere, isTravaille, TypeEvenement } from '../../../../utils/evenements/enum-type-evenement';
 import { generateGeneralId } from '../../../../utils/generateId';
@@ -42,31 +42,32 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
 
 
   const fetchEvents = useCallback(async () => {
-    setLoadEvents(true);
-    const contratId = await getConfiguredContrat();
-    if (!!contratId) {
-      var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex + 1, selectedMonth.year);
+    if (!loadEvents) {
+      setLoadEvents(true);
+      const contratId = await getConfiguredContrat();
+      if (!!contratId) {
+        var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex + 1, selectedMonth.year);
 
-      setEvents(listeEvenement);
-      setLoadEvents(false);
-    }
+        setEvents(listeEvenement);
+        setLoadEvents(false);
+      }
+    }else setLoadEvents(false)
   }, [selectedMonth]);
 
   useEffect(() => {
-    const now = new Date();
-    setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() });
-  }, []);
-
-  useEffect(() => {
-    fetchEvents();
+    (async () => {
+      const now = new Date();
+      setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() });
+      await fetchEvents();
+    })();
   }, [refreshValue]);
-
 
   useFocusEffect(
     useCallback(() => {
       fetchEvents();
     }, [fetchEvents])
   );
+
 
   const onclickAddSemmaineNonTravaille = () => {
     setModalVisible(true);
@@ -179,7 +180,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
         <Card style={styles.greenCard}>
           <Card.Content style={styles.greenCardContent}>
             <Icon name="check-circle" size={24} color="#4CAF50" />
-            <Text style={styles.greenCardText}>Semaine(s) non travaillée(s) déjà ajoutée(s)</Text>
+            <Text style={{ ...styles.greenCardText, ...fonts.bodyMedium }}>Semaine(s) non travaillée(s) déjà ajoutée(s)</Text>
           </Card.Content>
         </Card>
       );
@@ -201,9 +202,23 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
     setSelectedEvent(event)
     setDeleteModalVisible(true);
   }
-
+  
   const onConfirmDelete = async function (event: Evenement) {
-    console.log("DELETE, EVENEMENT: ", event);
+    return deleteEvenement(event.id).then(response => {
+      fetchEvents();
+      Toast.show({
+        type:"info", 
+        autoHide:true,
+        text1:"Suppression reussi"
+      })
+    }).catch(()=>{
+      Toast.show({
+        type:"error", 
+        autoHide:true,
+        visibilityTime:1500,
+        text1:"Erreur pendant la suppression"
+      })
+    })
   }
 
   const onClickShowDetails = function (event: Evenement) {
