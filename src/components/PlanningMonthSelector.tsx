@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
-
-interface Month {
-  label: string;
-  year: number;
-  monthIndex: number;
-}
-
+import { generateMonths, Month } from '../utils/date';
 interface SelectedMonth {
   year: number;
   monthIndex: number;
@@ -24,40 +18,12 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
   const [months, setMonths] = useState<Month[]>([]);
   const flatListRef = useRef<FlatList>(null);
 
-  const ITEM_WIDTH = Dimensions.get('window').width / 3;
+  const ITEM_WIDTH = (Dimensions.get('window').width / 3);
   const ITEM_OFFSET = ITEM_WIDTH;
 
   useEffect(() => {
-    const generateMonths = () => {
-      const startDate = new Date(dateDebutContrat);
-      const monthNames = [
-        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-        'Juillet', 'Août', 'Sept.', 'Octobre', 'Novembre', 'Décembre'
-      ];
-
-      const next12Months = [];
-      for (let i = 0; i < 12; i++) {
-        const currentDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-        next12Months.push({
-          label: `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`,
-          year: currentDate.getFullYear(),
-          monthIndex: currentDate.getMonth()
-        });
-      }
-      setMonths(next12Months);
-
-      const currentDate = new Date();
-      const currentMonthIndex = next12Months.findIndex(
-        month => month.monthIndex === currentDate.getMonth() &&
-          month.year === currentDate.getFullYear()
-      );
-      setSelectedMonth(currentMonthIndex !== -1
-        ? { year: next12Months[currentMonthIndex].year, monthIndex: next12Months[currentMonthIndex].monthIndex }
-        : { year: next12Months[0].year, monthIndex: next12Months[0].monthIndex }
-      );
-    };
-
-    generateMonths();
+    var listMonths = generateMonths(dateDebutContrat);
+    setMonths(listMonths);
   }, [dateDebutContrat]);
 
   useEffect(() => {
@@ -96,7 +62,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
           styles.monthText,
           isSelected && styles.selectedText,
           isCurrentMonth && styles.currentMonthText,
-          { ...fonts.bodyMedium } // Appliquer les polices du thème ici
+          { ...fonts.bodyMedium }
         ]}>
           {item.label}
         </Text>

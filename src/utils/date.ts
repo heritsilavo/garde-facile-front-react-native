@@ -30,7 +30,7 @@ export function obtenirSemaines(mois: Mois): Semaine[] {
         semaines.push({
             dateDebut: new Date(dateDebutSemaine),
             dateFin: new Date(dateFinSemaine),
-            label: `Du ${dateDebutSemaine.getDate()} ${(getNomMois(dateFinSemaine.getMonth()) != getNomMois(dateDebutSemaine.getMonth())) ? getNomMois(dateDebutSemaine.getMonth()) : "" } au ${dateFinSemaine.getDate()} ${getNomMois(dateFinSemaine.getMonth())}`,
+            label: `Du ${dateDebutSemaine.getDate()} ${(getNomMois(dateFinSemaine.getMonth()) != getNomMois(dateDebutSemaine.getMonth())) ? getNomMois(dateDebutSemaine.getMonth()) : ""} au ${dateFinSemaine.getDate()} ${getNomMois(dateFinSemaine.getMonth())}`,
             numeroSemaine: numeroSemaine,
         });
 
@@ -64,8 +64,8 @@ export function calculerDifferenceAvecPlanning(
 
     var jours = Math.floor((fin.getTime() - debut.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     let heuresTotales = 0;
-    console.log("JOURS%%%: ",jours);
-    
+    console.log("JOURS%%%: ", jours);
+
     var nbJoursDecompte = 0
     for (let i = 0; i <= jours; i++) {
         const jourCourant = new Date(debut);
@@ -73,17 +73,17 @@ export function calculerDifferenceAvecPlanning(
         const estPremierJour = i === 0;
         const estDernierJour = i === jours;
 
-        console.log("->",jourCourant.toString(),"$$",(jourCourant.getDay() == 0) ? 6 : jourCourant.getDay() -1)
+        console.log("->", jourCourant.toString(), "$$", (jourCourant.getDay() == 0) ? 6 : jourCourant.getDay() - 1)
         if (indexJourChome) {
             const nbH = calculerHeuresPourUnJour(
-                (jourCourant.getDay() == 0) ? 6 : jourCourant.getDay() -1,
+                (jourCourant.getDay() == 0) ? 6 : jourCourant.getDay() - 1,
                 planning,
                 estPremierJour && debutEvenementMidi,
                 estDernierJour && finEvenementMidi,
                 indexJourChome
             );
             heuresTotales += nbH
-            if(nbH) nbJoursDecompte += 1
+            if (nbH) nbJoursDecompte += 1
         } else {
             heuresTotales += calculerHeuresPourUnJour(
                 jourCourant.getDay(),
@@ -93,7 +93,7 @@ export function calculerDifferenceAvecPlanning(
             );
         }
     }
-    console.log("JOURSDECOMPTE%%%: ",nbJoursDecompte);
+    console.log("JOURSDECOMPTE%%%: ", nbJoursDecompte);
 
     return [nbJoursDecompte, heuresTotales];
 }
@@ -103,9 +103,9 @@ function calculerHeuresPourUnJour(
     planning: Planning[],
     debutMidi: boolean,
     finMidi: boolean,
-    indexJourChome?:number[]
+    indexJourChome?: number[]
 ): number {
-    
+
     const jourPlanning = planning.find(p => p.indexJour === jourSemaine);
     if (!jourPlanning) return 0;
     if (!!indexJourChome && indexJourChome.includes(jourPlanning.indexJour)) {
@@ -116,7 +116,7 @@ function calculerHeuresPourUnJour(
     heuresJour += calculerHeuresTranche(jourPlanning.trancheHoraire1, debutMidi, finMidi);
     heuresJour += calculerHeuresTranche(jourPlanning.trancheHoraire2, debutMidi, finMidi);
 
-    console.log("%%%: ",jourPlanning.indexJour,heuresJour);
+    console.log("%%%: ", jourPlanning.indexJour, heuresJour);
 
     return heuresJour;
 }
@@ -143,7 +143,7 @@ export function getDebutFinMois(month: SelectedMonth): [string, string] {
     ];
 }
 
-export function convertirEnMinutes(heure: number, minute: number): number { 
+export function convertirEnMinutes(heure: number, minute: number): number {
     return heure * 60 + minute;
 }
 
@@ -154,24 +154,24 @@ export function convertirEnHeuresMinutes(totalMinutes: number): { heure: number,
 }
 
 type Decompte = {
-    nbDay:number
-    nbHour:number
+    nbDay: number
+    nbHour: number
 }
 
 //NATAO REFA NANAO PAGE CREER PERIODE APDAPTATION, le eo ambony otra tsy mety
-export function getDecompteBetweenTwoDays(debut:string,fin:string,contrat:ContratEntity):Decompte {
-    var result:Decompte = {nbDay:0,nbHour:0};
+export function getDecompteBetweenTwoDays(debut: string, fin: string, contrat: ContratEntity): Decompte {
+    var result: Decompte = { nbDay: 0, nbHour: 0 };
 
     const dateDebut = new Date(debut);
-    const dateFin = new Date (fin);
-    
+    const dateFin = new Date(fin);
+
     const listeJourChomes = contrat.indexJoursChomes
     const plannings = contrat.planning
 
-    const dateList: Date[] = fillDateList(dateDebut,dateFin);
-    
+    const dateList: Date[] = fillDateList(dateDebut, dateFin);
+
     dateList.forEach(date => {
-        var planning = getPlanningForDay(date,plannings);
+        var planning = getPlanningForDay(date, plannings);
         if (!listeJourChomes.includes(getCustomDay(date)) && !!planning) {
             result.nbDay += 1
             var tranche1 = 0;
@@ -182,7 +182,7 @@ export function getDecompteBetweenTwoDays(debut:string,fin:string,contrat:Contra
             if (planning.trancheHoraire2.heureDebut && planning.trancheHoraire2.heureFin) {
                 tranche2 = Math.floor((planning.trancheHoraire2.heureFin - planning.trancheHoraire2.heureDebut) / 60)
             }
-            result.nbHour+=(tranche1+tranche2)
+            result.nbHour += (tranche1 + tranche2)
         }
     });
 
@@ -206,7 +206,74 @@ const getCustomDay = (date: Date): number => {
     return (day === 0) ? 6 : day - 1;
 };
 
-const getPlanningForDay = function (date:Date,planning:Planning[]) {
+const getPlanningForDay = function (date: Date, planning: Planning[]) {
     var res = planning.find((p => p.indexJour === getCustomDay(date)));
     return res || null
+}
+
+type PeriodeReference = {
+    anneRef: number,
+    dateDebut: Date,
+    dateFin: Date
+}
+
+export interface Month {
+    label: string;
+    year: number;
+    monthIndex: number;
+}
+
+const getPeriodeReference = function (dateStr: string): PeriodeReference {
+    var date = new Date(dateStr);
+    var anneRef = (date.getMonth() < 6) ? (date.getFullYear() - 1) : date.getFullYear();
+    var dateDebut = new Date(anneRef, 6, 1);
+    var dateFin = new Date(anneRef + 1, 5, 31);
+    return { anneRef, dateDebut, dateFin }
+}
+
+
+const getNbMonthBetween2Dates = function (debut: Date, fin: Date) {
+    var nbMonth = 0;
+    var diffAnnee = (fin.getFullYear() - debut.getFullYear()) + 1;
+    if (diffAnnee < 0) throw new Error("La date debut doit etre avant la date de fin");
+    nbMonth += (diffAnnee * 12);
+    nbMonth -= debut.getMonth()
+    nbMonth -= (12 - fin.getMonth())
+    return nbMonth;
+}
+
+export const generateMonths = function (dateDebutContrat: string) {
+    const periodeReference: PeriodeReference = getPeriodeReference(dateDebutContrat);
+
+    var debutContrat = new Date(dateDebutContrat);
+    console.log("Debut contrat: " + debutContrat.toISOString() + " Fin periode: " + periodeReference.dateFin.toISOString());
+
+    var nbMonth = getNbMonthBetween2Dates(debutContrat, periodeReference.dateFin);
+    console.log("nMonth: ", nbMonth);
+
+    const monthNames = [
+        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+        'Juillet', 'Août', 'Sept.', 'Octobre', 'Nov.', 'Déc.'
+    ]
+    var listeMonth: Month[] = []
+
+    var date = debutContrat;
+    for (let i = 0; i < nbMonth; i++) {
+        listeMonth.push({
+            label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`,
+            monthIndex: date.getMonth(),
+            year: date.getFullYear()
+        })
+        if (date.getMonth() < 12) {
+            date.setMonth(date.getMonth() + 1)
+        } else if (date.getMonth() === 12) {
+            date.setFullYear(date.getFullYear() + 1);
+            date.setMonth(1);
+        } else {
+            throw new Error("Ne devrait pas arriver jusqu'ici: monthIdex=" + date.getMonth())
+        }
+    }
+    console.log("Liste Month:", listeMonth);
+
+    return listeMonth
 }

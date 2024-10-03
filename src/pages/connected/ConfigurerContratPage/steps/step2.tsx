@@ -17,8 +17,6 @@ const RenderStep2: React.FC<RenderStep2Props> = ({ setStep, setDateDebut }) => {
         setDateDebut(day.dateString)
     };
 
-    const dateString = (new Date()).toISOString().split('T')[0]
-
     const onclickContinue = function() {
         setStep(3);
     }
@@ -29,7 +27,6 @@ const RenderStep2: React.FC<RenderStep2Props> = ({ setStep, setDateDebut }) => {
             <View style={styles.container}>
                 <Text style={styles.title}>Choisissez la date de début du contrat</Text>
                 <Calendar 
-                    minDate={dateString}
                     onDayPress={onPressDay} 
                     markedDates={{
                         [selectedDay?.dateString || '']: { selected: true, selectedColor: 'blue' }
