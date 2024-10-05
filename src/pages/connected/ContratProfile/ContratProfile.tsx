@@ -2,13 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { Appbar, Button, Text, Card, TextInput, IconButton, Divider, ActivityIndicator, Portal, Dialog, Paragraph, useTheme } from 'react-native-paper';
 import { IndemniteEntity } from '../../../models/indemnites';
-import { getDetailConfiguredContrat, removeConfiguredContrat } from '../../../utils/contrat';
+import { getDetailConfiguredContrat, modifierContrat, removeConfiguredContrat } from '../../../utils/contrat';
 import { NavigationContext } from '@react-navigation/native';
 import { getIndemniteByContratId, updateEntretieByContraId, updateKilometriqueByContraId, updateRepasByContraId } from '../../../utils/indemnite';
 import Toast from 'react-native-toast-message';
 import { connectedUserContext, UserContextType } from '../../../../App';
-import { type_A, type_B, TypeModeGarde } from '../../../utils/mode-de-garde';
+import { getModeGardeByType, type_A, type_B, TypeModeGarde } from '../../../utils/mode-de-garde';
 import LoadingScreen from '../../../components/loading/LoadingScreens';
+import { Body as Contrat } from '../ConfigurerContratPage/classes';
+import { configuredContratContext } from '../Home/Home';
 
 enum IndemniteType {
     Entretien = "entretien",
@@ -16,32 +18,6 @@ enum IndemniteType {
     Kilometrique = "kilometrique",
 }
 
-interface Contrat {
-    id: string;
-    numeroPajeEmployeur: string;
-    numeroPajeSalarie: string;
-    enfant?: {
-        nom: string;
-        prenom: string;
-        dateNaissance: string;
-    };
-    assmat?: {
-        nom: string;
-        prenom: string;
-    };
-    parent?: {
-        nom: string;
-        prenom: string;
-    };
-    modeDeGarde: string;
-    anneeComplete: boolean;
-    nbSemainesTravaillees: number;
-    nbHeuresNormalesHebdo: number;
-    nbHeuresMajoreesHebdo: number;
-    salaireHoraireNet: number;
-    salaireMensuelNet: number;
-    dateDebut: string;
-}
 
 const ContratProfile: React.FC = () => {
     const { fonts } = useTheme()
@@ -58,6 +34,8 @@ const ContratProfile: React.FC = () => {
     const [showModalModifGarde, setShowModalModifGarde] = useState<boolean>(false);
     const [selectedModeGarde, setSelectedModeGarde] = useState<TypeModeGarde>();
     const [selectedNbSemmaine, setSelectedNbSemmaine] = useState("");
+    const [loadingChangeModeGarde,setLoadingChangeModeGarde] = useState(false);
+    const { configuredContrat, setConfiguredContrat } = useContext(configuredContratContext);
 
     const navigation = useContext(NavigationContext)
 
@@ -162,7 +140,7 @@ const ContratProfile: React.FC = () => {
     };
 
     //MODIF MODE GARDE
-    const showErrorToast = function (message: string, message1?: string, type: 'error' | 'info' | 'success' = 'error') {
+    const showToast = function (message: string, message1?: string, type: 'error' | 'info' | 'success' = 'error') {
         Toast.show({
             type: type,
             text1: message,
@@ -172,15 +150,28 @@ const ContratProfile: React.FC = () => {
         })
     }
     const onConfirmModifModeGarde = function () {
-        if (!selectedModeGarde) showErrorToast("Aucun type selectionnée")
-        else if(!!selectedModeGarde && (selectedModeGarde.type === type_B.type) && !selectedNbSemmaine) showErrorToast("Données incomplet")
+        if (!selectedModeGarde) showToast("Aucun type selectionnée")
+        else if (!!selectedModeGarde && (selectedModeGarde.type === type_B.type) && !selectedNbSemmaine) showToast("Données incomplet")
         else {
-            setShowModalModifGarde(false)
+            setLoadingChangeModeGarde(true);
+            var tmp = {...configuredContrat}
+            tmp.modeDeGarde = selectedModeGarde.type;
+            tmp.nbSemainesTravaillees = parseInt(selectedNbSemmaine) || 52;
+            modifierContrat("MODE_GARDE", tmp).catch(error => {
+                showToast(error.message || "Erreur pendant la modif")
+            }).then((newContrat)=>{
+                setConfiguredContrat(newContrat);
+                console.log(newContrat);
+                setContrat(newContrat)
+                setShowModalModifGarde(false);  
+            }).finally(function () {
+                setLoadingChangeModeGarde(false);
+            })
         }
     }
 
     if (loading) {
-        return <LoadingScreen/>
+        return <LoadingScreen />
     }
 
     if (error) {
@@ -245,7 +236,7 @@ const ContratProfile: React.FC = () => {
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Mode de garde:</Text>
-                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.modeDeGarde === 'A' ? 'Année complète' : 'Année incomplète'}</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{(contrat.modeDeGarde == "A") ? "Année complete" : "Année incomplete"}</Text>
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Semaines travaillées:</Text>
@@ -340,7 +331,7 @@ const ContratProfile: React.FC = () => {
             </Portal>
 
             <Portal>
-                <Dialog visible={showModalModifGarde} onDismiss={() => setShowModalModifGarde(false)}>
+                <Dialog dismissable={!loadingChangeModeGarde} visible={showModalModifGarde} onDismiss={() => setShowModalModifGarde(false)}>
                     <Dialog.Title>Modifier le mode de garde</Dialog.Title>
                     <Dialog.Content style={{ alignItems: 'center' }}>
                         {
@@ -357,10 +348,11 @@ const ContratProfile: React.FC = () => {
                             onChangeText={setSelectedNbSemmaine}
                         />}
                     </Dialog.Content>
-                    <Dialog.Actions>
+                    {!loadingChangeModeGarde ? <Dialog.Actions>
                         <Button onPress={() => setShowModalModifGarde(false)}>Annuler</Button>
                         <Button onPress={onConfirmModifModeGarde}>Confirmer</Button>
-                    </Dialog.Actions>
+                    </Dialog.Actions>:
+                    <ActivityIndicator style={{marginBottom:20}}></ActivityIndicator>}
                 </Dialog>
             </Portal>
         </View>

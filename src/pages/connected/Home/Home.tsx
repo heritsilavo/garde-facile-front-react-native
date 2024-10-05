@@ -123,7 +123,7 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
         Planning: () => <PlanningScreen refreshValue={refreshPlanningValue} />,
         Declaration: DeclarationRoute,
         Conges: () => <CongeScreen refreshValue={refreshCongesValue}></CongeScreen>,
-        Profile: () => (
+        Profile: () => ( 
           <ProfileScreen
             isLoading={isLoadingProfile}
             setIsLoading={setIsLoadingProfile}

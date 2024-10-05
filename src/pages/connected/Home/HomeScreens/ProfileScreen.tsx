@@ -5,8 +5,9 @@ import { connectedUserContext, UserContextType } from '../../../../../App';
 import { NavigationContext } from '@react-navigation/native';
 import { Body as ContratType } from '../../ConfigurerContratPage/classes';
 import { logout } from '../../../../utils/user';
-import { configuredContratContext, configuredContratContextProps } from '../Home';
+import { configuredContratContext, } from '../Home';
 import { saveConfiguredContrat } from '../../../../utils/contrat';
+import LoadingScreen from '../../../../components/loading/LoadingScreens';
 
 interface ProfileScreenProps {
     isLoading: boolean;
@@ -18,7 +19,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
     const { fonts } = useTheme();
     const { connectedUser } = useContext<UserContextType>(connectedUserContext);
     const navigation = useContext(NavigationContext);
-    const { configuredContrat, setConfiguredContrat } = useContext<configuredContratContextProps>(configuredContratContext);
+    const { configuredContrat, setConfiguredContrat } = useContext(configuredContratContext);
 
     const [expanded, setExpanded] = useState(false);
     const [selectedChild, setSelectedChild] = useState(listeContrat[0]?.enfant);
@@ -57,12 +58,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
     }, [connectedUser.profile, navigation, configuredContrat]);
 
     if (isLoading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" />
-                <Text style={fonts.bodyMedium}>Chargement des données...</Text>
-            </View>
-        );
+        return <LoadingScreen></LoadingScreen>
     }
 
     return (

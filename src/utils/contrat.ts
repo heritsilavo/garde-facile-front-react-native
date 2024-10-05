@@ -26,12 +26,12 @@ const CONFIG_CONTRAT = "configured-contrat";
  * @param contratId 
  * @returns boolean
  */
-export const saveConfiguredContrat = async function (contratId:string) {
+export const saveConfiguredContrat = async function (contratId: string) {
     try {
-        await AsyncStorage.setItem(CONFIG_CONTRAT,contratId);
+        await AsyncStorage.setItem(CONFIG_CONTRAT, contratId);
         return true;
     } catch (error) {
-        return false;       
+        return false;
     }
 }
 
@@ -45,7 +45,7 @@ export const getConfiguredContrat = async function () {
         if (value) return value
         else return null
     } catch (error) {
-        return null       
+        return null
     }
 }
 
@@ -54,10 +54,10 @@ export const getConfiguredContrat = async function () {
  * @returns 
  */
 export const removeConfiguredContrat = async function () {
-    try{
+    try {
         await AsyncStorage.removeItem(CONFIG_CONTRAT);
         return false;
-    }catch (e){
+    } catch (e) {
         return false;
     }
 }
@@ -66,10 +66,10 @@ export const removeConfiguredContrat = async function () {
  * verifier si un contrat est configurée dans l'pplication
  * @returns 
  */
-export const isContratConfiguree =async function () {
+export const isContratConfiguree = async function () {
     try {
         const value = await AsyncStorage.getItem(CONFIG_CONTRAT);
-        
+
         if (value) {
             const contrat = await getContratById(value);
             return !!contrat && true;
@@ -95,7 +95,7 @@ export const saveContratInDatabase = async function (newContrat: ConfigContratDa
             }
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 /**
@@ -103,13 +103,13 @@ export const saveContratInDatabase = async function (newContrat: ConfigContratDa
  * @param indemnite 
  * @returns 
  */
-export const createIndemniteForContrat = async function (indemnite : IndemniteEntity) {
+export const createIndemniteForContrat = async function (indemnite: IndemniteEntity) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
         const dto = {
             uuid: indemnite.uuid,
-            entretien:indemnite.entretien,
+            entretien: indemnite.entretien,
             repas: indemnite.repas,
             kilometrique: indemnite.kilometrique
         }
@@ -119,7 +119,7 @@ export const createIndemniteForContrat = async function (indemnite : IndemniteEn
             }
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 /**
@@ -127,7 +127,7 @@ export const createIndemniteForContrat = async function (indemnite : IndemniteEn
  * @param constratId 
  * @returns contrat
  */
-export const getContratById=async function (constratId:string) {
+export const getContratById = async function (constratId: string) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
@@ -135,8 +135,8 @@ export const getContratById=async function (constratId:string) {
             headers: {
                 'Authorization': `Bearer ${token}`
             },
-            params:{
-                simple:false
+            params: {
+                simple: false
             }
         });
         var contrat = response.data
@@ -145,7 +145,7 @@ export const getContratById=async function (constratId:string) {
         contrat.assmat = assmat.data
         contrat.parent = parent.data
         return contrat
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 /**
@@ -153,7 +153,7 @@ export const getContratById=async function (constratId:string) {
  * @param pajeId PajeIdParent ou salarie
  * @returns 
  */
-export const getContratByPajeIdUser=async function (pajeId:string) {
+export const getContratByPajeIdUser = async function (pajeId: string) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
@@ -163,10 +163,10 @@ export const getContratByPajeIdUser=async function (pajeId:string) {
             },
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
-export const getContratByPajeIdParentAndSalarie=async function (pajeIdParent:string,pajeIdSalarie:string) {
+export const getContratByPajeIdParentAndSalarie = async function (pajeIdParent: string, pajeIdSalarie: string) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
@@ -176,7 +176,7 @@ export const getContratByPajeIdParentAndSalarie=async function (pajeIdParent:str
             },
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 /**
@@ -188,7 +188,7 @@ export const getDetailConfiguredContrat = async function () {
     if (configuredContrat) {
         var contrat = await getContratById(configuredContrat);
         return contrat
-    }else return null
+    } else return null
 }
 
 /**
@@ -196,7 +196,7 @@ export const getDetailConfiguredContrat = async function () {
  * @param idContrat 
  * @returns 
  */
-export const deleteContrat=async function (idContrat:string) {
+export const deleteContrat = async function (idContrat: string) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
@@ -206,11 +206,11 @@ export const deleteContrat=async function (idContrat:string) {
             },
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 
-export const recupererContratBySalarieParentAndEnfant = async function (pajeIdParent:string, pajeIdSalarie:string, idEnfant:number) {
+export const recupererContratBySalarieParentAndEnfant = async function (pajeIdParent: string, pajeIdSalarie: string, idEnfant: number) {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
@@ -219,9 +219,40 @@ export const recupererContratBySalarieParentAndEnfant = async function (pajeIdPa
                 'Authorization': `Bearer ${token}`
             },
             params: {
-                idEnfant:idEnfant
+                idEnfant: idEnfant
             }
         });
         return response.data
-    }else throw new Error("Vous n'etes pas connecté");
+    } else throw new Error("Vous n'etes pas connecté");
+}
+
+type ModifType = "MODE_GARDE" | "RENUMERATION_CONGES_PAYES";
+export const modifierContrat = async (champs: ModifType, contrat: ContratEntity) => {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        
+        const token = await getLoginToken()
+        const contratId = await getConfiguredContrat()
+        // S'assurer que l'ID du contrat est présent dans l'URL
+        if (!contratId) {
+            throw new Error("L'ID du contrat est requis");
+        }
+
+        const response = await axios.put(
+            `${SPRING_BOOT_URL}/contrats/${contratId}`,
+            contrat,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    champs: champs
+                }
+            }
+        );
+        
+        return response.data;
+    } 
+    throw new Error("Vous n'êtes pas connecté");
 }
