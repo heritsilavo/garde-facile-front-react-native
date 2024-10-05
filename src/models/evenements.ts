@@ -22,6 +22,8 @@ export class Evenement {
   heureDebut: number; 
   heureFin: number; 
   repasALaChargeDuSalarie: boolean; 
+  numeroSemaine:number;
+  modifiable:boolean;
 
   constructor(data?: {
     id?: string;
@@ -46,7 +48,9 @@ export class Evenement {
     libelleExceptionnel?: string;
     heureDebut?: number; 
     heureFin?: number; 
-    repasALaChargeDuSalarie?: boolean; 
+    repasALaChargeDuSalarie?: boolean;
+    numeroSemaine?: number;
+    modifiable?: boolean;
   }) {
     this.id = data?.id || '';
     this.contratsId = data?.contratsId || [];
@@ -68,9 +72,11 @@ export class Evenement {
     this.nbJours = data?.nbJours || 0;
     this.amplitude = data?.amplitude ? new Amplitude(data.amplitude) : new Amplitude();
     this.libelleExceptionnel = data?.libelleExceptionnel || '';
-    this.heureDebut = data?.heureDebut || 0; // Initialisation
-    this.heureFin = data?.heureFin || 0; // Initialisation
-    this.repasALaChargeDuSalarie = data?.repasALaChargeDuSalarie || true; // Initialisation
+    this.heureDebut = data?.heureDebut || 0;
+    this.heureFin = data?.heureFin || 0;
+    this.repasALaChargeDuSalarie = data?.repasALaChargeDuSalarie || true;
+    this.numeroSemaine = data?.numeroSemaine || 0
+    this.modifiable = data?.modifiable || false
   }
 }
 

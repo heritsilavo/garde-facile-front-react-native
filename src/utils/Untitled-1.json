@@ -1,79 +1,152 @@
-[
-    {
-        "indexJour": 0,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
+{
+    "id": "103f0fee-b273-2b5a-6a34-0099b9358116",
+    "numeroPajeEmployeur": "Y000000000001",
+    "numeroPajeSalarie": "00000000000002",
+    "enfant": {
+        "id": 4,
+        "nom": "Stark",
+        "prenom": "Bran",
+        "dateNaissance": "2024-09-18"
     },
-    {
-        "indexJour": 1,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
+    "assmat": {
+        "id": 18,
+        "profile": "PAJE_SALARIE",
+        "pajeId": "00000000000002",
+        "password": "$2a$10$yOXXvyAcAMJJYY8ooeoZGOb5iISpeajiNsxlEELKWG/lWbOfQpl4q",
+        "role": "ROLE_USER",
+        "nom": "ASSIMAT",
+        "prenom": "MARINA",
+        "civilite": "2",
+        "dateNaissance": "1963-01-09",
+        "isMayotte": null
     },
-    {
-        "indexJour": 2,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
+    "parent": {
+        "id": 14,
+        "profile": "PAJE_EMPLOYEUR",
+        "pajeId": "Y000000000001",
+        "password": "$2a$10$01q6LDbR1t6RR2VCvuyIsOJw9JeplFX.SSeRT4YGmj9/ihqsBUfVS",
+        "role": "ROLE_ADMIN",
+        "nom": "Tsila",
+        "prenom": "Tsila",
+        "civilite": "10",
+        "dateNaissance": "2006-12-01",
+        "isMayotte": null
     },
-    {
-        "indexJour": 3,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
+    "modeDeGarde": "A",
+    "anneeComplete": true,
+    "nbSemainesTravaillees": 52,
+    "planning": [
+        {
+            "indexJour": 0,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
         },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
+        {
+            "indexJour": 1,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
+        },
+        {
+            "indexJour": 2,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
+        },
+        {
+            "indexJour": 3,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
+        },
+        {
+            "indexJour": 4,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
+        },
+        {
+            "indexJour": 5,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
+        },
+        {
+            "indexJour": 6,
+            "trancheHoraire1": {
+                "heureDebut": 420,
+                "heureFin": 1080
+            },
+            "trancheHoraire2": {
+                "heureDebut": null,
+                "heureFin": null
+            }
         }
+    ],
+    "indexJourRepos": 6,
+    "indexJoursChomes": [
+        6
+    ],
+    "nbHeuresNormalesHebdo": 46,
+    "nbHeuresMajoreesHebdo": 9,
+    "nbHeuresSpecifiquesHebdo": 11,
+    "nbHeuresMajoreesMensu": 39,
+    "nbHeuresNormalesMensu": 199,
+    "nbJoursMensu": 21,
+    "salaireHoraireNet": 4,
+    "salaireHoraireBrut": 5.13,
+    "salaireHoraireComplementaireNet": 4,
+    "salaireHoraireComplementaireBrut": 5.13,
+    "salaireHoraireMajoreNet": 4,
+    "salaireHoraireMajoreBrut": 5.13,
+    "salaireMajore": 0,
+    "salaireMensuelNet": 796,
+    "enfantsAChargeSalarie": {
+        "nbEnfantsMoins15Ans": 2,
+        "existent": true
     },
-    {
-        "indexJour": 4,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
+    "codePostal": "75002",
+    "joursFeriesTravailles": [
+        "PAQUES",
+        "PENTECOTE",
+        "NOEL"
+    ],
+    "remunerationCongesPayes": {
+        "mode": "EN_JUIN",
+        "mois": -1
     },
-    {
-        "indexJour": 5,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
-    },
-    {
-        "indexJour": 6,
-        "trancheHoraire1": {
-            "heureDebut": 420,
-            "heureFin": 1020
-        },
-        "trancheHoraire2": {
-            "heureDebut": null,
-            "heureFin": null
-        }
-    }
-]
+    "optionRepasQuotidien": false,
+    "dateDebut": "2024-09-09",
+    "dateCreation": null
+}

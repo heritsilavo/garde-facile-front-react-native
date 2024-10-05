@@ -7,6 +7,8 @@ import { NavigationContext } from '@react-navigation/native';
 import { getIndemniteByContratId, updateEntretieByContraId, updateKilometriqueByContraId, updateRepasByContraId } from '../../../utils/indemnite';
 import Toast from 'react-native-toast-message';
 import { connectedUserContext, UserContextType } from '../../../../App';
+import { type_A, type_B, TypeModeGarde } from '../../../utils/mode-de-garde';
+import LoadingScreen from '../../../components/loading/LoadingScreens';
 
 enum IndemniteType {
     Entretien = "entretien",
@@ -42,7 +44,7 @@ interface Contrat {
 }
 
 const ContratProfile: React.FC = () => {
-    const {fonts} = useTheme()
+    const { fonts } = useTheme()
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedIndemnityType, setSelectedIndemnityType] = useState<IndemniteType | null>(null);
     const [indemnityAmount, setIndemnityAmount] = useState<string>('');
@@ -53,6 +55,9 @@ const ContratProfile: React.FC = () => {
     const [isLoadingChangeIndemnite, setIsLoadingChangeIndemnite] = useState<boolean>(false);
     const { connectedUser } = useContext<UserContextType>(connectedUserContext);
     const [unlinkDialogVisible, setUnlinkDialogVisible] = useState<boolean>(false);
+    const [showModalModifGarde, setShowModalModifGarde] = useState<boolean>(false);
+    const [selectedModeGarde, setSelectedModeGarde] = useState<TypeModeGarde>();
+    const [selectedNbSemmaine, setSelectedNbSemmaine] = useState("");
 
     const navigation = useContext(NavigationContext)
 
@@ -156,19 +161,32 @@ const ContratProfile: React.FC = () => {
             })
     };
 
+    //MODIF MODE GARDE
+    const showErrorToast = function (message: string, message1?: string, type: 'error' | 'info' | 'success' = 'error') {
+        Toast.show({
+            type: type,
+            text1: message,
+            text2: message1,
+            visibilityTime: 2000,
+            autoHide: true,
+        })
+    }
+    const onConfirmModifModeGarde = function () {
+        if (!selectedModeGarde) showErrorToast("Aucun type selectionnée")
+        else if(!!selectedModeGarde && (selectedModeGarde.type === type_B.type) && !selectedNbSemmaine) showErrorToast("Données incomplet")
+        else {
+            setShowModalModifGarde(false)
+        }
+    }
+
     if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" />
-                <Text style={{...fonts.bodyMedium}}>Chargement des données du contrat...</Text>
-            </View>
-        );
+        return <LoadingScreen/>
     }
 
     if (error) {
         return (
             <View style={styles.errorContainer}>
-                <Text style={{...styles.errorText,...fonts.bodyMedium}}>{error}</Text>
+                <Text style={{ ...styles.errorText, ...fonts.bodyMedium }}>{error}</Text>
             </View>
         );
     }
@@ -185,61 +203,74 @@ const ContratProfile: React.FC = () => {
                 {contrat && (
                     <Card style={styles.card}>
                         <Card.Content>
-                            <Text style={{...styles.title, ...fonts.titleLarge}}>Détails du Contrat</Text>
+                            <Text style={{ ...styles.title, ...fonts.titleLarge }}>Détails du Contrat</Text>
+
                             {contrat.enfant && (
                                 <>
                                     <View style={styles.detailContainer}>
-                                        <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Enfant:</Text>
-                                        <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{`${contrat.enfant.prenom} ${contrat.enfant.nom}`}</Text>
+                                        <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Enfant:</Text>
+                                        <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.enfant.prenom} ${contrat.enfant.nom}`}</Text>
                                     </View>
                                     <View style={styles.detailContainer}>
-                                        <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Date de naissance:</Text>
-                                        <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{new Date(contrat.enfant.dateNaissance).toLocaleDateString()}</Text>
+                                        <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Date de naissance:</Text>
+                                        <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{new Date(contrat.enfant.dateNaissance).toLocaleDateString()}</Text>
                                     </View>
                                 </>
                             )}
+
                             <Divider style={styles.divider} />
+
                             {contrat.assmat && (
                                 <View style={styles.detailContainerColumn}>
-                                    <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Assistant(e) maternel(le):</Text>
-                                    <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{`${contrat.assmat.prenom} ${contrat.assmat.nom}`}</Text>
+                                    <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Assistant(e) maternel(le):</Text>
+                                    <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.assmat.prenom} ${contrat.assmat.nom}`}</Text>
                                 </View>
                             )}
                             {contrat.parent && (
                                 <View style={styles.detailContainerColumn}>
-                                    <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Parent employeur:</Text>
-                                    <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{`${contrat.parent.prenom} ${contrat.parent.nom}`}</Text>
+                                    <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Parent employeur:</Text>
+                                    <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.parent.prenom} ${contrat.parent.nom}`}</Text>
                                 </View>
                             )}
+
                             <Divider style={styles.divider} />
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Mode de garde:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{contrat.modeDeGarde === 'A' ? 'Année complète' : 'Année incomplète'}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.titleMedium }}>Garde :</Text>
+                                {connectedUser.profile == "PAJE_EMPLOYEUR" && <IconButton
+                                    icon="pencil"
+                                    size={20}
+                                    onPress={() => { setShowModalModifGarde(true) }}
+                                    style={styles.modifyButton}
+                                />}
                             </View>
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Semaines travaillées:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{contrat.nbSemainesTravaillees}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Mode de garde:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.modeDeGarde === 'A' ? 'Année complète' : 'Année incomplète'}</Text>
                             </View>
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Heures normales hebdo:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{contrat.nbHeuresNormalesHebdo}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Semaines travaillées:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbSemainesTravaillees}</Text>
                             </View>
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Heures majorées hebdo:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{contrat.nbHeuresMajoreesHebdo}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Heures normales hebdo:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresNormalesHebdo}</Text>
+                            </View>
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Heures majorées hebdo:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresMajoreesHebdo}</Text>
                             </View>
                             <Divider style={styles.divider} />
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Salaire horaire net:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{`${contrat.salaireHoraireNet.toFixed(2)}€`}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire horaire net:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireNet.toFixed(2)}€`}</Text>
                             </View>
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Salaire mensuel net:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{`${contrat.salaireMensuelNet.toFixed(2)}€`}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire mensuel net:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireMensuelNet.toFixed(2)}€`}</Text>
                             </View>
                             <View style={styles.detailContainer}>
-                                <Text style={{...styles.detailLabel, ...fonts.bodyLarge}}>Date de début:</Text>
-                                <Text style={{...styles.detailText, ...fonts.bodyMedium}}>{new Date(contrat.dateDebut).toLocaleDateString()}</Text>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Date de début:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{new Date(contrat.dateDebut).toLocaleDateString()}</Text>
                             </View>
                         </Card.Content>
                     </Card>
@@ -247,10 +278,10 @@ const ContratProfile: React.FC = () => {
 
                 <Card style={styles.card}>
                     <Card.Content>
-                        <Text style={{...styles.title, ...fonts.titleLarge}}>Indemnités</Text>
+                        <Text style={{ ...styles.title, ...fonts.titleLarge }}>Indemnités</Text>
                         {Object.values(IndemniteType).map((type) => (
                             <View key={type} style={styles.indemnityContainer}>
-                                <Text  style={{...styles.indemnityText, ...fonts.bodyMedium}}>{`Indemnité ${type}: ${indemnities[type] || 0} €`}</Text>
+                                <Text style={{ ...styles.indemnityText, ...fonts.bodyMedium }}>{`Indemnité ${type}: ${indemnities[type] || 0} €`}</Text>
                                 {
                                     connectedUser.profile == "PAJE_EMPLOYEUR" && <IconButton
                                         icon="pencil"
@@ -264,7 +295,7 @@ const ContratProfile: React.FC = () => {
                     </Card.Content>
                 </Card>
 
-                <Button rippleColor='#fc2121' textColor='#fc2121' mode="outlined" onPress={()=>setUnlinkDialogVisible(true)} style={styles.unlinkButton}>
+                <Button rippleColor='#fc2121' textColor='#fc2121' mode="outlined" onPress={() => setUnlinkDialogVisible(true)} style={styles.unlinkButton}>
                     Délier le contrat de l'application
                 </Button>
             </ScrollView>
@@ -296,14 +327,39 @@ const ContratProfile: React.FC = () => {
 
             <Portal>
                 <Dialog visible={unlinkDialogVisible} onDismiss={() => setUnlinkDialogVisible(false)}>
-                    <Dialog.Title> Delier le contrat de l'application </Dialog.Title>
+                    <Dialog.Title>Delier le contrat de l'application </Dialog.Title>
                     <Dialog.Content>
-                        <Paragraph>Êtes-vous sûr de vouloir delier le contrat de l'application ?</Paragraph>
-                        <Paragraph>Noter que le contrat ne va pas etre supprimée</Paragraph>
+                        <Paragraph style={fonts.bodyMedium}>Êtes-vous sûr de vouloir delier le contrat de l'application ?</Paragraph>
+                        <Paragraph style={fonts.bodyMedium}>Noter que le contrat ne va pas etre supprimée</Paragraph>
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={() => setUnlinkDialogVisible(false)}>Annuler</Button>
                         <Button onPress={handleUnlinkContract}>Confirmer</Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
+
+            <Portal>
+                <Dialog visible={showModalModifGarde} onDismiss={() => setShowModalModifGarde(false)}>
+                    <Dialog.Title>Modifier le mode de garde</Dialog.Title>
+                    <Dialog.Content style={{ alignItems: 'center' }}>
+                        {
+                            [type_A, type_B].map((type, index) => <TouchableOpacity onPress={() => { setSelectedModeGarde(type) }} style={{ backgroundColor: (selectedModeGarde?.type == type.type) ? "#fff" : "transparent", width: "100%", borderWidth: 1, borderColor: (selectedModeGarde?.type == type.type) ? "#afafaf" : "#cfcfcf", padding: 10, marginBottom: 10, borderRadius: 5 }} key={index}>
+                                <Text style={fonts.titleSmall}>{type.titre}</Text>
+                                <Text style={fonts.bodyMedium}>{type.desc}</Text>
+                            </TouchableOpacity>)
+                        }
+                        {(selectedModeGarde?.type === type_B.type) && <TextInput
+                            style={styles.input}
+                            keyboardType="numeric"
+                            placeholder="Montant de l'indemnité"
+                            value={selectedNbSemmaine}
+                            onChangeText={setSelectedNbSemmaine}
+                        />}
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => setShowModalModifGarde(false)}>Annuler</Button>
+                        <Button onPress={onConfirmModifModeGarde}>Confirmer</Button>
                     </Dialog.Actions>
                 </Dialog>
             </Portal>

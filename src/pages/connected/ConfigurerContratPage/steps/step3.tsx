@@ -2,22 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import { ConfigContratContext } from "../ConfigurerContratPage";
+import { type_A, type_B } from "../../../../utils/mode-de-garde";
 
 interface RenderStep3Props {
     setStep: (step: number) => void;
     setSemmaindeDeGarde: (type: string,nbrSem:number) => void;
-}
-
-export const type_A = {
-    type:'A',
-    titre:"52 semmaine de garde",
-    desc:"L'enfant est gardé 47 semmaine par an, les 5 semmaines restantes sont des congées payées",
-}
-
-export const type_B = {
-    type:'B',
-    titre:"46 semmaine ou moins",
-    desc:"L'enfant est gardé 46 semmaine ou moins par an, les semmaines restantes sont des congées payées ou des semmaines d'absences"
 }
 
 const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde }) => {

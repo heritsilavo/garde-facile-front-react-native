@@ -2,35 +2,12 @@ import React, { useState, useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import moment from 'moment';
 import MonthSelectorCalendar from 'react-native-month-selector';
+import { ModePayement, PAYMENT_MODES } from "../../../../utils/conges";
 
 interface RenderStep4Props {
     setStep: (step: number) => void;
     setModePayementConge: (params: { mode: string; mois: number }) => void;
 }
-
-interface ModePayement {
-    type: string;
-    titre: string;
-    description: string;
-}
-
-const PAYMENT_MODES: ModePayement[] = [
-    {
-        type: 'EN_JUIN',
-        titre: 'Paiement une seule fois en juin',
-        description: "L'intégralité de l'indemnité de congés payés sera versée en juin"
-    },
-    {
-        type: 'LORS_PRISE_CONGES_PRINCIPAUX',
-        titre: 'Paiement lors de la prise des congés principaux',
-        description: "L'intégralité de l'indemnité de congés payés sera versée le mois de la prise des congés principaux"
-    },
-    {
-        type: 'LORS_PRISE_CONGES',
-        titre: 'Paiement au fur et à mesure de la prise des congés',
-        description: "L'indemnité est versée proportionnellement au nombre de jours posés par mois"
-    }
-];
 
 const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge }) => {
     const [modePayement, setModePayement] = useState<ModePayement | undefined>();

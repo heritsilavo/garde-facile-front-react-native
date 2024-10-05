@@ -231,6 +231,21 @@ export function getTypeEventByText(text: string): EventType | null {
 }
 
 /**
+ * Recherche un type d'événement en fonction du key.
+ *
+ * @param {string} text - Le key à rechercher.
+ * @returns {EventType | null} - Un objet représentant le type d'événement, ou null si non trouvé.
+ */
+export function getTypeEventBykey(mykey: string): EventType | null {
+    var res = null
+    Object.entries(TypeEvenement).forEach(([key, value]) => {
+        if (mykey === key) res = value
+    });
+    return res;
+}
+
+
+/**
  * Detarmine si un evenement est travaillée ou non
  * @param evenement 
  * @returns 

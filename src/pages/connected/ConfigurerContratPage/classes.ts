@@ -36,38 +36,38 @@ export class ConfigContratData {
 
 export class Body {
     id: string;
-    numeroPajeEmployeur: string; // Defini
-    numeroPajeSalarie: string; // Defini
-    assmat: Assmat; // Defini
-    parent: Parent; // Defini
-    enfant: Enfant; // Defini
-    modeDeGarde: string; // Defini
-    anneeComplete: boolean; // Defini
-    nbSemainesTravaillees: number; // Defini
-    planning: Planning[]; // Defini
-    indexJourRepos: number; // Defini
-    indexJoursChomes: number[]; // Defini
-    nbHeuresNormalesHebdo: number; // Defini
-    nbHeuresMajoreesHebdo: number; // Defini
-    nbHeuresSpecifiquesHebdo: number; // Defini
-    nbHeuresMajoreesMensu: number; // Defini
-    nbHeuresNormalesMensu: number; // Defini
-    nbJoursMensu: number; // Defini
-    salaireHoraireNet: number; // Defini
-    salaireHoraireBrut: number; // Defini
-    salaireHoraireComplementaireNet: number; // Defini
-    salaireHoraireComplementaireBrut: number; // Defini
-    salaireHoraireMajoreNet: number; // Defini
-    salaireHoraireMajoreBrut: number; // Defini
-    salaireMajore: number; // Defini
-    salaireMensuelNet: number; // Defini
-    enfantsAChargeSalarie: EnfantsAChargeSalarie; // Defini
-    codePostal: string; // Defini
-    joursFeriesTravailles: string[]; // Defini
-    remunerationCongesPayes: RemunerationCongesPayes; // Defini
-    dateDebut: string; // Defini
-    optionRepasQuotidien: boolean; // Defini
-    dateCreation: string; // Defini
+    numeroPajeEmployeur: string;
+    numeroPajeSalarie: string;
+    assmat: Assmat;
+    parent: Parent;
+    enfant: Enfant;
+    modeDeGarde: 'A'|'B';
+    anneeComplete: boolean;
+    nbSemainesTravaillees: number;
+    planning: Planning[];
+    indexJourRepos: number;
+    indexJoursChomes: number[];
+    nbHeuresNormalesHebdo: number;
+    nbHeuresMajoreesHebdo: number;
+    nbHeuresSpecifiquesHebdo: number;
+    nbHeuresMajoreesMensu: number;
+    nbHeuresNormalesMensu: number;
+    nbJoursMensu: number;
+    salaireHoraireNet: number;
+    salaireHoraireBrut: number;
+    salaireHoraireComplementaireNet: number;
+    salaireHoraireComplementaireBrut: number;
+    salaireHoraireMajoreNet: number;
+    salaireHoraireMajoreBrut: number;
+    salaireMajore: number;
+    salaireMensuelNet: number;
+    enfantsAChargeSalarie: EnfantsAChargeSalarie;
+    codePostal: string;
+    joursFeriesTravailles: string[];
+    remunerationCongesPayes: RemunerationCongesPayes;
+    dateDebut: string;
+    optionRepasQuotidien: boolean;
+    dateCreation: string;
 
     constructor(data?: any) {
         if (data) {
@@ -111,7 +111,7 @@ export class Body {
             this.enfant = new Enfant();
             this.assmat = new Assmat();
             this.parent = new Parent();
-            this.modeDeGarde = "";
+            this.modeDeGarde = "A";
             this.anneeComplete = false;
             this.nbSemainesTravaillees = 0;
             this.planning = [];
@@ -263,16 +263,18 @@ export class EnfantsAChargeSalarie {
     }
 }
 
+type ModeType = 'EN_JUIN' | 'LORS_PRISE_CONGES_PRINCIPAUX' | 'LORS_PRISE_CONGES'
+
 export class RemunerationCongesPayes {
-    mode: string;
+    mode: ModeType;
     mois: number;
 
-    constructor(data?: { mode: string, mois: number }) {
+    constructor(data?: { mode: ModeType, mois: number }) {
         if (data) {
             this.mode = data.mode;
             this.mois = data.mois;
         } else {
-            this.mode = '';
+            this.mode = 'EN_JUIN';
             this.mois = 0;
         }
     }

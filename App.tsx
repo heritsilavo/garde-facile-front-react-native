@@ -28,87 +28,6 @@ import SelectParentpage from './src/pages/connected/SelectParentPage/SelectParen
 
 const Stack = createStackNavigator();
 
-const fontConfig = {
-  web: {
-    regular: {
-      fontFamily: 'Roboto-Regular',
-      fontWeight: 'normal',
-    },
-    medium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    light: {
-      fontFamily: 'Roboto-Light',
-      fontWeight: 'normal',
-    },
-    thin: {
-      fontFamily: 'Roboto-Thin',
-      fontWeight: 'normal',
-    },
-    labelMedium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    labelLarge: {
-      fontFamily: 'Roboto-Bold',
-      fontWeight: 'bold',
-    },
-  },
-  ios: {
-    regular: {
-      fontFamily: 'Roboto-Regular',
-      fontWeight: 'normal',
-    },
-    medium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    light: {
-      fontFamily: 'Roboto-Light',
-      fontWeight: 'normal',
-    },
-    thin: {
-      fontFamily: 'Roboto-Thin',
-      fontWeight: 'normal',
-    },
-    labelMedium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    labelLarge: {
-      fontFamily: 'Roboto-Bold',
-      fontWeight: 'bold',
-    },
-  },
-  android: {
-    regular: {
-      fontFamily: 'Roboto-Regular',
-      fontWeight: 'normal',
-    },
-    medium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    light: {
-      fontFamily: 'Roboto-Light',
-      fontWeight: 'normal',
-    },
-    thin: {
-      fontFamily: 'Roboto-Thin',
-      fontWeight: 'normal',
-    },
-    labelMedium: {
-      fontFamily: 'Roboto-Medium',
-      fontWeight: 'normal',
-    },
-    labelLarge: {
-      fontFamily: 'Roboto-Bold',
-      fontWeight: 'bold',
-    },
-  }
-} as const;
-
 const fontsConfig = {
   displaySmall: {
     fontFamily: Platform.select({
@@ -284,7 +203,7 @@ export const darkTheme = {
     text: "#EDECEC",
     background: "#121212", // Fond principal
     surface: "#1E1E1E", // Fond secondaire
-    primary: "#BB86FC", // Couleur principale
+    primary: "#007AFF", // Couleur principale (bleu clair)
     secondary: "#03DAC6", // Couleur secondaire
     accent: "#FF4081", // Couleur d'accent
     placeholder: "#B0BEC5", // Couleur des espaces réservés
@@ -300,7 +219,7 @@ export const lightTheme = {
     text: "#121212", // Couleur du texte
     background: "#F5F5F5", // Fond principal
     surface: "#FFFFFF", // Fond secondaire
-    primary: "#6200EE", // Couleur principale
+    primary: "#007AFF", // Couleur principale (bleu clair)
     secondary: "#03DAC6", // Couleur secondaire
     accent: "#FF4081", // Couleur d'accent
     placeholder: "#939393", // Couleur des espaces réservés

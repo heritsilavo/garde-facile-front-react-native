@@ -211,7 +211,7 @@ const getPlanningForDay = function (date: Date, planning: Planning[]) {
     return res || null
 }
 
-type PeriodeReference = {
+export type PeriodeReference = {
     anneRef: number,
     dateDebut: Date,
     dateFin: Date
@@ -223,7 +223,7 @@ export interface Month {
     monthIndex: number;
 }
 
-const getPeriodeReference = function (dateStr: string): PeriodeReference {
+export const getPeriodeReference = function (dateStr: string): PeriodeReference {
     var date = new Date(dateStr);
     var anneRef = (date.getMonth() < 6) ? (date.getFullYear() - 1) : date.getFullYear();
     var dateDebut = new Date(anneRef, 6, 1);

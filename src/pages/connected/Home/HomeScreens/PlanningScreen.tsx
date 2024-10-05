@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { Button, Card, useTheme } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import PlanningMonthSelector from '../../../../components/PlanningMonthSelector';
-import { configuredContratContext, configuredContratContextProps } from '../Home';
+import { configuredContratContext } from '../Home';
 import { calculerDifferenceAvecPlanning, obtenirSemaines, Semaine } from '../../../../utils/date';
 import SelectSemmaineNonTravailleModal from '../Pages/SelectSemmaineNonTravaillePage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -27,7 +27,7 @@ interface SelectedMonth {
 const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
   const { fonts } = useTheme()
   const [selectedMonth, setSelectedMonth] = useState<SelectedMonth>({ year: 0, monthIndex: 0 });
-  const { configuredContrat } = useContext<configuredContratContextProps>(configuredContratContext);
+  const { configuredContrat } = useContext(configuredContratContext);
   const [modalVisible, setModalVisible] = useState(false);
 
   const [loadEvents, setLoadEvents] = useState<boolean>(true);
@@ -77,7 +77,12 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
     const createEventPromises = selectedWeeks.map(async (week) => {
       try {
         const newEvenement: Evenement = new Evenement();
+        
+        newEvenement.numeroSemaine = week.numeroSemaine;
+        newEvenement.modifiable = true;
+
         const amplitude: Amplitude = new Amplitude();
+
         amplitude.debutAmplitude = week.dateDebut.toISOString().split('T')[0];
         amplitude.finAmplitude = week.dateFin.toISOString().split('T')[0];
         newEvenement.amplitude = amplitude;
