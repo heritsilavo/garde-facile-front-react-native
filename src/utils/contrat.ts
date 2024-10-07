@@ -5,6 +5,7 @@ import { SPRING_BOOT_URL } from "../constants/api";
 import { getLoginToken, getUserByPajeId, isLogedIn } from "./user";
 import axios from "axios";
 import { Body as ContratEntity } from "../pages/connected/ConfigurerContratPage/classes";
+import { ContratHistorique } from "../models/contrat-historique";
 
 export function generateId(): string {
     const generateSegment = (length: number): string => {
@@ -253,6 +254,40 @@ export const modifierContrat = async (champs: ModifType, contrat: ContratEntity)
         );
         
         return response.data;
+    } 
+    throw new Error("Vous n'êtes pas connecté");
+}
+
+export const getContratHistorique =async function (idContrat:string):Promise<ContratHistorique[]> {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        
+        const token = await getLoginToken()
+        const contratId = await getConfiguredContrat()
+        
+        if (!contratId) {
+            throw new Error("L'ID du contrat est requis");
+        }
+
+        const response = await axios.get(
+            `${SPRING_BOOT_URL}/contrats/getHistorique/${idContrat}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        var historiques:ContratHistorique[] = response.data
+        var newHists = [];
+        for (const element of historiques) {
+            var assmat = (await getUserByPajeId(element.numeroPajeSalarie)).data
+            var parent = (await getUserByPajeId(element.numeroPajeEmployeur)).data
+            newHists.push({...element, assmat, parent})
+        }
+        
+        return newHists;
     } 
     throw new Error("Vous n'êtes pas connecté");
 }

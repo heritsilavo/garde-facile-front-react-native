@@ -22,9 +22,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
     const { configuredContrat, setConfiguredContrat } = useContext(configuredContratContext);
 
     const [expanded, setExpanded] = useState(false);
-    const [selectedChild, setSelectedChild] = useState(listeContrat[0]?.enfant);
+    const [selectedChild, setSelectedChild] = useState(configuredContrat.enfant);
     const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
     const [addChildDialogVisible, setAddChildDialogVisible] = useState(false);
+
 
     const handleLogout = useCallback(async () => {
         setLogoutDialogVisible(false);

@@ -31,8 +31,8 @@ export const indemniteEntityContext = createContext<{
 
 type RootStackParamList = {
   ConfigurerContrat: {
-    assmat: Assmat,
-    parent: Parent
+    assmat?: Assmat,
+    parent?: Parent
   };
 };
 
@@ -43,16 +43,16 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
   const { connectedUser, setConnectedUser }: { connectedUser: User, setConnectedUser: any } | any = useContext(connectedUserContext)
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { assmat, parent } = route.params;
+  const routeParams = route.params;
 
   //Add parent
   useEffect(function () {
-    if (!!parent && !!assmat) {
+    if (!!routeParams?.parent && !!routeParams?.assmat) {
       let newConfig: ConfigContratData = { ...configContrat };
-      newConfig.body.parent = parent;
-      newConfig.body.assmat = assmat;
-      newConfig.body.numeroPajeEmployeur = parent.pajeId;
-      newConfig.body.numeroPajeSalarie = assmat.pajeId;
+      newConfig.body.parent = routeParams?.parent;
+      newConfig.body.assmat = routeParams?.assmat;
+      newConfig.body.numeroPajeEmployeur = routeParams?.parent.pajeId;
+      newConfig.body.numeroPajeSalarie = routeParams?.assmat.pajeId;
       setConfigContrat(newConfig);
       setStep(1);
     }
@@ -97,7 +97,7 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
   }
 
   //Step 3
-  const setSemmaindeDeGarde = function (type: string, nbrSemmaine: number = 46) {
+  const setSemmaindeDeGarde = function (type: "A"|"B", nbrSemmaine: number = 46) {
     let newConfig: ConfigContratData = { ...configContrat };
     newConfig.body.modeDeGarde = type;
     newConfig.body.nbSemainesTravaillees = nbrSemmaine;
@@ -110,7 +110,7 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
   }
 
   //Step 4
-  const setRemunerationCongesPayes = function ({ mode, mois }: { mode: string, mois: number }) {
+  const setRemunerationCongesPayes = function ({ mode, mois }: { mode: 'EN_JUIN' | 'LORS_PRISE_CONGES_PRINCIPAUX' | 'LORS_PRISE_CONGES', mois: number }) {
     let newConfig: ConfigContratData = { ...configContrat };
     newConfig.body.remunerationCongesPayes = new RemunerationCongesPayes({ mode, mois });
     setConfigContrat(newConfig)
@@ -213,7 +213,7 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
     <indemniteEntityContext.Provider value={{ indemniteEntity, setIndemniteEntity }}>
       <ConfigContratContext.Provider value={{ configContrat, setConfigContrat }}>
         <View style={styles.container}>
-          {((!parent && !assmat &&  step > 0) || (step > 1)) && (
+          {((!routeParams?.parent && !routeParams?.assmat &&  step > 0) || (step > 1)) && (
             <Appbar.Header>
               <Appbar.BackAction onPress={() => setStep(step - 1)} />
             </Appbar.Header>

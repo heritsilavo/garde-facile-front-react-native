@@ -25,6 +25,8 @@ import CreerHeureComplementairePage from './src/pages/connected/CreerEvenementPa
 import CreerPeriodeAdaptationPage from './src/pages/connected/CreerEvenementPage/SpecificEvenement/CreerPeriodeAdaptationPage';
 import NoContractScreen from './src/pages/connected/NoContrat/NoContratScreen';
 import SelectParentpage from './src/pages/connected/SelectParentPage/SelectParentPage';
+import DetailContratReadOnly from './src/pages/connected/DetailContratReadOnly/DetailContratReadOnly';
+import HistoriqueContratList from './src/pages/connected/HistoriqueContratList/HistoriqueContratList';
 
 const Stack = createStackNavigator();
 
@@ -300,8 +302,10 @@ const App = () => {
                   <Stack.Screen name="CreateIndemniteePage" component={CreateIndemniteePage} options={{ cardShadowEnabled: true }} />
                   <Stack.Screen name="CreerHeureComplementairePage" component={CreerHeureComplementairePage} options={{ cardShadowEnabled: true }} />
                   <Stack.Screen name="CreerPeriodeAdaptationPage" component={CreerPeriodeAdaptationPage} options={{ cardShadowEnabled: true }} />
+                  <Stack.Screen name="DetailContratReadOnly" component={DetailContratReadOnly} />
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ContratProfile" component={ContratProfile} />
                   <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
+                  <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
                 </Stack.Navigator>
                 <Toast
                   position='top'

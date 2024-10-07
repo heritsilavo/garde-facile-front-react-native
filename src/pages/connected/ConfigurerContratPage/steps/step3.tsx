@@ -6,7 +6,7 @@ import { type_A, type_B } from "../../../../utils/mode-de-garde";
 
 interface RenderStep3Props {
     setStep: (step: number) => void;
-    setSemmaindeDeGarde: (type: string,nbrSem:number) => void;
+    setSemmaindeDeGarde: (type: "A"|"B",nbrSem:number) => void;
 }
 
 const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde }) => {

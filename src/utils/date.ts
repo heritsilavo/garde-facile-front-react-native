@@ -277,3 +277,18 @@ export const generateMonths = function (dateDebutContrat: string) {
 
     return listeMonth
 }
+
+/**
+ * Returns the name of a month given its index (1-12).
+ * @param index - The index of the month (1 for January, 2 for February, etc.)
+ * @param locale - Optional locale string (default is 'en-US')
+ * @returns The name of the month or undefined if the index is out of range
+ */
+export function getMonthNameByIndex(index: number, locale: string = 'en-US'): string | undefined {
+    if (index < 1 || index > 12) {
+        return undefined;
+    }
+    
+    const date = new Date(2000, index - 1, 1);
+    return date.toLocaleString(locale, { month: 'long' });
+}

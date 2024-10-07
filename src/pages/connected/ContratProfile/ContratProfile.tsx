@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
-import { Appbar, Button, Text, Card, TextInput, IconButton, Divider, ActivityIndicator, Portal, Dialog, Paragraph, useTheme } from 'react-native-paper';
+import { Appbar, Button, Text, Card, TextInput, IconButton, Divider, ActivityIndicator, Portal, Dialog, Paragraph, useTheme, Tooltip } from 'react-native-paper';
 import { IndemniteEntity } from '../../../models/indemnites';
 import { getDetailConfiguredContrat, modifierContrat, removeConfiguredContrat } from '../../../utils/contrat';
 import { NavigationContext } from '@react-navigation/native';
@@ -11,6 +11,9 @@ import { getModeGardeByType, type_A, type_B, TypeModeGarde } from '../../../util
 import LoadingScreen from '../../../components/loading/LoadingScreens';
 import { Body as Contrat } from '../ConfigurerContratPage/classes';
 import { configuredContratContext } from '../Home/Home';
+import { getModePayement, ModePayement, PAYMENT_MODES } from '../../../utils/conges';
+import moment from 'moment';
+import MonthSelectorCalendar from 'react-native-month-selector';
 
 enum IndemniteType {
     Entretien = "entretien",
@@ -34,8 +37,13 @@ const ContratProfile: React.FC = () => {
     const [showModalModifGarde, setShowModalModifGarde] = useState<boolean>(false);
     const [selectedModeGarde, setSelectedModeGarde] = useState<TypeModeGarde>();
     const [selectedNbSemmaine, setSelectedNbSemmaine] = useState("");
-    const [loadingChangeModeGarde,setLoadingChangeModeGarde] = useState(false);
+    const [loadingChangeModeGarde, setLoadingChangeModeGarde] = useState(false);
     const { configuredContrat, setConfiguredContrat } = useContext(configuredContratContext);
+
+    const [showModalConges, setShowModalConges] = useState(false);
+    const [selectedModePayement, setSelectedModePayement] = useState<ModePayement>();
+    const [selectedMonth, setSelectedMonth] = useState(moment());
+    const [loadingUpdateConges, setLoadingUpdateConges] = useState(false);
 
     const navigation = useContext(NavigationContext)
 
@@ -149,26 +157,79 @@ const ContratProfile: React.FC = () => {
             autoHide: true,
         })
     }
+
     const onConfirmModifModeGarde = function () {
         if (!selectedModeGarde) showToast("Aucun type selectionnée")
         else if (!!selectedModeGarde && (selectedModeGarde.type === type_B.type) && !selectedNbSemmaine) showToast("Données incomplet")
         else {
             setLoadingChangeModeGarde(true);
-            var tmp = {...configuredContrat}
+            var tmp = { ...configuredContrat }
             tmp.modeDeGarde = selectedModeGarde.type;
-            tmp.nbSemainesTravaillees = parseInt(selectedNbSemmaine) || 52;
+            tmp.nbSemainesTravaillees = (selectedModeGarde.type == "B") ? parseInt(selectedNbSemmaine) : 52;
             modifierContrat("MODE_GARDE", tmp).catch(error => {
                 showToast(error.message || "Erreur pendant la modif")
-            }).then((newContrat)=>{
-                setConfiguredContrat(newContrat);
-                console.log(newContrat);
-                setContrat(newContrat)
-                setShowModalModifGarde(false);  
-            }).finally(function () {
+            }).then((newContrat) => {
+                return getDetailConfiguredContrat()
+            }).then((contrat) => {
+                setConfiguredContrat(contrat);
+                setContrat(contrat);
+                showToast("Modification reussi", undefined, "success");
+                setShowModalModifGarde(false);
+            })
+            .finally(function () {
                 setLoadingChangeModeGarde(false);
             })
         }
     }
+
+
+    //MODIF RENUMERATION GONGES
+    const handleUpdateConges = async () => {
+        if (!selectedModePayement || !contrat) return;
+        else {
+
+            setLoadingUpdateConges(true);
+            try {
+                const moisPriseConge = selectedMonth.month() + 1;
+                const params = {
+                    mode: selectedModePayement.type,
+                    mois: selectedModePayement.type === 'LORS_PRISE_CONGES_PRINCIPAUX' ? moisPriseConge : -1
+                };
+
+                // Mettre à jour le contrat avec les nouvelles modalités de congés
+                var updatedContrat = contrat;
+                updatedContrat.remunerationCongesPayes = {
+                    mode: params.mode,
+                    mois: params.mois
+                };
+                console.log("UPDATED CONTRAT: ", updatedContrat);
+
+                await modifierContrat("RENUMERATION_CONGES_PAYES", updatedContrat);
+                setContrat(updatedContrat);
+                setShowModalConges(false);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Modification réussie',
+                    visibilityTime: 2000,
+                    autoHide: true,
+                });
+            } catch (error) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Erreur lors de la modification',
+                    visibilityTime: 2000,
+                    autoHide: true,
+                });
+            } finally {
+                setLoadingUpdateConges(false);
+            }
+        }
+    };
+
+    //HISTORIQUES
+    const handleClicHistorique = function () {
+        navigation?.navigate("HistoriqueContratList");
+    } 
 
     if (loading) {
         return <LoadingScreen />
@@ -182,12 +243,34 @@ const ContratProfile: React.FC = () => {
         );
     }
 
-
-
     return (
         <View style={styles.container}>
-            <Appbar.Header>
-                <Appbar.BackAction onPress={() => navigation?.goBack()} />
+            <Appbar.Header
+                style={{
+                    backgroundColor: '#ffffff', // ou votre couleur de fond
+                    elevation: 2, // pour Android
+                    shadowOpacity: 0.1, // pour iOS
+                }}
+            >
+                <Appbar.BackAction
+                    onPress={() => navigation?.goBack()}
+                />
+
+                <Appbar.Content
+                    title=""
+                />
+
+                {/* Action pour l'historique */}
+                <Tooltip title="Historique des contrats">
+                    <Appbar.Action
+                        icon="history"
+                        onPress={handleClicHistorique}
+                        color="#1f2937"
+                    // Si vous voulez ajouter un badge
+                    // style={{ position: 'relative' }}
+                    />
+                </Tooltip>
+
             </Appbar.Header>
 
             <ScrollView>
@@ -250,6 +333,7 @@ const ContratProfile: React.FC = () => {
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Heures majorées hebdo:</Text>
                                 <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresMajoreesHebdo}</Text>
                             </View>
+
                             <Divider style={styles.divider} />
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire horaire net:</Text>
@@ -262,6 +346,20 @@ const ContratProfile: React.FC = () => {
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Date de début:</Text>
                                 <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{new Date(contrat.dateDebut).toLocaleDateString()}</Text>
+                            </View>
+
+                            <Divider style={styles.divider} />
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.titleMedium }}>Renumeration des conges :</Text>
+                                {connectedUser.profile == "PAJE_EMPLOYEUR" && <IconButton
+                                    icon="pencil"
+                                    size={20}
+                                    onPress={() => { setShowModalConges(true) }}
+                                    style={styles.modifyButton}
+                                />}
+                            </View>
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}> {getModePayement(contrat.remunerationCongesPayes.mode)?.titre} </Text>
                             </View>
                         </Card.Content>
                     </Card>
@@ -286,9 +384,31 @@ const ContratProfile: React.FC = () => {
                     </Card.Content>
                 </Card>
 
-                <Button rippleColor='#fc2121' textColor='#fc2121' mode="outlined" onPress={() => setUnlinkDialogVisible(true)} style={styles.unlinkButton}>
+                <Button
+                    icon="link-off"
+                    mode="outlined"
+                    onPress={() => setUnlinkDialogVisible(true)}
+                    textColor="#dc2626"
+                    rippleColor="rgba(220, 38, 38, 0.12)"
+                    style={{
+                        borderColor: '#dc2626',
+                        borderWidth: 1.5,
+                        borderRadius: 8,
+                        ...styles.unlinkButton
+                    }}
+                    labelStyle={{
+                        fontWeight: '500',
+                    }}
+                >
                     Délier le contrat de l'application
                 </Button>
+
+                <Button icon="file-document-multiple" mode="contained" onPress={handleClicHistorique} style={styles.unlinkButton}>
+                    Historique des contrats
+                </Button>
+                {/* <Button rippleColor='#fc2121' textColor='#fc2121' mode="outlined" onPress={() => setUnlinkDialogVisible(true)} style={styles.unlinkButton}>
+                    Délier le contrat de l'application
+                </Button> */}
             </ScrollView>
 
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
@@ -333,7 +453,7 @@ const ContratProfile: React.FC = () => {
             <Portal>
                 <Dialog dismissable={!loadingChangeModeGarde} visible={showModalModifGarde} onDismiss={() => setShowModalModifGarde(false)}>
                     <Dialog.Title>Modifier le mode de garde</Dialog.Title>
-                    <Dialog.Content style={{ alignItems: 'center' }}>
+                    <Dialog.Content style={{ alignItems: 'center', }}>
                         {
                             [type_A, type_B].map((type, index) => <TouchableOpacity onPress={() => { setSelectedModeGarde(type) }} style={{ backgroundColor: (selectedModeGarde?.type == type.type) ? "#fff" : "transparent", width: "100%", borderWidth: 1, borderColor: (selectedModeGarde?.type == type.type) ? "#afafaf" : "#cfcfcf", padding: 10, marginBottom: 10, borderRadius: 5 }} key={index}>
                                 <Text style={fonts.titleSmall}>{type.titre}</Text>
@@ -343,7 +463,7 @@ const ContratProfile: React.FC = () => {
                         {(selectedModeGarde?.type === type_B.type) && <TextInput
                             style={styles.input}
                             keyboardType="numeric"
-                            placeholder="Montant de l'indemnité"
+                            placeholder="Nombre de semmaine de garde"
                             value={selectedNbSemmaine}
                             onChangeText={setSelectedNbSemmaine}
                         />}
@@ -351,8 +471,67 @@ const ContratProfile: React.FC = () => {
                     {!loadingChangeModeGarde ? <Dialog.Actions>
                         <Button onPress={() => setShowModalModifGarde(false)}>Annuler</Button>
                         <Button onPress={onConfirmModifModeGarde}>Confirmer</Button>
-                    </Dialog.Actions>:
-                    <ActivityIndicator style={{marginBottom:20}}></ActivityIndicator>}
+                    </Dialog.Actions> :
+                        <ActivityIndicator style={{ marginBottom: 20 }}></ActivityIndicator>}
+                </Dialog>
+            </Portal>
+
+
+            <Portal>
+                <Dialog
+                    visible={showModalConges}
+                    onDismiss={() => setShowModalConges(false)}
+                    style={styles.congesDialog}
+                >
+                    <Dialog.Title>Modifier la méthode de rémunération des congés</Dialog.Title>
+                    <Dialog.ScrollArea>
+                        <ScrollView contentContainerStyle={styles.dialogScrollContent}>
+                            <Text style={styles.dialogSubtitle}>
+                                Sélectionnez votre modalité de paiement des indemnités de congés payés
+                            </Text>
+                            {PAYMENT_MODES.map((modalite, index) => (
+                                <View key={modalite.type}>
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.modaliteItem,
+                                            modalite.type === selectedModePayement?.type && styles.selectedModaliteItem
+                                        ]}
+                                        onPress={() => setSelectedModePayement(modalite)}
+                                    >
+                                        <Text style={styles.typeName}>{modalite.titre}</Text>
+                                        <Text style={styles.typeDescription}>{modalite.description}</Text>
+                                    </TouchableOpacity>
+
+                                    {modalite.type === 'LORS_PRISE_CONGES_PRINCIPAUX' &&
+                                        selectedModePayement?.type === 'LORS_PRISE_CONGES_PRINCIPAUX' && (
+                                            <View style={styles.monthSelectorContainer}>
+                                                <Text style={styles.monthSelectorLabel}>
+                                                    Sélectionnez le mois de la prise des congés :
+                                                </Text>
+                                                <MonthSelectorCalendar
+                                                    selectedDate={selectedMonth}
+                                                    onMonthTapped={(month: any) => setSelectedMonth(month)}
+                                                    maxDate={moment().endOf('year')}
+                                                />
+                                            </View>
+                                        )}
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </Dialog.ScrollArea>
+                    <Dialog.Actions>
+                        <Button onPress={() => setShowModalConges(false)}>Annuler</Button>
+                        <Button
+                            onPress={handleUpdateConges}
+                            disabled={!selectedModePayement || loadingUpdateConges}
+                        >
+                            {loadingUpdateConges ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                            ) : (
+                                'Confirmer'
+                            )}
+                        </Button>
+                    </Dialog.Actions>
                 </Dialog>
             </Portal>
         </View>
@@ -469,6 +648,43 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         width: '90%',
         marginHorizontal: 16
+    },
+    congesDialog: {
+        maxHeight: '80%',
+    },
+    dialogScrollContent: {
+        paddingHorizontal: 0,
+        paddingVertical: 8,
+    },
+    dialogSubtitle: {
+        fontSize: 16,
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    modaliteItem: {
+        padding: 16,
+        borderWidth: 0.5,
+        borderRadius: 5,
+        marginBottom: 10,
+        borderColor: '#ccc',
+    },
+    selectedModaliteItem: {
+        borderWidth: 1,
+        backgroundColor: '#f1f1f1',
+    },
+    typeName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    typeDescription: {
+        fontSize: 14,
+        color: '#666',
+    },
+    monthSelectorContainer: {
+        marginTop: 10,
+    },
+    monthSelectorLabel: {
+        marginBottom: 10,
     },
 });
 

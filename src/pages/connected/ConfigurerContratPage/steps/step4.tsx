@@ -6,7 +6,7 @@ import { ModePayement, PAYMENT_MODES } from "../../../../utils/conges";
 
 interface RenderStep4Props {
     setStep: (step: number) => void;
-    setModePayementConge: (params: { mode: string; mois: number }) => void;
+    setModePayementConge: (params: { mode: 'EN_JUIN' | 'LORS_PRISE_CONGES_PRINCIPAUX' | 'LORS_PRISE_CONGES'; mois: number }) => void;
 }
 
 const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge }) => {
