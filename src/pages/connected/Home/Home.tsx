@@ -9,7 +9,7 @@ import { connectedUserContext, UserContextType } from '../../../../App';
 import CongeScreen from './HomeScreens/CongesScreen/CongeScreen';
 import { BaseRoute } from 'react-native-paper/lib/typescript/components/BottomNavigation/BottomNavigation';
 import { Body as ContratType } from '../ConfigurerContratPage/classes';
-import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie } from '../../../utils/contrat';
+import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat } from '../../../utils/contrat';
 
 const DeclarationRoute = () => <Text>Declaration</Text>;
 
@@ -89,8 +89,8 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
           return;
         }
 
-        const response = await getContratById(contratId);
-        setConfiguredContrat(response);
+        const contratData: ContratType = await getDetailConfiguredContrat();
+        setConfiguredContrat(contratData);
         setDataLoaded(true);
       } catch (error) {
         console.error('Error initializing contrat:', error);

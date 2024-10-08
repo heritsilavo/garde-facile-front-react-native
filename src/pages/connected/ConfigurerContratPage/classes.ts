@@ -53,6 +53,7 @@ export class Body {
     nbHeuresMajoreesMensu: number;
     nbHeuresNormalesMensu: number;
     nbJoursMensu: number;
+
     salaireHoraireNet: number;
     salaireHoraireBrut: number;
     salaireHoraireComplementaireNet: number;
@@ -61,11 +62,13 @@ export class Body {
     salaireHoraireMajoreBrut: number;
     salaireMajore: number;
     salaireMensuelNet: number;
+    
     enfantsAChargeSalarie: EnfantsAChargeSalarie;
     codePostal: string;
     joursFeriesTravailles: string[];
     remunerationCongesPayes: RemunerationCongesPayes;
     dateDebut: string;
+    dateFin: string;
     optionRepasQuotidien: boolean;
     dateCreation: string;
 
@@ -104,6 +107,7 @@ export class Body {
             this.optionRepasQuotidien = data.optionRepasQuotidien;
             this.dateDebut = data.dateDebut;
             this.dateCreation = data.dateCreation;
+            this.dateFin = data.dateFin;
         } else {
             this.id = "";
             this.numeroPajeEmployeur = "";
@@ -137,6 +141,7 @@ export class Body {
             this.remunerationCongesPayes = new RemunerationCongesPayes();
             this.optionRepasQuotidien = false;
             this.dateDebut = "";
+            this.dateFin = ""
             this.dateCreation = "";
         }
     }

@@ -27,6 +27,7 @@ import NoContractScreen from './src/pages/connected/NoContrat/NoContratScreen';
 import SelectParentpage from './src/pages/connected/SelectParentPage/SelectParentPage';
 import DetailContratReadOnly from './src/pages/connected/DetailContratReadOnly/DetailContratReadOnly';
 import HistoriqueContratList from './src/pages/connected/HistoriqueContratList/HistoriqueContratList';
+import ResiliationContratPage from './src/pages/connected/ResiliationContratPage/ResiliationContratPage';
 
 const Stack = createStackNavigator();
 
@@ -306,6 +307,7 @@ const App = () => {
                   <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ContratProfile" component={ContratProfile} />
                   <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
                   <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
+                  <Stack.Screen name="ResiliationContratPage" component={ResiliationContratPage} />
                 </Stack.Navigator>
                 <Toast
                   position='top'

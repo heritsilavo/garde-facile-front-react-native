@@ -155,7 +155,7 @@ const DetailContratReadOnly: React.FC<DetailContratReadOnlyProps> = ({ navigatio
 
                         <Divider style={styles.divider} />
 
-                        {/* Section Garde */}
+                        {/* Section Conges */}
                         <View style={styles.section}>
                             <Text style={{ ...styles.sectionTitle, ...fonts.titleMedium }}>
                                 Rémunération des conges payes
@@ -185,13 +185,21 @@ const DetailContratReadOnly: React.FC<DetailContratReadOnlyProps> = ({ navigatio
                             <View style={styles.detailRow}>
                                 <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Salaire horaire net:</Text>
                                 <Text style={{ ...styles.value, ...fonts.bodyMedium }}>
-                                    {`${contrat.salaireHoraireNet.toFixed(2)}€`}
+                                    {`${contrat.salaireHoraireNet.toFixed(2)}€/h`}
                                 </Text>
+                            </View>
+                            <View style={styles.detailRow}>
+                                <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Salaire complementaire net:</Text>
+                                <Text style={{ ...styles.value, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireComplementaireNet.toFixed(2)}€/h`}</Text>
+                            </View>
+                            <View style={styles.detailRow}>
+                                <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Salaire majoré net:</Text>
+                                <Text style={{ ...styles.value, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireMajoreNet.toFixed(2)}€/h`}</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Salaire mensuel net:</Text>
                                 <Text style={{ ...styles.value, ...fonts.bodyMedium }}>
-                                    {`${contrat.salaireMensuelNet.toFixed(2)}€`}
+                                    {`${contrat.salaireMensuelNet.toFixed(2)}€/mois`}
                                 </Text>
                             </View>
                             <View style={styles.detailRow}>
@@ -201,6 +209,27 @@ const DetailContratReadOnly: React.FC<DetailContratReadOnlyProps> = ({ navigatio
                                 </Text>
                             </View>
                         </View>
+
+                        <Divider style={styles.divider} />
+
+                        {/* Section dates */}
+
+                        <View style={styles.section}>
+                            <Text style={{ ...styles.sectionTitle, ...fonts.titleMedium }}>Dates</Text>
+                            <View style={styles.detailRow}>
+                                <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Date de début:</Text>
+                                <Text style={{ ...styles.value, ...fonts.bodyMedium }}>
+                                    {new Date(contrat.dateDebut).toLocaleDateString()}
+                                </Text>
+                            </View>
+                            <View style={styles.detailRow}>
+                                <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Date de fin:</Text>
+                                <Text style={{ ...styles.value, ...fonts.bodyMedium }}>
+                                    {new Date(contrat.dateFin).toLocaleDateString()}
+                                </Text>
+                            </View>
+                        </View>
+
                     </Card.Content>
                 </Card>
             </ScrollView>

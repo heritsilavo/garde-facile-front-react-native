@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { Appbar, Button, Text, Card, TextInput, IconButton, Divider, ActivityIndicator, Portal, Dialog, Paragraph, useTheme, Tooltip } from 'react-native-paper';
 import { IndemniteEntity } from '../../../models/indemnites';
 import { getDetailConfiguredContrat, modifierContrat, removeConfiguredContrat } from '../../../utils/contrat';
-import { NavigationContext } from '@react-navigation/native';
+import { NavigationContext, useFocusEffect } from '@react-navigation/native';
 import { getIndemniteByContratId, updateEntretieByContraId, updateKilometriqueByContraId, updateRepasByContraId } from '../../../utils/indemnite';
 import Toast from 'react-native-toast-message';
 import { connectedUserContext, UserContextType } from '../../../../App';
@@ -14,6 +14,7 @@ import { configuredContratContext } from '../Home/Home';
 import { getModePayement, ModePayement, PAYMENT_MODES } from '../../../utils/conges';
 import moment from 'moment';
 import MonthSelectorCalendar from 'react-native-month-selector';
+import { calculateNbHoursAndDays } from '../ConfigurerContratPage/fonctions';
 
 enum IndemniteType {
     Entretien = "entretien",
@@ -45,24 +46,41 @@ const ContratProfile: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState(moment());
     const [loadingUpdateConges, setLoadingUpdateConges] = useState(false);
 
+    const [showModalSalaires, setShowModalSalaires] = useState(false);
+    const [salaireNormale, setSalaireNormale] = useState(0);
+    const [salaireCompl, setSalaireCompl] = useState(0);
+    const [salaireMajoree, setSalaireMajoree] = useState(0);
+    const [loadingUpdateSalaires, setLoadingUpdateSalaires] = useState(false);
+
     const navigation = useContext(NavigationContext)
 
     //INIT
+
+    const initData = async function (){
+        try {
+            const contratData: Contrat = await getDetailConfiguredContrat();
+            const indemnite = await getIndemniteByContratId(contratData.id);
+            setContrat(contratData);
+            setSalaireNormale(contratData.salaireHoraireNet)
+            setSalaireCompl(contratData.salaireHoraireComplementaireNet)
+            setSalaireMajoree(contratData.salaireHoraireMajoreNet)
+            setIndemnities(indemnite)
+        } catch (err) {
+            setError("Erreur lors du chargement des données du contrat");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }
     useEffect(() => {
-        (async function () {
-            try {
-                const contratData = await getDetailConfiguredContrat();
-                const indemnite = await getIndemniteByContratId(contratData.id);
-                setContrat(contratData);
-                setIndemnities(indemnite)
-            } catch (err) {
-                setError("Erreur lors du chargement des données du contrat");
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        })();
+        initData();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+          initData();
+        }, [])
+      );
 
     //OPEN MODAL
     const handleModifyIndemnity = (type: IndemniteType) => {
@@ -166,6 +184,15 @@ const ContratProfile: React.FC = () => {
             var tmp = { ...configuredContrat }
             tmp.modeDeGarde = selectedModeGarde.type;
             tmp.nbSemainesTravaillees = (selectedModeGarde.type == "B") ? parseInt(selectedNbSemmaine) : 52;
+            const [_nbHeuresNormalesHebdo, _nbHeuresNormalesMensu, _nbJoursMensu, _nbHeuresMajoreesHebdo, _nbHeuresSpecifiquesHebdo, _nbHeuresMajoreesMensu] = calculateNbHoursAndDays(tmp.planning, tmp.nbSemainesTravaillees, tmp.indexJourRepos);
+
+            tmp.nbHeuresNormalesHebdo = _nbHeuresNormalesHebdo;
+            tmp.nbHeuresNormalesMensu = _nbHeuresNormalesMensu;
+            tmp.nbHeuresMajoreesHebdo = _nbHeuresMajoreesHebdo;
+            tmp.nbHeuresMajoreesMensu = _nbHeuresMajoreesMensu;
+            tmp.nbHeuresSpecifiquesHebdo = _nbHeuresSpecifiquesHebdo;
+            tmp.nbJoursMensu = _nbJoursMensu;
+
             modifierContrat("MODE_GARDE", tmp).catch(error => {
                 showToast(error.message || "Erreur pendant la modif")
             }).then((newContrat) => {
@@ -176,9 +203,9 @@ const ContratProfile: React.FC = () => {
                 showToast("Modification reussi", undefined, "success");
                 setShowModalModifGarde(false);
             })
-            .finally(function () {
-                setLoadingChangeModeGarde(false);
-            })
+                .finally(function () {
+                    setLoadingChangeModeGarde(false);
+                })
         }
     }
 
@@ -202,7 +229,6 @@ const ContratProfile: React.FC = () => {
                     mode: params.mode,
                     mois: params.mois
                 };
-                console.log("UPDATED CONTRAT: ", updatedContrat);
 
                 await modifierContrat("RENUMERATION_CONGES_PAYES", updatedContrat);
                 setContrat(updatedContrat);
@@ -226,10 +252,56 @@ const ContratProfile: React.FC = () => {
         }
     };
 
+    //MODIF SALAIRE
+    const deuxChiffreApresVirgule = function (nbr: number) {
+        return Math.round(nbr * 100) / 100
+    }
+    const handleConfirmModifSalaire = async function () {
+        try {
+            var updatedContrat = contrat;
+            if (!updatedContrat) return;
+            else {
+                updatedContrat.salaireHoraireNet = salaireNormale;
+                updatedContrat.salaireHoraireComplementaireNet = salaireCompl;
+                updatedContrat.salaireHoraireMajoreNet = salaireMajoree;
+
+                const taxRate = 0.22;
+                updatedContrat.salaireHoraireBrut = deuxChiffreApresVirgule(salaireNormale / (1 - taxRate));
+                updatedContrat.salaireHoraireComplementaireBrut = deuxChiffreApresVirgule(salaireCompl / (1 - taxRate));
+                updatedContrat.salaireHoraireMajoreBrut = deuxChiffreApresVirgule(salaireMajoree / (1 - taxRate));
+
+                const heuresNormalesMensu = updatedContrat.nbHeuresNormalesMensu || 151.67; // Default to 151.67 if not available
+                updatedContrat.salaireMensuelNet = salaireNormale * heuresNormalesMensu;
+
+                updatedContrat.salaireMajore = salaireMajoree - salaireNormale;
+
+                await modifierContrat("MODIF_SALAIRE", updatedContrat);
+                setContrat(updatedContrat);
+                setShowModalSalaires(false);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Modification réussie',
+                    visibilityTime: 2000,
+                    autoHide: true,
+                });
+            }
+
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Erreur lors de la modification',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
+        } finally {
+
+        }
+    }
+
     //HISTORIQUES
     const handleClicHistorique = function () {
         navigation?.navigate("HistoriqueContratList");
-    } 
+    }
 
     if (loading) {
         return <LoadingScreen />
@@ -323,30 +395,58 @@ const ContratProfile: React.FC = () => {
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Semaines travaillées:</Text>
-                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbSemainesTravaillees}</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbSemainesTravaillees} semaines</Text>
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Heures normales hebdo:</Text>
-                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresNormalesHebdo}</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresNormalesHebdo} h</Text>
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Heures majorées hebdo:</Text>
-                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresMajoreesHebdo}</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{contrat.nbHeuresMajoreesHebdo} h</Text>
                             </View>
 
                             <Divider style={styles.divider} />
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.titleMedium }}>Salaires :</Text>
+                                {connectedUser.profile == "PAJE_EMPLOYEUR" && <IconButton
+                                    icon="pencil"
+                                    size={20}
+                                    onPress={() => { setShowModalSalaires(true) }}
+                                    style={styles.modifyButton}
+                                />}
+                            </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire horaire net:</Text>
                                 <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireNet.toFixed(2)}€`}</Text>
                             </View>
                             <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire complementaire net:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireComplementaireNet.toFixed(2)}€/h`}</Text>
+                            </View>
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire majoré net:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireHoraireMajoreNet.toFixed(2)}€/h`}</Text>
+                            </View>
+                            <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Salaire mensuel net:</Text>
                                 <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.salaireMensuelNet.toFixed(2)}€`}</Text>
+                            </View>
+
+                            <Divider style={styles.divider} />
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.titleMedium }}>Dates :</Text>
                             </View>
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Date de début:</Text>
                                 <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{new Date(contrat.dateDebut).toLocaleDateString()}</Text>
                             </View>
+
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Date de fin:</Text>
+                                <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{new Date(contrat.dateFin).toLocaleDateString()}</Text>
+                            </View>
+
 
                             <Divider style={styles.divider} />
                             <View style={styles.detailContainer}>
@@ -384,6 +484,14 @@ const ContratProfile: React.FC = () => {
                     </Card.Content>
                 </Card>
 
+                <Button icon="file-document-multiple" mode="contained" onPress={handleClicHistorique} style={{ ...styles.unlinkButton, borderRadius: 8 }}>
+                    Historique des contrats
+                </Button>
+
+                <Button icon="file-cancel" buttonColor='#dc2626' mode="contained" onPress={() => { navigation?.navigate("ResiliationContratPage") }} style={{ ...styles.unlinkButton, borderRadius: 8 }}>
+                    Resiliation de contrats
+                </Button>
+
                 <Button
                     icon="link-off"
                     mode="outlined"
@@ -403,12 +511,6 @@ const ContratProfile: React.FC = () => {
                     Délier le contrat de l'application
                 </Button>
 
-                <Button icon="file-document-multiple" mode="contained" onPress={handleClicHistorique} style={styles.unlinkButton}>
-                    Historique des contrats
-                </Button>
-                {/* <Button rippleColor='#fc2121' textColor='#fc2121' mode="outlined" onPress={() => setUnlinkDialogVisible(true)} style={styles.unlinkButton}>
-                    Délier le contrat de l'application
-                </Button> */}
             </ScrollView>
 
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
@@ -471,6 +573,44 @@ const ContratProfile: React.FC = () => {
                     {!loadingChangeModeGarde ? <Dialog.Actions>
                         <Button onPress={() => setShowModalModifGarde(false)}>Annuler</Button>
                         <Button onPress={onConfirmModifModeGarde}>Confirmer</Button>
+                    </Dialog.Actions> :
+                        <ActivityIndicator style={{ marginBottom: 20 }}></ActivityIndicator>}
+                </Dialog>
+            </Portal>
+
+
+            <Portal>
+                <Dialog dismissable={!loadingUpdateSalaires} visible={showModalSalaires} onDismiss={() => setShowModalSalaires(false)}>
+                    <Dialog.Title>Modifier les salaires</Dialog.Title>
+                    <Dialog.Content style={{ alignItems: 'center', }}>
+                        <Text style={[fonts.titleSmall, { width: "100%", marginTop: 10, marginBottom: 5 }]}>Salaire normale:</Text>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType="numeric"
+                            placeholder="ex: 4€/h"
+                            value={salaireNormale.toString() || ""}
+                            onChangeText={(text: string) => { setSalaireNormale(parseFloat(text) || 0) }}
+                        />
+                        <Text style={[fonts.titleSmall, { width: "100%", marginTop: 10, marginBottom: 5 }]}>Salaire complementaire:</Text>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType="numeric"
+                            placeholder="ex: 4€/h"
+                            value={salaireCompl.toString() || ""}
+                            onChangeText={(text: string) => { setSalaireCompl(parseFloat(text) || 0) }}
+                        />
+                        <Text style={[fonts.titleSmall, { width: "100%", marginTop: 10, marginBottom: 5 }]}>Salaire majorée:</Text>
+                        <TextInput
+                            style={styles.input}
+                            keyboardType="numeric"
+                            placeholder="ex: 4€/h"
+                            value={salaireMajoree.toString() || ""}
+                            onChangeText={(text: string) => { setSalaireMajoree(parseFloat(text) || 0) }}
+                        />
+                    </Dialog.Content>
+                    {!loadingUpdateSalaires ? <Dialog.Actions>
+                        <Button onPress={() => setShowModalSalaires(false)}>Annuler</Button>
+                        <Button onPress={handleConfirmModifSalaire}>Confirmer</Button>
                     </Dialog.Actions> :
                         <ActivityIndicator style={{ marginBottom: 20 }}></ActivityIndicator>}
                 </Dialog>
@@ -560,7 +700,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     card: {
-        margin: 16,
+        margin: 10,
         elevation: 4,
     },
     title: {
@@ -573,6 +713,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 8,
+        padding: 0,
     },
     detailContainerColumn: {
         flexDirection: 'column',
@@ -580,7 +721,8 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     detailLabel: {
-        fontSize: 16,
+        marginLeft: 0,
+        fontSize: 15,
         fontWeight: 'bold',
         color: '#555',
     },

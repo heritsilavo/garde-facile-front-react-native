@@ -9,6 +9,7 @@ export enum MotifHistorisationEnum {
     MODIFICATION_CONGES = "Modif des congés",
     MODIFICATION_ENFANTS = "Modif des infos enfants",
     MODIFICATION_EMPLOYEUR = "Modif des infos employeur",
+    MODIFICATION_DATE_FIN= "Date de fin du contrat",
     MODIFICATION_SALARIE = "Modif des infos salarié",
     RESILIATION = "Résiliation du contrat",
     SUSPENSION = "Suspension du contrat",

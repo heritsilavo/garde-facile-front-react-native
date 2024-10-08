@@ -227,7 +227,7 @@ export const recupererContratBySalarieParentAndEnfant = async function (pajeIdPa
     } else throw new Error("Vous n'etes pas connecté");
 }
 
-type ModifType = "MODE_GARDE" | "RENUMERATION_CONGES_PAYES";
+type ModifType = "MODE_GARDE" | "RENUMERATION_CONGES_PAYES" | "MODIF_SALAIRE" | "MODIF_DATE_FIN";
 export const modifierContrat = async (champs: ModifType, contrat: ContratEntity) => {
     const isLogged = await isLogedIn()
     if (isLogged) {
