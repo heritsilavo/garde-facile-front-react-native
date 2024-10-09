@@ -242,40 +242,59 @@ const getNbMonthBetween2Dates = function (debut: Date, fin: Date) {
     return nbMonth;
 }
 
-export const generateMonths = function (dateDebutContrat: string) {
-    const periodeReference: PeriodeReference = getPeriodeReference(dateDebutContrat);
+const isBetween = function (date: Date, debut: Date, fin: Date): boolean {
+    // Normaliser les dates en enlevant les heures/minutes/secondes
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const normalizedDebut = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate());
+    const normalizedFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+    
+    // Convertir en timestamps pour la comparaison
+    const timestamp = normalizedDate.getTime();
+    const debutTimestamp = normalizedDebut.getTime();
+    const finTimestamp = normalizedFin.getTime();
+    
+    return timestamp >= debutTimestamp && timestamp <= finTimestamp;
+}
 
-    var debutContrat = new Date(dateDebutContrat);
-    console.log("Debut contrat: " + debutContrat.toISOString() + " Fin periode: " + periodeReference.dateFin.toISOString());
+export const generateMonths = function (contrat: ContratEntity) {
+    const periodeReference: PeriodeReference = getPeriodeReference((new Date()).toISOString().split('T')[0]);
 
-    var nbMonth = getNbMonthBetween2Dates(debutContrat, periodeReference.dateFin);
-    console.log("nMonth: ", nbMonth);
-
+    const nbMonth = getNbMonthBetween2Dates(periodeReference.dateDebut, periodeReference.dateFin);
+    console.log("NB MONTH: %%%", nbMonth);
+    
     const monthNames = [
         'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-        'Juillet', 'Août', 'Sept.', 'Octobre', 'Nov.', 'Déc.'
-    ]
-    var listeMonth: Month[] = []
+        'Juillet', 'Août', 'Sept.' , 'Octobre', 'Nov.', 'Déc.'
+    ];
 
-    var date = debutContrat;
+    const listeMonth: Month[] = [];
+
+    let currentDate = new Date(periodeReference.dateDebut);
+    
+    console.log("CONTRAT", contrat.dateDebut, contrat.dateFin);
+    
+    
     for (let i = 0; i < nbMonth; i++) {
-        listeMonth.push({
-            label: `${monthNames[date.getMonth()]} ${date.getFullYear()}`,
-            monthIndex: date.getMonth(),
-            year: date.getFullYear()
-        })
-        if (date.getMonth() < 12) {
-            date.setMonth(date.getMonth() + 1)
-        } else if (date.getMonth() === 12) {
-            date.setFullYear(date.getFullYear() + 1);
-            date.setMonth(1);
+        if (isBetween(currentDate, new Date(contrat.dateDebut), new Date(contrat.dateFin))) {
+            listeMonth.push({
+                label: `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`,
+                monthIndex: currentDate.getMonth(),
+                year: currentDate.getFullYear()
+            });
+        }
+        
+        // Incrémenter le mois
+        let newMonth = currentDate.getMonth() + 1;
+        if (newMonth === 12) {
+            currentDate.setFullYear(currentDate.getFullYear() + 1);
+            currentDate.setMonth(0);
         } else {
-            throw new Error("Ne devrait pas arriver jusqu'ici: monthIdex=" + date.getMonth())
+            currentDate.setMonth(newMonth);
         }
     }
+    
     console.log("Liste Month:", listeMonth);
-
-    return listeMonth
+    return listeMonth;
 }
 
 /**

@@ -214,7 +214,8 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
       Toast.show({
         type:"info", 
         autoHide:true,
-        text1:"Suppression reussi"
+        text1:"Suppression reussi",
+        visibilityTime:1500
       })
     }).catch(()=>{
       Toast.show({
@@ -236,7 +237,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
     <View style={styles.container}>
       <Text style={{ ...styles.title, ...fonts.titleLarge }}>Planning</Text>
       <PlanningMonthSelector
-        dateDebutContrat={configuredContrat.dateDebut}
+        contrat={configuredContrat}
         selectedMonth={selectedMonth}
         setSelectedMonth={setSelectedMonth}
       />

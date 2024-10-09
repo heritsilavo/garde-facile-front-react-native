@@ -38,14 +38,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
     }, [navigation]);
 
     const handleChildPress = useCallback(async (contrat: ContratType) => {
-        setSelectedChild(contrat.enfant);
-        setExpanded(false);
-        await saveConfiguredContrat(contrat.id);
-        setConfiguredContrat(contrat);
-        navigation?.reset({
-            index: 0,
-            routes: [{ name: "Home" }]
-        });
+        if (contrat.enfant.id != selectedChild.id) {
+            setSelectedChild(contrat.enfant);
+            setExpanded(false);
+            await saveConfiguredContrat(contrat.id);
+            setConfiguredContrat(contrat);
+            navigation?.reset({
+                index: 0,
+                routes: [{ name: "Home" }]
+            });
+        }
     }, [navigation, setConfiguredContrat]);
 
     const handleAddChild = useCallback(() => {
@@ -77,13 +79,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
                     setAddChildDialogVisible={setAddChildDialogVisible}
                     fonts={fonts}
                 />
-                <Button mode="outlined" onPress={handleContractSettings} style={styles.button}>
-                    Configuration de contrat
-                </Button>
-                <Button mode="contained" onPress={() => setLogoutDialogVisible(true)} style={styles.button}>
-                    Se deconnecter
-                </Button>
             </ScrollView>
+
+            <Button mode="outlined" onPress={handleContractSettings} style={styles.button}>
+                Configuration de contrat
+            </Button>
+            <Button mode="contained" onPress={() => setLogoutDialogVisible(true)} style={styles.button}>
+                Se deconnecter
+            </Button>
             <LogoutDialog
                 visible={logoutDialogVisible}
                 onDismiss={() => setLogoutDialogVisible(false)}
@@ -100,20 +103,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ isLoading, setIsLoading, 
     );
 };
 
-const UserInfoCard = ({ user, fonts }:any) => (
+const UserInfoCard = ({ user, fonts }: any) => (
     <Card style={styles.card}>
         <Card.Content style={styles.cardContent}>
             <Avatar.Text size={80} label={user.nom.charAt(0) || 'U'} />
-            <Text style={{...styles.userName, ...fonts.headlineMedium}}>{user.nom || "userName"}</Text>
-            <Text style={{...styles.userId, ...fonts.bodyMedium}}>{user.pajeId || "userId"}</Text>
+            <Text style={{ ...styles.userName, ...fonts.headlineMedium }}>{user.nom || "userName"}</Text>
+            <Text style={{ ...styles.userId, ...fonts.bodyMedium }}>{user.pajeId || "userId"}</Text>
         </Card.Content>
     </Card>
 );
 
-const ChildInfoCard = ({ selectedChild, expanded, setExpanded, listeContrat, handleChildPress, connectedUser, configuredContrat, setAddChildDialogVisible, fonts }:any) => (
+const ChildInfoCard = ({ selectedChild, expanded, setExpanded, listeContrat, handleChildPress, connectedUser, configuredContrat, setAddChildDialogVisible, fonts }: any) => (
     <Card style={styles.childCard}>
         <View style={styles.childHeaderContainer}>
-            <Text style={{...styles.title, ...fonts.titleLarge}}>Enfant: {`${selectedChild.prenom} ${selectedChild.nom}`}</Text>
+            <Text style={{ ...styles.title, ...fonts.titleLarge }}>Enfant: {`${selectedChild.prenom} ${selectedChild.nom}`}</Text>
             {connectedUser.profile === "PAJE_EMPLOYEUR" && (
                 <IconButton
                     icon="plus"
@@ -129,7 +132,7 @@ const ChildInfoCard = ({ selectedChild, expanded, setExpanded, listeContrat, han
             onPress={() => setExpanded(!expanded)}
             titleStyle={fonts.bodyLarge}
         >
-            {listeContrat.map((contrat:any, index:number) => (
+            {listeContrat.map((contrat: any, index: number) => (
                 <TouchableOpacity key={index} onPress={() => handleChildPress(contrat)}>
                     <List.Item
                         title={`${contrat.enfant.prenom} ${contrat.enfant.nom}`}
@@ -151,7 +154,7 @@ const ChildInfoCard = ({ selectedChild, expanded, setExpanded, listeContrat, han
     </Card>
 );
 
-const LogoutDialog = ({ visible, onDismiss, onConfirm, fonts }:any) => (
+const LogoutDialog = ({ visible, onDismiss, onConfirm, fonts }: any) => (
     <Portal>
         <Dialog visible={visible} onDismiss={onDismiss}>
             <Dialog.Title style={fonts.titleLarge}>Se déconnecter</Dialog.Title>
@@ -166,7 +169,7 @@ const LogoutDialog = ({ visible, onDismiss, onConfirm, fonts }:any) => (
     </Portal>
 );
 
-const AddChildDialog = ({ visible, onDismiss, onConfirm, fonts }:any) => (
+const AddChildDialog = ({ visible, onDismiss, onConfirm, fonts }: any) => (
     <Portal>
         <Dialog visible={visible} onDismiss={onDismiss}>
             <Dialog.Title style={fonts.titleLarge}>Ajouter un nouvel enfant</Dialog.Title>
@@ -236,7 +239,8 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 10,
-        width: '100%',
+        width: '93%',
+        marginHorizontal:'auto'
     },
     addChildButton: {
         margin: 0,

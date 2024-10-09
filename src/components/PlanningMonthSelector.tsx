@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { generateMonths, Month } from '../utils/date';
+import { Body as Contrat } from '../pages/connected/ConfigurerContratPage/classes';
+
 interface SelectedMonth {
   year: number;
   monthIndex: number;
 }
 
 interface PlanningMonthSelectorProps {
-  dateDebutContrat: string; // Format "YYYY-MM-DD",
+  contrat: Contrat;
   selectedMonth: SelectedMonth;
   setSelectedMonth: React.Dispatch<React.SetStateAction<SelectedMonth>>
 }
 
-const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebutContrat, selectedMonth, setSelectedMonth }) => {
+const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ contrat, selectedMonth, setSelectedMonth }) => {
   const { fonts } = useTheme(); // Accéder aux polices du thème
   const [months, setMonths] = useState<Month[]>([]);
   const flatListRef = useRef<FlatList>(null);
@@ -22,9 +24,9 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ dateDebut
   const ITEM_OFFSET = ITEM_WIDTH;
 
   useEffect(() => {
-    var listMonths = generateMonths(dateDebutContrat);
+    var listMonths = generateMonths(contrat);
     setMonths(listMonths);
-  }, [dateDebutContrat]);
+  }, [contrat]);
 
   useEffect(() => {
     if (flatListRef.current && months.length > 0) {
