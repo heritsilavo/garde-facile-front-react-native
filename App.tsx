@@ -28,6 +28,7 @@ import SelectParentpage from './src/pages/connected/SelectParentPage/SelectParen
 import DetailContratReadOnly from './src/pages/connected/DetailContratReadOnly/DetailContratReadOnly';
 import HistoriqueContratList from './src/pages/connected/HistoriqueContratList/HistoriqueContratList';
 import ResiliationContratPage from './src/pages/connected/ResiliationContratPage/ResiliationContratPage';
+import ContratClotureePage from './src/pages/connected/ContratClotureePage/ContratClotureePage';
 
 const Stack = createStackNavigator();
 
@@ -308,6 +309,7 @@ const App = () => {
                   <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
                   <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
                   <Stack.Screen name="ResiliationContratPage" component={ResiliationContratPage} />
+                  <Stack.Screen name="ContratClotureePage" component={ContratClotureePage} />
                 </Stack.Navigator>
                 <Toast
                   position='top'

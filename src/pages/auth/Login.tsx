@@ -17,7 +17,7 @@ const LoginPage = ({ navigation }: { navigation: NavigationProp<any> }) => {
 
   useEffect(function () {
     setIsLoading(false);
-  },[])
+  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -53,14 +53,22 @@ const LoginPage = ({ navigation }: { navigation: NavigationProp<any> }) => {
 
             //Verififier la configuration d'un contrat
             const isContratConfigured = await isContratConfiguree()
+            console.log("PROFILE: ", loggedUser.profile);
 
             if (loggedUser.profile === "PAJE_EMPLOYEUR") {
-              if (isContratConfigured) navigation.navigate('Home')
-              else navigation.navigate("ElementsAMunirPage")
+              if (isContratConfigured) navigation.reset({
+                index: 0,
+                routes: [{ name: "Home" }]
+              })
+              else navigation.reset({
+                index: 0,
+                routes: [{ name: "ElementsAMunirPage" }]
+              })
             } else {
-              const contrats: any[] = await getContratByPajeIdUser(loggedUser.pajeId);
-              if (!contrats.length) navigation.navigate("NoContractScreen");
-              else navigation.navigate("SelectParentpage");
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "SelectParentpage" }]
+              })
             }
           } else throw new Error()
         } else {
@@ -69,10 +77,10 @@ const LoginPage = ({ navigation }: { navigation: NavigationProp<any> }) => {
         setIsLoading(true)
       } catch (error) {
         Toast.show({
-          type:'error',
-          text1:'Impossible de se connecter',
-          visibilityTime:3000,
-          autoHide:true
+          type: 'error',
+          text1: 'Impossible de se connecter',
+          visibilityTime: 3000,
+          autoHide: true
         })
         setIsLoading(false)
       }

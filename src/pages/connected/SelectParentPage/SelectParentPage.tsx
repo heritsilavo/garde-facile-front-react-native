@@ -1,18 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, Modal } from "react-native";
+import { View, TouchableOpacity, StyleSheet, ScrollView, Modal } from "react-native";
 import { UserContextType, connectedUserContext } from "../../../../App";
 import { Parent, Enfant } from "../ConfigurerContratPage/classes";
 import { getAssociatedParentByPajeIdSalarie, logout } from "../../../utils/user";
-import { Button } from "react-native-paper";
+import { Button, Text, useTheme, Divider, Portal } from "react-native-paper";
 import { NavigationContext } from "@react-navigation/native";
 import { getContratByPajeIdParentAndSalarie, saveConfiguredContrat, recupererContratBySalarieParentAndEnfant } from "../../../utils/contrat";
 import { Body as ContratEntity } from "../ConfigurerContratPage/classes";
 import Icon from 'react-native-vector-icons/Ionicons';
 import Toast from "react-native-toast-message";
+import LoadingScreen from '../../../components/loading/LoadingScreens';
 
 const SelectParentpage = () => {
+    const theme = useTheme();
     const [Parents, setParents] = useState<Parent[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
     const [enfants, setEnfants] = useState<Enfant[]>([]);
@@ -21,8 +23,12 @@ const SelectParentpage = () => {
 
     const fetchParents = async () => {
         setIsLoading(true);
+        console.log("1");
+
         if (connectedUser.pajeId) {
+            console.log("2");
             const val: Parent[] = await getAssociatedParentByPajeIdSalarie(connectedUser.pajeId);
+            console.log("3");
             setParents(val);
             setIsLoading(false);
         }
@@ -30,41 +36,45 @@ const SelectParentpage = () => {
     };
 
     useEffect(() => {
+        console.log("SelectParentpage");
         fetchParents();
     }, []);
 
     const handleParentSelection = async (parent: Parent) => {
         setIsLoading(true);
         setSelectedParent(parent);
+
         const contrats: ContratEntity[] = await getContratByPajeIdParentAndSalarie(parent.pajeId, connectedUser.pajeId);
-        
+        console.log("Contrats: ", contrats);
+
         if (contrats.length > 0) {
             const enfantsList: Enfant[] = [];
             for (const contrat of contrats) {
-                const contratEnfants = await recupererContratBySalarieParentAndEnfant(parent.pajeId, connectedUser.pajeId, contrat.enfant.id);
-                
-                enfantsList.push(...contratEnfants.map((c:any) => c.enfant));
+                enfantsList.push(contrat.enfant);
             }
             setEnfants(enfantsList);
             setModalVisible(true);
-        }
-        
+        } else navigation?.navigate("NoContractScreen");
+
         setIsLoading(false);
     };
 
     const handleEnfantSelection = async (enfant: Enfant) => {
         setIsLoading(true);
-        const contrats = await recupererContratBySalarieParentAndEnfant( selectedParent!.pajeId, connectedUser.pajeId, enfant.id);
+        const contrats = await recupererContratBySalarieParentAndEnfant(selectedParent!.pajeId, connectedUser.pajeId, enfant.id);
         if (contrats.length > 0) {
             const saved = await saveConfiguredContrat(contrats[0].id);
             if (saved) {
                 setModalVisible(false);
-                navigation?.navigate('Home');
+                navigation?.reset({
+                    index: 0,
+                    routes: [{ name: "Home" }]
+                })
             }
-        }else{
+        } else {
             Toast.show({
-                type:'error',
-                text1:'Contrat introuvable'
+                type: 'error',
+                text1: 'Contrat introuvable'
             });
         }
         setIsLoading(false);
@@ -76,197 +86,199 @@ const SelectParentpage = () => {
         navigation?.navigate("Login");
     };
 
+    const styles = StyleSheet.create({
+        main: {
+            flex: 1,
+            backgroundColor: theme.colors.background,
+            padding: 16,
+        },
+        listContainer: {
+            flexGrow: 0,
+            marginVertical: 24,
+        },
+        title: {
+            ...theme.fonts.headlineMedium,
+            color: theme.colors.onBackground,
+            marginBottom: 8,
+        },
+        subtitle: {
+            ...theme.fonts.bodyMedium,
+            color: theme.colors.onSurfaceVariant,
+            textAlign: "center",
+            marginBottom: 16,
+        },
+        ParentItem: {
+            backgroundColor: theme.colors.surface,
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 12,
+            elevation: 2,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+        },
+        ParentName: {
+            ...theme.fonts.titleMedium,
+            color: theme.colors.onSurface,
+            marginBottom: 4,
+        },
+        ParentDob: {
+            ...theme.fonts.bodyMedium,
+            color: theme.colors.onSurfaceVariant,
+        },
+        helpText: {
+            ...theme.fonts.bodySmall,
+            color: theme.colors.onSurfaceVariant,
+            textAlign: "center",
+            marginVertical: 16,
+            paddingHorizontal: 24,
+        },
+        button: {
+            marginTop: 8,
+            borderRadius: 8,
+        },
+        modalOverlay: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        modalView: {
+            width: '90%',
+            backgroundColor: theme.colors.surface,
+            borderRadius: 28,
+            padding: 24,
+            elevation: 5,
+            shadowColor: theme.colors.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+        },
+        modalHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+        },
+        modalTitle: {
+            ...theme.fonts.titleLarge,
+            color: theme.colors.onSurface,
+        },
+        modalListContainer: {
+            width: '100%',
+            paddingBottom: 8,
+        },
+        EnfantItem: {
+            padding: 16,
+            borderRadius: 12,
+            backgroundColor: theme.colors.surfaceVariant,
+            marginBottom: 8,
+        },
+        EnfantName: {
+            ...theme.fonts.titleMedium,
+            color: theme.colors.onSurfaceVariant,
+            marginBottom: 4,
+        },
+        EnfantDob: {
+            ...theme.fonts.bodyMedium,
+            color: theme.colors.onSurfaceVariant,
+        },
+        closeButton: {
+            padding: 8,
+        }
+    });
+
     if (isLoading) {
-        return (
-            <View style={{ ...styles.main, justifyContent: "center" }}>
-                <ActivityIndicator size="large" color="#007AFF" />
-                <Text style={styles.loadingText}>Chargement en cours...</Text>
-            </View>
-        );
+        return <LoadingScreen />;
     }
 
     return (
         <View style={styles.main}>
-            <Text style={styles.title}>Choix de l'employeur</Text>
-            <Text style={styles.subtitle}>Pour quel parent employeur, rattaché à votre compte voulez-vous configurer un contrat</Text>
-            <ScrollView style={styles.listContainer}>
-                {Parents.map((Parent, index) => (
-                    <TouchableOpacity
-                        style={styles.ParentItem}
-                        key={index}
-                        onPress={() => { handleParentSelection(Parent) }}
-                    >
-                        <Text style={styles.ParentName}>{Parent.nom + ' ' + Parent.prenom}</Text>
-                        <Text style={styles.ParentDob}>{Parent.pajeId}</Text>
-                    </TouchableOpacity>
-                ))}
+            <ScrollView style={{ flex: 1 }}>
+                <Text style={styles.title}>Choix de l'employeur</Text>
+                <Text style={styles.subtitle}>
+                    Pour quel parent employeur, rattaché à votre compte voulez-vous configurer un contrat
+                </Text>
+
+                <ScrollView style={styles.listContainer}>
+                    {Parents.map((Parent, index) => (
+                        <TouchableOpacity
+                            style={styles.ParentItem}
+                            key={index}
+                            onPress={() => handleParentSelection(Parent)}
+                        >
+                            <Text style={styles.ParentName}>
+                                {Parent.nom + ' ' + Parent.prenom}
+                            </Text>
+                            <Text style={styles.ParentDob}>{Parent.pajeId}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+
+
             </ScrollView>
             <Text style={styles.helpText}>
-                Vous ne trouvez pas votre employeur dans la liste ? Contactez l'admin qu'il procède à son enregistrement.
+                Vous ne trouvez pas votre employeur dans la liste ?
+                Contactez l'admin qu'il procède à son enregistrement.
             </Text>
             <Button
                 mode="contained"
                 onPress={handleLogOut}
-                labelStyle={styles.label}
                 style={styles.button}
-                contentStyle={styles.content}
             >
                 Se déconnecter
             </Button>
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalView}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Choisissez un enfant</Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Icon name="close" size={30} color="#000" />
-                            </TouchableOpacity>
-                        </View>
-                        <ScrollView contentContainerStyle={styles.modalListContainer}>
-                            {enfants.map((enfant, index) => (
+            <Portal>
+                <Modal
+                    animationType="slide"
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalView}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>Choisissez un enfant</Text>
                                 <TouchableOpacity
-                                    style={styles.EnfantItem}
-                                    key={index}
-                                    onPress={() => { handleEnfantSelection(enfant) }}
+                                    style={styles.closeButton}
+                                    onPress={() => setModalVisible(false)}
                                 >
-                                    <Text style={styles.EnfantName}>{enfant.nom + ' ' + enfant.prenom}</Text>
-                                    <Text style={styles.EnfantDob}>{enfant.dateNaissance}</Text>
+                                    <Icon
+                                        name="close"
+                                        size={24}
+                                        color={theme.colors.onSurfaceVariant}
+                                    />
                                 </TouchableOpacity>
-                            ))}
-                        </ScrollView>
+                            </View>
+
+                            <Divider style={{ marginBottom: 16 }} />
+
+                            <ScrollView contentContainerStyle={styles.modalListContainer}>
+                                {enfants.map((enfant, index) => (
+                                    <TouchableOpacity
+                                        style={styles.EnfantItem}
+                                        key={index}
+                                        onPress={() => handleEnfantSelection(enfant)}
+                                    >
+                                        <Text style={styles.EnfantName}>
+                                            {enfant.nom + ' ' + enfant.prenom}
+                                        </Text>
+                                        <Text style={styles.EnfantDob}>
+                                            {new Date(enfant.dateNaissance).toLocaleDateString('fr-FR', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
+            </Portal>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    main: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-        paddingHorizontal: 20,
-    },
-    listContainer: {
-        maxHeight: '60%',
-        width: '100%',
-        marginTop: 20,
-    },
-    title: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: "#333",
-    },
-    subtitle: {
-        fontSize: 16,
-        marginBottom: 16,
-        color: "#666",
-        textAlign: "center",
-    },
-    ParentItem: {
-        padding: 20,
-        borderRadius: 10,
-        backgroundColor: '#fff',
-        marginBottom: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    ParentName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: "#333",
-    },
-    ParentDob: {
-        fontSize: 14,
-        color: '#888',
-    },
-    helpText: {
-        marginTop: 20,
-        fontSize: 14,
-        color: '#888',
-        textAlign: "center",
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: "#007AFF",
-    },
-    button: {
-        backgroundColor: '#007AFF',
-        borderRadius: 10,
-        paddingVertical: 10,
-        marginTop: 20,
-        width: '90%',
-    },
-    content: {
-        height: 50,
-    },
-    label: {
-        fontSize: 18,
-        color: 'white',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalView: {
-        width: '90%',
-        backgroundColor: 'white',
-        borderRadius: 10,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: "#333",
-    },
-    modalListContainer: {
-        width: '100%',
-        paddingBottom: 20,
-    },
-    EnfantItem: {
-        padding: 15,
-        borderRadius: 8,
-        backgroundColor: '#f9f9f9',
-        marginBottom: 10,
-        borderColor: '#ddd',
-        borderWidth: 1,
-    },
-    EnfantName: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: "#333",
-    },
-    EnfantDob: {
-        fontSize: 14,
-        color: '#666',
-    }
-});
 
 export default SelectParentpage;

@@ -202,12 +202,6 @@ const DetailContratReadOnly: React.FC<DetailContratReadOnlyProps> = ({ navigatio
                                     {`${contrat.salaireMensuelNet.toFixed(2)}€/mois`}
                                 </Text>
                             </View>
-                            <View style={styles.detailRow}>
-                                <Text style={{ ...styles.label, ...fonts.bodyLarge }}>Date de début:</Text>
-                                <Text style={{ ...styles.value, ...fonts.bodyMedium }}>
-                                    {new Date(contrat.dateDebut).toLocaleDateString()}
-                                </Text>
-                            </View>
                         </View>
 
                         <Divider style={styles.divider} />

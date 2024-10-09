@@ -10,6 +10,8 @@ import CongeScreen from './HomeScreens/CongesScreen/CongeScreen';
 import { BaseRoute } from 'react-native-paper/lib/typescript/components/BottomNavigation/BottomNavigation';
 import { Body as ContratType } from '../ConfigurerContratPage/classes';
 import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat } from '../../../utils/contrat';
+import { actionEntrerAppli } from '../../../utils/utils';
+import { AxiosError } from 'axios';
 
 const DeclarationRoute = () => <Text>Declaration</Text>;
 
@@ -77,26 +79,38 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
   }, [configuredContrat]);
 
   React.useEffect(() => {
-    const initializeContrat = async () => {
-      try {
-        const contratId = await getConfiguredContrat();
-        if (!contratId) {
-          navigation.navigate(
-            connectedUser.profile === "PAJE_EMPLOYEUR"
-              ? "ElementsAMunirPage"
-              : "SelectParentpage"
-          );
-          return;
-        }
-
-        const contratData: ContratType = await getDetailConfiguredContrat();
-        setConfiguredContrat(contratData);
-        setDataLoaded(true);
-      } catch (error) {
-        console.error('Error initializing contrat:', error);
-      }
+    const initializeContrat = () => {
+      getConfiguredContrat()
+        .then((contratId) => {
+          if (!contratId) {
+            navigation.navigate( 
+              connectedUser.profile === "PAJE_EMPLOYEUR"
+                ? "ElementsAMunirPage"
+                : "SelectParentpage"
+            );
+            return; 
+          }
+  
+          return actionEntrerAppli();
+        })
+        .then(() => getDetailConfiguredContrat())
+        .then((contratData) => {
+          setConfiguredContrat(contratData);
+          setDataLoaded(true);
+        })
+        .catch((error) => {
+          const message = error?.response?.data?.message || error?.message || error.toString();
+          const code = error?.response?.data?.code || error?.code || error.toString();
+          const description = error?.response?.data?.description || "";
+          console.log("Code: ", code);
+          console.log("Message: ", message);
+          console.log("Description: ", description);
+          if (!!code && code == "CONTRAT_CLOTUREE") {
+            navigation?.navigate("ContratClotureePage");
+          }
+        });
     };
-
+  
     initializeContrat();
   }, [connectedUser, navigation]);
 
