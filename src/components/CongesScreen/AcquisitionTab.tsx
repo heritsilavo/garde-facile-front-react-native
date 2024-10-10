@@ -10,7 +10,7 @@ import { getConfiguredContrat, getDetailConfiguredContrat } from "../../utils/co
 import Toast from "react-native-toast-message";
 import { NavigationContext } from "@react-navigation/native";
 import { connectedUserContext, UserContextType } from "../../../App";
-import { getPeriodeReference } from "../../utils/date";
+import { getPeriodeReference, PeriodeReference } from "../../utils/date";
 import { Body as ContratType } from "../../pages/connected/ConfigurerContratPage/classes";
 import LoadingScreen from "../loading/LoadingScreens";
 import { CongesAccordionList } from "./CongesAccordionList";
@@ -22,6 +22,7 @@ export const AcquisitionTab: React.FC<{ theme: MD3Theme, refreshValue:number }> 
     const { connectedUser } = useContext<UserContextType>(connectedUserContext)
     const navigation = useContext(NavigationContext);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [periodeRef, setPeriodeRef] = useState<PeriodeReference>()
 
     const showToastError = function (error: any) {
         const message = error?.response?.data?.message || error?.message || error.toString();
@@ -36,47 +37,42 @@ export const AcquisitionTab: React.FC<{ theme: MD3Theme, refreshValue:number }> 
         }, 2000);
     }
 
-    const loadData = function () {
-        setIsLoading(true)
-        getConfiguredContrat().then(function (contratId) {
-            if (!!contratId) {
-                return getDetailConfiguredContrat()
-            } else throw new Error('Aucun contrat')
-        }).catch(error => {
-            showToastError(error);
-            navigation?.reset({
-                index: 0, routes: [{ name: (connectedUser.profile == 'PAJE_EMPLOYEUR') ? 'ConfigurerContrat' : 'NoContractScreen' }]
-            })
-        }).then(function (contrat: ContratType) {
-            const annee = getPeriodeReference(contrat.dateDebut).anneRef;
-            return getDetailAcquisitionContrat(contrat.id, annee);
-        }).catch(error => {
-            showToastError(error);
-            navigation?.reset({
-                index: 0, routes: [{ name: (connectedUser.profile == 'PAJE_EMPLOYEUR') ? 'ConfigurerContrat' : 'NoContractScreen' }]
-            })
-        }).then(function (data) {
+    const loadData = async function () {
+        setIsLoading(true);
+        
+        try {
+            const contratId = await getConfiguredContrat();
+            
+            if (!contratId) {
+                throw new Error('Aucun contrat');
+            }
+    
+            const contrat = await getDetailConfiguredContrat();
+            const annee = getPeriodeReference((new Date()).toISOString().split('T')[0]).anneRef;
+            const data = await getDetailAcquisitionContrat(contrat.id, annee);
+    
             if (data) {
                 setCongesData(data);
             }
-        }).catch(error => {
+
+
+            setPeriodeRef(getPeriodeReference((new Date()).toISOString().split('T')[0]))
+        } catch (error) {
             showToastError(error);
             navigation?.reset({
-                index: 0, routes: [{ name: (connectedUser.profile == 'PAJE_EMPLOYEUR') ? 'ConfigurerContrat' : 'NoContractScreen' }]
-            })
-        }).finally(function () {
-            setIsLoading(false)
-        })
+                index: 0,
+                routes: [{ name: (connectedUser.profile === 'PAJE_EMPLOYEUR') ? 'ConfigurerContrat' : 'NoContractScreen' }]
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     useEffect(function () {
         loadData();
     }, [refreshValue])
 
-
-    const handleInfoPress = () => {
-        setModalVisible(true);
-    };
+    const handleInfoPress = () => setModalVisible(true);
 
     <InfoButton onPress={handleInfoPress} theme={theme} />
 
@@ -92,7 +88,8 @@ export const AcquisitionTab: React.FC<{ theme: MD3Theme, refreshValue:number }> 
                         <Title style={[styles.sectionTitle, theme.fonts.titleLarge, { marginTop: 5 }]}>Congés payées acquis</Title>
                         <InfoButton onPress={handleInfoPress} theme={theme}></InfoButton>
                     </View>
-                    <HelpBox style={{ marginTop: 10 }} text='Le salarié a droit a 2.5 jours de congées par mois. Donc 30 jours (5 semaines) par an'></HelpBox>
+                    {/* <HelpBox style={{ marginTop: 10 }} text='Le salarié a droit a 2.5 jours de congées par mois. Donc 30 jours (5 semaines) par an'></HelpBox> */}
+                    <Paragraph style={[styles.paragraph, theme.fonts.bodyMedium]}>Les données indiqués ci-dessous seront modifiée aprés {periodeRef?.dateFin.toLocaleDateString()}.</Paragraph>
                     <CongeItem
                         value={congesData.disponible}
                         description="Congés payés disponibles"
@@ -107,11 +104,11 @@ export const AcquisitionTab: React.FC<{ theme: MD3Theme, refreshValue:number }> 
                     />
 
                     <Title style={[styles.sectionTitle, theme.fonts.titleLarge]}>Congés déjà posés</Title>
-                    <Paragraph style={[styles.paragraph, theme.fonts.bodyMedium]}>Les congés indiqués ci-dessous ont été pris du 05/09/2023 à aujourd'hui.</Paragraph>
+                    <Paragraph style={[styles.paragraph, theme.fonts.bodyMedium]}>Les congés indiqués ci-dessous ont été pris du {(new Date(congesData.dateCreationCompteur).toLocaleDateString())} à aujourd'hui.</Paragraph>
                     
                     <CongesAccordionList congesData={congesData} theme={theme} />
                     
-                    <Text style={[styles.congeDate, theme.fonts.bodySmall]}>Depuis le 05/09/2023</Text>
+                    <Text style={[styles.congeDate, theme.fonts.bodySmall]}>Depuis le {(new Date(congesData.dateCreationCompteur).toLocaleDateString())}</Text>
                 </Card.Content>
             </Card>
 

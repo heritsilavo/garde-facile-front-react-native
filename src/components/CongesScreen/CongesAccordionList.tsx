@@ -11,10 +11,6 @@ interface CongesAccordionListProps {
 export const CongesAccordionList: React.FC<CongesAccordionListProps> = ({ congesData, theme }) => {
     return (
         <View>
-            <Title style={[styles.sectionTitle, theme.fonts.titleLarge]}>Congés déjà posés</Title>
-            <Paragraph style={[styles.paragraph, theme.fonts.bodyMedium]}>
-                Les congés indiqués ci-dessous ont été pris depuis le {congesData.dateCreationCompteur}
-            </Paragraph>
             
             <CongeAccordionItem
                 title="Congés payés"

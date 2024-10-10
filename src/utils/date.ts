@@ -1,6 +1,10 @@
 import { Planning, TrancheHoraire } from "../pages/connected/ConfigurerContratPage/classes";
 import { SelectedMonth } from "../pages/connected/CreerEvenementPage/CreerEvenementPage";
 import { Body as ContratEntity } from "../pages/connected/ConfigurerContratPage/classes";
+import { getLoginToken, isLogedIn } from "./user";
+import axios from "axios";
+import { SPRING_BOOT_URL } from "../constants/api";
+import { getConfiguredContrat } from "./contrat";
 
 export interface Mois {
     year: number;
@@ -19,20 +23,35 @@ export function obtenirSemaines(mois: Mois): Semaine[] {
     const semaines: Semaine[] = [];
     const premierJourDuMois = new Date(year, monthIndex, 1);
     const dernierJourDuMois = new Date(year, monthIndex + 1, 0);
+    
+    // On commence par le premier jour du mois
     let dateDebutSemaine = new Date(premierJourDuMois);
-    dateDebutSemaine.setDate(dateDebutSemaine.getDate() - dateDebutSemaine.getDay() + 1);
+    
+    // Si le premier jour n'est pas un lundi, on ajuste au lundi de cette semaine
+    if (dateDebutSemaine.getDay() !== 1) {
+        dateDebutSemaine.setDate(dateDebutSemaine.getDate() - dateDebutSemaine.getDay() + 1);
+    }
 
     let numeroSemaine = 0;
-    while (dateDebutSemaine <= dernierJourDuMois && semaines.length < 6) {
+    while (dateDebutSemaine <= dernierJourDuMois) {
         const dateFinSemaine = new Date(dateDebutSemaine);
         dateFinSemaine.setDate(dateFinSemaine.getDate() + 6);
 
-        semaines.push({
-            dateDebut: new Date(dateDebutSemaine),
-            dateFin: new Date(dateFinSemaine),
-            label: `Du ${dateDebutSemaine.getDate()} ${(getNomMois(dateFinSemaine.getMonth()) != getNomMois(dateDebutSemaine.getMonth())) ? getNomMois(dateDebutSemaine.getMonth()) : ""} au ${dateFinSemaine.getDate()} ${getNomMois(dateFinSemaine.getMonth())}`,
-            numeroSemaine: numeroSemaine,
-        });
+        // Ajuster la date de fin si elle dépasse le mois
+        const dateFinAjustee = new Date(Math.min(dateFinSemaine.getTime(), dernierJourDuMois.getTime()));
+
+        // N'ajouter la semaine que si elle commence dans le mois courant
+        if (dateDebutSemaine <= dernierJourDuMois) {
+            // Ajuster la date de début si elle est avant le début du mois
+            const dateDebutAjustee = new Date(Math.max(dateDebutSemaine.getTime(), premierJourDuMois.getTime()));
+
+            semaines.push({
+                dateDebut: new Date(dateDebutAjustee),
+                dateFin: new Date(dateFinAjustee),
+                label: `Du ${dateDebutAjustee.getDate()} au ${dateFinAjustee.getDate()} ${getNomMois(dateFinAjustee.getMonth())}`,
+                numeroSemaine: numeroSemaine,
+            });
+        }
 
         dateDebutSemaine.setDate(dateDebutSemaine.getDate() + 7);
         numeroSemaine++;
@@ -231,14 +250,12 @@ export const getPeriodeReference = function (dateStr: string): PeriodeReference 
     return { anneRef, dateDebut, dateFin }
 }
 
-
 const getNbMonthBetween2Dates = function (debut: Date, fin: Date) {
-    var nbMonth = 0;
-    var diffAnnee = (fin.getFullYear() - debut.getFullYear()) + 1;
-    if (diffAnnee < 0) throw new Error("La date debut doit etre avant la date de fin");
-    nbMonth += (diffAnnee * 12);
-    nbMonth -= debut.getMonth()
-    nbMonth -= (12 - fin.getMonth())
+    if (fin < debut) throw new Error("La date debut doit être avant la date de fin");
+
+    const nbYear = fin.getFullYear() - debut.getFullYear();
+    const nbMonth = (nbYear * 12) + (fin.getMonth() - debut.getMonth());
+
     return nbMonth;
 }
 
@@ -247,12 +264,26 @@ const isBetween = function (date: Date, debut: Date, fin: Date): boolean {
     const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const normalizedDebut = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate());
     const normalizedFin = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
-    
+
     // Convertir en timestamps pour la comparaison
     const timestamp = normalizedDate.getTime();
     const debutTimestamp = normalizedDebut.getTime();
     const finTimestamp = normalizedFin.getTime();
-    
+
+    return timestamp >= debutTimestamp && timestamp <= finTimestamp;
+}
+
+const isBetweenWithoutDay = function (date: Date, debut: Date, fin: Date): boolean {
+    // Normaliser les dates en enlevant les jours/heures/minutes/secondes
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), 1);
+    const normalizedDebut = new Date(debut.getFullYear(), debut.getMonth(), 1);
+    const normalizedFin = new Date(fin.getFullYear(), fin.getMonth(), 1);
+
+    // Convertir en timestamps pour la comparaison
+    const timestamp = normalizedDate.getTime();
+    const debutTimestamp = normalizedDebut.getTime();
+    const finTimestamp = normalizedFin.getTime();
+
     return timestamp >= debutTimestamp && timestamp <= finTimestamp;
 }
 
@@ -261,28 +292,29 @@ export const generateMonths = function (contrat: ContratEntity) {
 
     const nbMonth = getNbMonthBetween2Dates(periodeReference.dateDebut, periodeReference.dateFin);
     console.log("NB MONTH: %%%", nbMonth);
-    
+
     const monthNames = [
         'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-        'Juillet', 'Août', 'Sept.' , 'Octobre', 'Nov.', 'Déc.'
+        'Juillet', 'Août', 'Sept.', 'Octobre', 'Nov.', 'Déc.'
     ];
 
     const listeMonth: Month[] = [];
 
     let currentDate = new Date(periodeReference.dateDebut);
-    
+
     console.log("CONTRAT", contrat.dateDebut, contrat.dateFin);
-    
-    
+
+
     for (let i = 0; i < nbMonth; i++) {
-        if (isBetween(currentDate, new Date(contrat.dateDebut), new Date(contrat.dateFin))) {
+
+        if (isBetweenWithoutDay(currentDate, new Date(contrat.dateDebut), new Date(contrat.dateFin))) {
             listeMonth.push({
                 label: `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`,
                 monthIndex: currentDate.getMonth(),
                 year: currentDate.getFullYear()
             });
         }
-        
+
         // Incrémenter le mois
         let newMonth = currentDate.getMonth() + 1;
         if (newMonth === 12) {
@@ -292,9 +324,30 @@ export const generateMonths = function (contrat: ContratEntity) {
             currentDate.setMonth(newMonth);
         }
     }
-    
+
     console.log("Liste Month:", listeMonth);
     return listeMonth;
+}
+
+export const generateMonthsAsync = async function ():Promise<Month[]> {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const contratId = await getConfiguredContrat();
+        const anee = getPeriodeReference((new Date()).toISOString().split('T')[0]).anneRef;
+        if (!contratId) throw new Error("Aucun contrat configurée");
+        else {
+            const response = await axios.get(`${SPRING_BOOT_URL}/contrats/getListeMois/${contratId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                params: {
+                    annee: anee
+                }
+            });
+            return response.data
+        }
+    } else throw new Error("Vous n'etes pas connecté");
 }
 
 /**
@@ -307,7 +360,7 @@ export function getMonthNameByIndex(index: number, locale: string = 'en-US'): st
     if (index < 1 || index > 12) {
         return undefined;
     }
-    
+
     const date = new Date(2000, index - 1, 1);
     return date.toLocaleString(locale, { month: 'long' });
 }

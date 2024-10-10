@@ -46,7 +46,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
       setLoadEvents(true);
       const contratId = await getConfiguredContrat();
       if (!!contratId) {
-        var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex + 1, selectedMonth.year);
+        var listeEvenement = await getEvenementsByContratAndPeriode(contratId, selectedMonth.monthIndex, selectedMonth.year);
 
         setEvents(listeEvenement);
         setLoadEvents(false);
@@ -169,7 +169,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
 
   const handleAddEvenement = function () {
     navigation?.navigate("CreerEvenementPage", {
-      month: selectedMonth,
+      month: {...selectedMonth, monthIndex:selectedMonth.monthIndex - 1}, //-1 car zero based ny month retra any am comp
     });
   }
 
@@ -250,7 +250,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
         visible={modalVisible}
         onDismiss={() => setModalVisible(false)}
         onConfirm={handleConfirmSelection}
-        semaines={obtenirSemaines(selectedMonth)}
+        semaines={obtenirSemaines({...selectedMonth, monthIndex:selectedMonth.monthIndex - 1})} //-1 car zero based ny month retra any am comp
       />
 
 

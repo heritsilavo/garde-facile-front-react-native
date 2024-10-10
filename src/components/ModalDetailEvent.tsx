@@ -1,6 +1,6 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native';
-import { Modal, Portal, IconButton, useTheme } from 'react-native-paper';
+import { StyleSheet, Text, ScrollView } from 'react-native';
+import { Dialog, Portal, IconButton, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Evenement } from '../models/evenements';
 import { getTypeEventByText } from '../utils/evenements/enum-type-evenement';
@@ -17,79 +17,74 @@ const ModalDetailEvent: React.FC<ModalDetailEventProps> = ({ visible, onDismiss,
 
     return (
         <Portal>
-            <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles(theme).modalContainer}>
-                <SafeAreaView style={styles(theme).safeArea}>
-                    <View style={styles(theme).header}>
-                        <IconButton
-                            icon={() => (
-                                <MaterialCommunityIcons name="close-circle" size={24} color={theme.colors.outline} />
-                            )}
-                            onPress={onDismiss}
-                            style={styles(theme).closeButton}
-                        />
-                    </View>
+            <Dialog visible={visible} onDismiss={onDismiss} style={styles(theme).dialog}>
+                <IconButton
+                    icon={() => (
+                        <MaterialCommunityIcons name="close-circle" size={24} color={theme.colors.outline} />
+                    )}
+                    onPress={onDismiss}
+                    style={styles(theme).closeButton}
+                />
+                <Dialog.ScrollArea style={styles(theme).scrollArea}>
                     <ScrollView contentContainerStyle={styles(theme).scrollContent}>
                         <Text style={styles(theme).title}>{getTypeEventByText(event.typeEvenement)?.titre}</Text>
                         <Text style={styles(theme).date}>{getDescriptionByEvent(event)}</Text>
                         <Text style={styles(theme).description}>{getTypeEventByText(event.typeEvenement)?.description}</Text>
                     </ScrollView>
-                </SafeAreaView>
-            </Modal>
+                </Dialog.ScrollArea>
+            </Dialog>
         </Portal>
     );
 };
 
-const styles = (theme:any) => StyleSheet.create({
-    modalContainer: {
-        backgroundColor: theme.colors.background, // Utiliser la couleur de fond du thème
+const styles = (theme: any) => StyleSheet.create({
+    dialog: {
+        backgroundColor: theme.colors.background,
         margin: 20,
         borderRadius: 16,
         paddingVertical: 24,
-        shadowColor: theme.colors.shadow, // Couleur de l'ombre
+        shadowColor: theme.colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 5,
         maxHeight: '90%',
-        height: '45%',
     },
-    safeArea: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        paddingHorizontal: 24,
-        marginBottom: 16,
+    scrollArea: {
+        paddingHorizontal: 0,
     },
     closeButton: {
-        margin: -8,
+        position: 'absolute',
+        right: 16,
+        top: 16,
+        zIndex: 1,
     },
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: 24,
+        paddingTop: 40,
     },
     title: {
         fontSize: 24,
-        fontFamily: theme.fonts.titleMedium.fontFamily, // Appliquer la police pour le titre
+        fontFamily: theme.fonts.titleMedium.fontFamily,
         fontWeight: '700',
         textAlign: 'center',
         marginBottom: 12,
-        color: theme.colors.text, // Utiliser la couleur du texte du thème
+        color: theme.colors.text,
     },
     date: {
         fontSize: 16,
-        fontFamily: theme.fonts.bodyMedium.fontFamily, // Appliquer la police pour la date
+        fontFamily: theme.fonts.bodyMedium.fontFamily,
         textAlign: 'center',
         marginBottom: 20,
-        color: theme.colors.placeholder, // Couleur pour la date
+        color: theme.colors.placeholder,
     },
     description: {
         fontSize: 18,
         lineHeight: 28,
-        fontFamily: theme.fonts.bodyMedium.fontFamily, // Appliquer la police pour la description
+        fontFamily: theme.fonts.bodyMedium.fontFamily,
         textAlign: 'left',
-        color: theme.colors.text, // Couleur pour la description
+        color: theme.colors.text,
     },
 });
 

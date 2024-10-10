@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { generateMonths, Month } from '../utils/date';
+import { generateMonths, generateMonthsAsync, Month } from '../utils/date';
 import { Body as Contrat } from '../pages/connected/ConfigurerContratPage/classes';
+import Toast from 'react-native-toast-message';
 
 interface SelectedMonth {
   year: number;
@@ -19,13 +20,29 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ contrat, 
   const { fonts } = useTheme(); // Accéder aux polices du thème
   const [months, setMonths] = useState<Month[]>([]);
   const flatListRef = useRef<FlatList>(null);
+  const [isLoading, setIsLoadin] = useState(true)
 
   const ITEM_WIDTH = (Dimensions.get('window').width / 3);
   const ITEM_OFFSET = ITEM_WIDTH;
 
+  const getMonths = async function () {
+      setIsLoadin(true)
+      generateMonthsAsync().then(function (months:Month[]) {
+        setMonths(months)
+      }).catch(function (error:any) {
+          Toast.show({
+            type:'error',
+            visibilityTime: 1500,
+            autoHide:true,
+            text1: "impossible de generer les Mois"
+          })
+      }).finally(function () {
+        setIsLoadin(false)
+      })
+  }
+
   useEffect(() => {
-    var listMonths = generateMonths(contrat);
-    setMonths(listMonths);
+    getMonths()
   }, [contrat]);
 
   useEffect(() => {
@@ -49,7 +66,7 @@ const PlanningMonthSelector: React.FC<PlanningMonthSelectorProps> = ({ contrat, 
   const renderItem = ({ item }: { item: Month }) => {
     const isSelected = item.year === selectedMonth.year && item.monthIndex === selectedMonth.monthIndex;
     const currentDate = new Date();
-    const isCurrentMonth = item.year === currentDate.getFullYear() && item.monthIndex === currentDate.getMonth();
+    const isCurrentMonth = item.year === currentDate.getFullYear() && item.monthIndex === (currentDate.getMonth() +1);//+1 car  currentDate.getMonth() est zero based
 
     return (
       <TouchableOpacity
