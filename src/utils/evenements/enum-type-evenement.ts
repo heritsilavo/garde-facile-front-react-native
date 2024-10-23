@@ -102,61 +102,61 @@ export const TypeEvenement = {
         titre: "Naissance ou Arrivée d'Enfant",
         texte: "NAISSANCE_OU_ARRIVEE_ENFANT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence liée à la naissance ou à l'arrivée d'un nouvel enfant dans la famille."
+        description: "Absence liée à la naissance ou à l'arrivée d'un nouvel enfant dans la famille.(Max = 3jours)"
     },
     SALARIE_FAMILLE_MARIAGE: {
         titre: "Mariage ou PACS",
         texte: "MARIAGE_OU_PACS",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence liée à la célébration du mariage ou du PACS."
+        description: "Absence liée à la célébration du mariage ou du PACS.(Max = 4jours)"
     },
     SALARIE_FAMILLE_MARIAGE_ENFANT: {
         titre: "Mariage ou PACS Enfant",
         texte: "MARIAGE_OU_PACS_ENFANT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence pour le mariage ou le PACS d'un enfant."
+        description: "Absence pour le mariage ou le PACS d'un enfant.(Max = 2jours)"
     },
     SALARIE_FAMILLE_DECES_CONJOINT: {
         titre: "Décès Conjoint/Partenaire/PACS/Concubin",
         texte: "DECES_EPOUX_PARTENAIRE_PACSE_CONCUBIN",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès du conjoint, partenaire PACS ou concubin."
+        description: "Absence due au décès du conjoint, partenaire PACS ou concubin.(Max = 3jours)"
     },
     SALARIE_FAMILLE_DECES_ENFANT: {
         titre: "Décès Enfant",
         texte: "DECES_ENFANT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès d'un enfant."
+        description: "Absence due au décès d'un enfant. (Max = 14jours)"
     },
     SALARIE_FAMILLE_DECES_DESCENDANT: {
         titre: "Décès Descendant",
         texte: "DECES_DESCENDANT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès d'un descendant (petit-enfant, etc.)."
+        description: "Absence due au décès d'un descendant (petit-enfant, etc.). (Max = 2 jours)"
     },
     SALARIE_FAMILLE_DECES_PARENT: {
         titre: "Décès Parent/Beau-Parent",
         texte: "DECES_PARENT_OU_BEAU_PARENT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès d'un parent ou beau-parent."
+        description: "Absence due au décès d'un parent ou beau-parent. (Max = 3jours)"
     },
     SALARIE_FAMILLE_DECES_GRAN_PARENT: {
         titre: "Décès Grand-Parent",
         texte: "DECES_GRAND_PARENT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès d'un grand-parent."
+        description: "Absence due au décès d'un grand-parent. (Max = 2jours)"
     },
     SALARIE_FAMILLE_DECES_FRATERNITE: {
         titre: "Décès Frère/Sœur",
         texte: "DECES_FRERE_OU_SOEUR",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence due au décès d'un frère ou d'une sœur."
+        description: "Absence due au décès d'un frère ou d'une sœur. (Max = 3jours)"
     },
     SALARIE_FAMILLE_ANNONCE_HANDICAP: {
         titre: "Annonce Handicap Enfant",
         texte: "ANNONCE_HANDICAP_ENFANT",
         famille: FamilleEvenement.ABSENCE_ASSMAT,
-        description: "Absence liée à l'annonce du handicap."
+        description: "Absence liée à l'annonce du handicap. (Max = 5jours)"
     }
 }
 
