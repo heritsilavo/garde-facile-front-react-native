@@ -30,6 +30,8 @@ import HistoriqueContratList from './src/pages/connected/HistoriqueContratList/H
 import ResiliationContratPage from './src/pages/connected/ResiliationContratPage/ResiliationContratPage';
 import ContratClotureePage from './src/pages/connected/ContratClotureePage/ContratClotureePage';
 
+import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+
 const Stack = createStackNavigator();
 
 const fontsConfig = {
@@ -286,37 +288,39 @@ const App = () => {
     <PaperProvider theme={lightTheme}>
       <NavigationContainer>
         <connectedUserContext.Provider value={{ connectedUser, setConnectedUser }}>
-          {
-            isLoading ?
-              <LoadingScreen></LoadingScreen>
-              :
-              <View style={styles.container}>
-                <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={defaultRoute}>
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="Login" component={Login} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ElementsAMunirPage" component={ElementsAMunirPage} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="NoContractScreen" component={NoContractScreen} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="Home" component={HomePage} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ConfigurerContrat" component={ContractConfigurationComponent} />
-                  <Stack.Screen name="CreerEvenementPage" component={CreerEvenementPage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="CreerAmplitudeEvenementPage" component={CreerAmplitudeEvenementPage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="CreerJourFerieTravaillPage" component={CreerJourFerieTravaillPage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="CreateIndemniteePage" component={CreateIndemniteePage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="CreerHeureComplementairePage" component={CreerHeureComplementairePage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="CreerPeriodeAdaptationPage" component={CreerPeriodeAdaptationPage} options={{ cardShadowEnabled: true }} />
-                  <Stack.Screen name="DetailContratReadOnly" component={DetailContratReadOnly} />
-                  <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ContratProfile" component={ContratProfile} />
-                  <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
-                  <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
-                  <Stack.Screen name="ResiliationContratPage" component={ResiliationContratPage} />
-                  <Stack.Screen name="ContratClotureePage" component={ContratClotureePage} />
-                </Stack.Navigator>
-                <Toast
-                  position='top'
-                  bottomOffset={20}
-                />
-              </View>
-          }
+          <AutocompleteDropdownContextProvider>
+            {
+              isLoading ?
+                <LoadingScreen></LoadingScreen>
+                :
+                <View style={styles.container}>
+                  <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={defaultRoute}>
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="Login" component={Login} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ElementsAMunirPage" component={ElementsAMunirPage} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="CompatibiliteDuContratPage" component={CompatibiliteeContrat} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="NoContractScreen" component={NoContractScreen} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="Home" component={HomePage} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ConfigurerContrat" component={ContractConfigurationComponent} />
+                    <Stack.Screen name="CreerEvenementPage" component={CreerEvenementPage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="CreerAmplitudeEvenementPage" component={CreerAmplitudeEvenementPage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="CreerJourFerieTravaillPage" component={CreerJourFerieTravaillPage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="CreateIndemniteePage" component={CreateIndemniteePage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="CreerHeureComplementairePage" component={CreerHeureComplementairePage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="CreerPeriodeAdaptationPage" component={CreerPeriodeAdaptationPage} options={{ cardShadowEnabled: true }} />
+                    <Stack.Screen name="DetailContratReadOnly" component={DetailContratReadOnly} />
+                    <Stack.Screen options={{ cardShadowEnabled: true, ...config }} name="ContratProfile" component={ContratProfile} />
+                    <Stack.Screen name="SelectParentpage" component={SelectParentpage} />
+                    <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
+                    <Stack.Screen name="ResiliationContratPage" component={ResiliationContratPage} />
+                    <Stack.Screen name="ContratClotureePage" component={ContratClotureePage} />
+                  </Stack.Navigator>
+                  <Toast
+                    position='top'
+                    bottomOffset={20}
+                  />
+                </View>
+            }
+          </AutocompleteDropdownContextProvider>
         </connectedUserContext.Provider>
       </NavigationContainer>
     </PaperProvider>

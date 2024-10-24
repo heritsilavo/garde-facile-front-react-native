@@ -131,7 +131,6 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
     newConfig.body.nbHeuresNormalesMensu = nbHeuresNormalesMensu;
     newConfig.body.nbJoursMensu = nbJoursMensu;
     newConfig.body.indexJourRepos = indexJourRepos
-    newConfig.body.indexJoursChomes = [...newConfig.body.indexJoursChomes, indexJourRepos]
     newConfig.body.nbHeuresMajoreesHebdo = nbHeuresMajoreesHebdo
     newConfig.body.nbHeuresMajoreesMensu = nbHeuresMajoreesMensu
     newConfig.body.nbHeuresSpecifiquesHebdo = nbHeuresSpecifiquesHebdo

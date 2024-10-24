@@ -8,11 +8,11 @@ export interface JourFerie {
     getDate: (year: number) => string;
 }
 
-interface ListeJourFerie {
+interface ListeJourFerieType {
     [key: string]: JourFerie;
 }
 
-export const ListeJourFerie: ListeJourFerie = {
+export const ListeJourFerie: ListeJourFerieType = {
     JOUR_AN: {
         type: 'JOUR_AN',
         text: "Jour de l'An",
@@ -254,8 +254,21 @@ export function getJourFerieByLabel(label: string): JourFerie | undefined {
     const foundHoliday = holidays.find(holiday => holiday.label === label);
 
     if (foundHoliday) {
-        return ListeJourFerie[foundHoliday.code as keyof ListeJourFerie];
+        return ListeJourFerie[foundHoliday.code as keyof ListeJourFerieType];
     }
 
     return undefined; // Retourne undefined si aucun jour férié trouvé
+}
+
+
+export const getListeJourFerieByText = function (liste:string[]):JourFerie[] {
+    const res:JourFerie[] = [];
+    liste.forEach(element => {
+        var jf = getJourFerieByText(element);
+        if (jf) {
+            res.push(jf);
+        }
+    });
+
+    return res;
 }

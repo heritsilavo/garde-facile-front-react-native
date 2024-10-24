@@ -1,102 +1,221 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { AutocompleteDropdown } from "react-native-autocomplete-dropdown";
+import { ActivityIndicator } from "react-native-paper";
 import HelpBox from "../components/HelpBox";
-import { ListeJourFerie } from "../../../../utils/ListeJoursFerie";
-
-const ListeCodesPostaux = [
-  "75001",
-  "75002",
-  "75003",
-  "75004",
-  "75005",
-  "75006",
-  "75007",
-  "75008",
-  "75009",
-  "75010",
-  "75011",
-  "75012",
-  "75013",
-  "75014",
-  "75015",
-  "75016",
-  "75116",
-  "75017",
-  "75018",
-  "75019",
-  "75020",
-  "75000"
-];
+import { getListeJourFerieByText, JourFerie } from "../../../../utils/ListeJoursFerie";
+import LoadingScreen from "../../../../components/loading/LoadingScreens";
+import { getAllCodePostaux } from "../../../../utils/codepostaux";
+import { getJourFeriesByCodePostale } from "../../../../utils/jourferie";
 
 interface RenderStep7Props {
   setStep: (step: number) => void;
   setCodePostateAndJourFerie: (codePostale: string, jourFerie: string[]) => void;
 }
 
+interface PostalCodeItem {
+  id: string;
+  title: string;
+}
+
+const SEARCH_DEBOUNCE_TIME = 600;
+const MAX_POSTAL_CODE_SUGGESTIONS = 50;
+const MIN_SEARCH_LENGTH = 2;
+
+const HolidayItem = React.memo(({ 
+  holiday, 
+  isSelected, 
+  onToggle 
+}: { 
+  holiday: JourFerie; 
+  isSelected: boolean; 
+  onToggle: (type: string) => void;
+}) => (
+  <TouchableOpacity
+    style={[styles.holidayItem, isSelected && styles.selectedHoliday]}
+    onPress={() => onToggle(holiday.type)}
+  >
+    <Text style={styles.label}>{holiday.text}</Text>
+  </TouchableOpacity>
+));
+
 const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJourFerie }) => {
-  const [codePostale, setCodePostale] = useState<string>("");
-  const [codePostaleValide, setCodePostaleValide] = useState<boolean>(false);
-  const [selectedHolidays, setSelectedHolidays] = useState<string[]>([]);
+  // State management
+  const [state, setState] = useState({
+    codePostale: "",
+    codePostaleValide: false,
+    selectedHolidays: [] as string[],
+    isLoading: true,
+    listeCodesPostaux: [] as string[],
+    searchQuery: "",
+    listeJourFerie: [] as JourFerie[],
+    loadingJourFerie: true,
+  });
 
-  const onChangeCodePostale = (code: string) => {
-    const valide = validerCodePostale(code);
-    setCodePostaleValide(valide);
-    setCodePostale(code);
-  };
+  // Memoized postal codes filtering
+  const formattedPostalCodes = useMemo<PostalCodeItem[]>(() => {
+    if (state.searchQuery.length < MIN_SEARCH_LENGTH) return [];
+    
+    return state.listeCodesPostaux
+      .filter(code => code.includes(state.searchQuery))
+      .slice(0, MAX_POSTAL_CODE_SUGGESTIONS)
+      .map(code => ({
+        id: code,
+        title: code,
+      }));
+  }, [state.listeCodesPostaux, state.searchQuery]);
 
-  const validerCodePostale = (code: string): boolean => {
-    return ListeCodesPostaux.includes(code);
-  };
+  // Fetch postal codes on mount
+  useEffect(() => {
+    let mounted = true;
 
-  const toggleHolidaySelection = (holiday: string) => {
-    setSelectedHolidays((prevSelected) => {
-      if (prevSelected.includes(holiday)) {
-        return prevSelected.filter((item) => item !== holiday);
-      } else {
-        return [...prevSelected, holiday];
+    const fetchPostalCodes = async () => {
+      try {
+        const list = await getAllCodePostaux();
+        if (mounted) {
+          setState(prev => ({ 
+            ...prev, 
+            listeCodesPostaux: list, 
+            isLoading: false 
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch postal codes:', error);
+        if (mounted) {
+          setState(prev => ({ ...prev, isLoading: false }));
+        }
       }
-    });
-  };
+    };
 
-  const onclickContinue = () => {
-    setCodePostateAndJourFerie(codePostale, selectedHolidays);
-    setStep(8)
-  };
+    fetchPostalCodes();
+    return () => { mounted = false; };
+  }, []);
+
+  // Fetch holidays when postal code changes
+  useEffect(() => {
+    if (!state.codePostale) return;
+
+    const fetchHolidays = async () => {
+      setState(prev => ({ ...prev, loadingJourFerie: true }));
+      try {
+        const liste = await getJourFeriesByCodePostale(
+          state.codePostale, 
+          new Date().getFullYear()
+        );
+        const listeJourFeries = getListeJourFerieByText(liste);
+        setState(prev => ({ 
+          ...prev, 
+          listeJourFerie: listeJourFeries, 
+          loadingJourFerie: false 
+        }));
+      } catch (error) {
+        console.error('Failed to fetch holidays:', error);
+        setState(prev => ({ ...prev, loadingJourFerie: false }));
+      }
+    };
+
+    fetchHolidays();
+  }, [state.codePostale]);
+
+  const handleSelectPostalCode = useCallback((item:any) => {
+    setState(prev => ({
+      ...prev,
+      codePostale: item?.title || "",
+      codePostaleValide: !!item
+    }));
+  }, []);
+
+  const toggleHolidaySelection = useCallback((holidayType: string) => {
+    setState(prev => ({
+      ...prev,
+      selectedHolidays: prev.selectedHolidays.includes(holidayType)
+        ? prev.selectedHolidays.filter(item => item !== holidayType)
+        : [...prev.selectedHolidays, holidayType]
+    }));
+  }, []);
+
+  const handleContinue = useCallback(() => {
+    setCodePostateAndJourFerie(state.codePostale, state.selectedHolidays);
+    setStep(8);
+  }, [state.codePostale, state.selectedHolidays, setCodePostateAndJourFerie, setStep]);
+
+  if (state.isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        removeClippedSubviews={true}
+      >
         <Text style={styles.title}>Jours Fériées</Text>
         <Text style={styles.subtitle}>
           Ajouter les jours feriées où l'enfant sera gardé
         </Text>
-        <HelpBox text={"Les jours fériés chômés sont rémunérés sauf s'ils tombent lors d'une période d'absence. Si travaillés, ils sont majorés de 10%. Le 1er mai est majoré de 100%."}></HelpBox>
+        
+        <HelpBox
+          text="Les jours fériés chômés sont rémunérés sauf s'ils tombent lors d'une période d'absence. Si travaillés, ils sont majorés de 10%. Le 1er mai est majoré de 100%."
+        />
 
-        <Text style={{ ...styles.subtitle, marginTop: 20 }}>
+        <Text style={[styles.subtitle, { marginTop: 20 }]}>
           Code Postale de l'assistant:
         </Text>
-        <TextInput
-          onChangeText={onChangeCodePostale}
-          placeholder="ex: 75001"
-          placeholderTextColor='gray'
-          style={{ ...styles.input, borderColor: (codePostaleValide ? '#ccc' : 'red') }}
-          keyboardType="numeric"
-        />
-        {!codePostaleValide && <Text style={{ color: "red", fontSize: 12, marginTop: 0 }}>le code postale est invalide</Text>}
 
-        <Text style={styles.title2}>Sélectionnez les jours fériés</Text>
-        {Object.values(ListeJourFerie).map((holiday) => (
-          <TouchableOpacity
-            key={holiday.type}
-            style={[styles.holidayItem, selectedHolidays.includes(holiday.type) && styles.selectedHoliday]}
-            onPress={() => toggleHolidaySelection(holiday.type)}
-          >
-            <Text style={styles.label}>{holiday.text}</Text>
-          </TouchableOpacity>
-        ))}
+        <AutocompleteDropdown
+          clearOnFocus={false}
+          closeOnBlur={true}
+          closeOnSubmit={true}
+          initialValue={{ id: state.codePostale }}
+          onSelectItem={handleSelectPostalCode}
+          onChangeText={(text) => setState(prev => ({ ...prev, searchQuery: text }))}
+          dataSet={formattedPostalCodes}
+          useFilter={false}
+          debounce={SEARCH_DEBOUNCE_TIME}
+          suggestionsListMaxHeight={200}
+          textInputProps={{
+            placeholder: "ex: 75001",
+            style: styles.inputText,
+            maxLength: 5,
+          }}
+          inputContainerStyle={[
+            styles.inputContainer,
+            { borderColor: state.codePostaleValide ? "#ccc" : "red" }
+          ]}
+        />
+
+        {!state.codePostaleValide && (
+          <Text style={styles.errorText}>
+            le code postale est invalide
+          </Text>
+        )}
+
+        {!state.loadingJourFerie ? (
+          <>
+            <Text style={styles.title2}>Sélectionnez les jours fériés</Text>
+            {state.listeJourFerie.map(holiday => (
+              <HolidayItem
+                key={holiday.type}
+                holiday={holiday}
+                isSelected={state.selectedHolidays.includes(holiday.type)}
+                onToggle={toggleHolidaySelection}
+              />
+            ))}
+          </>
+        ) : (
+          null
+        )}
       </ScrollView>
 
-      <TouchableOpacity disabled={!codePostaleValide} style={{...styles.button,backgroundColor: (codePostaleValide ? '#0058c4' : '#b8cce6')}} onPress={onclickContinue}>
+      <TouchableOpacity
+        disabled={!state.codePostaleValide}
+        style={[
+          styles.button,
+          { backgroundColor: state.codePostaleValide ? "#0058c4" : "#b8cce6" }
+        ]}
+        onPress={handleContinue}
+      >
         <Text style={styles.buttonText}>Continuer</Text>
       </TouchableOpacity>
     </View>
@@ -111,17 +230,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 80, // Space for the button
+    paddingBottom: 80,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
     color: "black",
   },
   title2: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
     color: "black",
   },
@@ -133,44 +252,50 @@ const styles = StyleSheet.create({
   holidayItem: {
     padding: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     marginBottom: 10,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   selectedHoliday: {
-    backgroundColor: '#70a3c4', // Change background color when selected
+    backgroundColor: "#70a3c4",
   },
   label: {
     fontSize: 16,
-    color: 'black',
+    color: "black",
   },
   button: {
-    backgroundColor: '#007AFF',
-    position: 'absolute',
+    backgroundColor: "#007AFF",
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  input: {
-    height: 50,
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 0,
+  },
+  inputText: {
+    color: "black",
+    borderRadius: 8,
+    backgroundColor: "white",
+    paddingHorizontal: 12,
+  },
+  inputContainer: {
+    backgroundColor: "transparent",
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 12,
     marginBottom: 12,
-    fontSize: 16,
-    width: '100%',
-    color: "black",
-    marginTop: 10,
   },
 });
 
-export default RenderStep7;
+export default React.memo(RenderStep7);
