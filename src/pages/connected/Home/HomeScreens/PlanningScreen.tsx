@@ -57,7 +57,7 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
   useEffect(() => {
     (async () => {
       const now = new Date();
-      setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() });
+      setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() + 1 });
       await fetchEvents();
     })();
   }, [refreshValue]);

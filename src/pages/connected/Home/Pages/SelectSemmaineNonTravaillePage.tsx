@@ -31,6 +31,7 @@ const SelectSemmaineNonTravailleModal: React.FC<SelectSemmaineNonTravailleModalP
       }
     });
   };
+  
 
   const handleConfirm = async () => {
     setIsLoading(true);

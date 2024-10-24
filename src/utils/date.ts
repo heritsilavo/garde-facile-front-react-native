@@ -18,45 +18,66 @@ export interface Semaine {
     numeroSemaine: number;
 }
 
+// Fonction pour obtenir le numéro de la semaine ISO
+function getWeekNumber(date: Date): number {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    // Jeudi de la semaine en cours
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    // Janvier 4 est toujours dans la semaine 1
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    // Ajuster au Jeudi
+    week1.setDate(week1.getDate() + 3 - (week1.getDay() + 6) % 7);
+    // Calculer le nombre de semaines
+    const weekNum = 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return weekNum;
+}
+
 export function obtenirSemaines(mois: Mois): Semaine[] {
     const { year, monthIndex } = mois;
     const semaines: Semaine[] = [];
-    const premierJourDuMois = new Date(year, monthIndex, 1);
-    const dernierJourDuMois = new Date(year, monthIndex + 1, 0);
-    
-    // On commence par le premier jour du mois
+
+    // Créer le premier et dernier jour du mois
+    var premierJourDuMois = new Date(`${year}-${monthIndex+1}-1`);
+    var dernierJourDuMois = new Date(`${year}-${monthIndex+2}-0`);
+
+    // Trouver le premier lundi qui nous intéresse
     let dateDebutSemaine = new Date(premierJourDuMois);
-    
-    // Si le premier jour n'est pas un lundi, on ajuste au lundi de cette semaine
-    if (dateDebutSemaine.getDay() !== 1) {
+    if (dateDebutSemaine.getDay() !== 1) { // Si ce n'est pas un lundi
         dateDebutSemaine.setDate(dateDebutSemaine.getDate() - dateDebutSemaine.getDay() + 1);
     }
 
-    let numeroSemaine = 0;
+    // Continuer tant qu'on n'a pas dépassé la fin du mois
     while (dateDebutSemaine <= dernierJourDuMois) {
-        const dateFinSemaine = new Date(dateDebutSemaine);
+        // Calculer la fin de la semaine (dimanche)
+        let dateFinSemaine = new Date(dateDebutSemaine);
         dateFinSemaine.setDate(dateFinSemaine.getDate() + 6);
 
-        // Ajuster la date de fin si elle dépasse le mois
-        const dateFinAjustee = new Date(Math.min(dateFinSemaine.getTime(), dernierJourDuMois.getTime()));
+        // Ajuster les dates de début et de fin pour rester dans le mois
+        const debutEffectif = new Date(Math.max(
+            dateDebutSemaine.getTime(),
+            premierJourDuMois.getTime()
+        ));
 
-        // N'ajouter la semaine que si elle commence dans le mois courant
-        if (dateDebutSemaine <= dernierJourDuMois) {
-            // Ajuster la date de début si elle est avant le début du mois
-            const dateDebutAjustee = new Date(Math.max(dateDebutSemaine.getTime(), premierJourDuMois.getTime()));
+        const finEffective = new Date(Math.min(
+            dateFinSemaine.getTime(),
+            dernierJourDuMois.getTime()
+        ));
 
+        // N'ajouter la semaine que si elle contient au moins un jour dans le mois
+        if (debutEffectif <= dernierJourDuMois && finEffective >= premierJourDuMois) {
             semaines.push({
-                dateDebut: new Date(dateDebutAjustee),
-                dateFin: new Date(dateFinAjustee),
-                label: `Du ${dateDebutAjustee.getDate()} au ${dateFinAjustee.getDate()} ${getNomMois(dateFinAjustee.getMonth())}`,
-                numeroSemaine: numeroSemaine,
+                dateDebut: debutEffectif,
+                dateFin: finEffective,
+                label: `Du ${debutEffectif.getDate()} au ${finEffective.getDate()} ${getNomMois(finEffective.getMonth())}`,
+                numeroSemaine: getWeekNumber(debutEffectif)
             });
         }
 
+        // Passer à la semaine suivante
         dateDebutSemaine.setDate(dateDebutSemaine.getDate() + 7);
-        numeroSemaine++;
     }
-
+    
     return semaines;
 }
 
@@ -329,7 +350,7 @@ export const generateMonths = function (contrat: ContratEntity) {
     return listeMonth;
 }
 
-export const generateMonthsAsync = async function ():Promise<Month[]> {
+export const generateMonthsAsync = async function (): Promise<Month[]> {
     const isLogged = await isLogedIn()
     if (isLogged) {
         const token = await getLoginToken()
