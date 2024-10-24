@@ -46,7 +46,7 @@ export function calculateNbHoursAndDays(data: Planning[], nbSemainesTravailleesP
     const nbHeureParMois = Math.floor((totalMinutesParSemaine * nbSemainesTravaillees) / (12 * 60));
 
     // Calcul du nombre de jours travaillés par mois
-    const nbJoursParMois = Math.floor((week.length * nbSemainesTravaillees) / 12);
+    const nbJoursParMois = Math.floor(((week.length + weekEnd.length) * nbSemainesTravaillees) / 12);
 
     return [totalMinutesParSemaine / 60, nbHeureParMois, nbJoursParMois, nbMinutesMajoreesHebdo / 60, nbMinutesSpecifiquesHebdo / 60, nbHeuresMajoreesMensu];
   }

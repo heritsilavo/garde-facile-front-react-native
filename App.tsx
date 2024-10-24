@@ -31,6 +31,7 @@ import ResiliationContratPage from './src/pages/connected/ResiliationContratPage
 import ContratClotureePage from './src/pages/connected/ContratClotureePage/ContratClotureePage';
 
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
+import CurrentMonthDeclaration from './src/pages/connected/CurrentMonthDeclaration/CurrentMonthDeclaration';
 
 const Stack = createStackNavigator();
 
@@ -313,6 +314,7 @@ const App = () => {
                     <Stack.Screen name="HistoriqueContratList" component={HistoriqueContratList} />
                     <Stack.Screen name="ResiliationContratPage" component={ResiliationContratPage} />
                     <Stack.Screen name="ContratClotureePage" component={ContratClotureePage} />
+                    <Stack.Screen name="CurrentMonthDeclaration" component={CurrentMonthDeclaration} />
                   </Stack.Navigator>
                   <Toast
                     position='top'

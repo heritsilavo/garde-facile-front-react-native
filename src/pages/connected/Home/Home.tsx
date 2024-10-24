@@ -12,8 +12,8 @@ import { Body as ContratType } from '../ConfigurerContratPage/classes';
 import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat } from '../../../utils/contrat';
 import { actionEntrerAppli } from '../../../utils/utils';
 import { AxiosError } from 'axios';
+import DeclarationScreen from './HomeScreens/Declaration/DeclarationScreen';
 
-const DeclarationRoute = () => <Text>Declaration</Text>;
 
 export interface ConfiguredContratContextProps {
   configuredContrat: ContratType;
@@ -135,7 +135,7 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
     () =>
       BottomNavigation.SceneMap({
         Planning: () => <PlanningScreen refreshValue={refreshPlanningValue} />,
-        Declaration: DeclarationRoute,
+        Declaration: () => <DeclarationScreen></DeclarationScreen>,
         Conges: () => <CongeScreen refreshValue={refreshCongesValue}></CongeScreen>,
         Profile: () => ( 
           <ProfileScreen

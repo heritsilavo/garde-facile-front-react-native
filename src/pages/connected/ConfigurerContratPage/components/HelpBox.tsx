@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
+import { View,  StyleSheet, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Importing lamp icon
 
 interface HelpBoxPropsType {
@@ -8,13 +9,14 @@ interface HelpBoxPropsType {
 }
 
 const HelpBox = ({text,style}:HelpBoxPropsType) => {
+  const {fonts} = useTheme()
   return (
     <View style={{...styles.container,...style}}>
       <View style={styles.iconContainer}>
         <Icon name="lightbulb-o" size={20} color="#f57c00" />
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.text}>
+        <Text style={[fonts.bodySmall, styles.text]}>
           {text}
         </Text>
         {/* <TouchableOpacity style={styles.button}>

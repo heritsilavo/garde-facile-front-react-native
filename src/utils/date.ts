@@ -385,3 +385,13 @@ export function getMonthNameByIndex(index: number, locale: string = 'en-US'): st
     const date = new Date(2000, index - 1, 1);
     return date.toLocaleString(locale, { month: 'long' });
 }
+
+export function getMonthName(date:Date) {
+    const months = [
+      "du janvier", "du février", "du mars", "d' avril", "du mai", "du juin", 
+      "du juillet", "d'août", "du septembre", "d' octobre", "du novembre", "du décembre"
+    ];
+    
+    // Extraire le mois de la date et retourner le nom correspondant
+    return months[date.getMonth()];
+  }
