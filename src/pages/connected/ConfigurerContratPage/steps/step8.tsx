@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { ConfigContratContext } from '../ConfigurerContratPage';
 import HelpBox from '../components/HelpBox';
+import { useTheme } from 'react-native-paper';
 
 interface RenderStep8Props {
   setStep: (step: number) => void;
@@ -17,8 +18,8 @@ interface RenderStep8Props {
   ) => void;
 }
 
-const deuxChiffreApresVirgule = function (nbr:number) {
-    return Math.round(nbr * 100)/100
+const deuxChiffreApresVirgule = function (nbr: number) {
+  return Math.round(nbr * 100) / 100
 }
 
 const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
@@ -29,7 +30,9 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
   const [salaireNetHeureComplementaire, setSalaireNetHeureComplementaire] = useState('');
   const [salaireNetHeureMajoree, setSalaireNetHeureMajoree] = useState('');
 
-  const [canContinue,setCanContinue]=useState<boolean>(false)
+  const { fonts } = useTheme()
+
+  const [canContinue, setCanContinue] = useState<boolean>(false)
 
   const calculateSalaires = () => {
     const salaireHoraireNet = parseFloat(salaireNetHeureNormale);
@@ -59,10 +62,10 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
       salaireMensuelNet
     );
   };
-  
-  useEffect(function() {
+
+  useEffect(function () {
     setCanContinue(!!salaireNetHeureComplementaire && !!salaireNetHeureMajoree && !!salaireNetHeureNormale)
-  },[salaireNetHeureNormale,salaireNetHeureComplementaire,salaireNetHeureMajoree])
+  }, [salaireNetHeureNormale, salaireNetHeureComplementaire, salaireNetHeureMajoree])
 
   const onclickContinue = () => {
     calculateSalaires();
@@ -72,12 +75,12 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Salaires</Text>
-        <Text style={styles.subtitle}>Saisissez vos salaires horaires  <Text style={{fontWeight:'bold'}}>en salaire net</Text>.</Text>
+        <Text style={[styles.title, fonts.titleLarge]}>Salaires</Text>
+        <Text style={[styles.subtitle, fonts.bodyMedium]}>Saisissez vos salaires horaires  <Text style={{ fontWeight: 'bold' }}>en salaire net</Text>.</Text>
 
-        <Text style={styles.title2}>Heures normales</Text>
+        <Text style={[styles.title2, fonts.bodyMedium]}>Heures normales</Text>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Entrez le salaire net heure normale</Text>
+          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure normale</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureNormale}
@@ -89,9 +92,9 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
         </View>
         <HelpBox text='Heures ajoutées au contrat et en decà de 46 heures par semmaine.'></HelpBox>
 
-        <Text style={styles.title2}>Heures complémentaires</Text>
+        <Text style={[styles.title2, fonts.bodyMedium]}>Heures complémentaires</Text>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Entrez le salaire net heure complémentaire</Text>
+          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure complémentaire</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureComplementaire}
@@ -102,10 +105,10 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
           />
         </View>
         <HelpBox text='Heures ajoutées au planning et en decà de 46 heures par semmaine.'></HelpBox>
-        
-        <Text style={styles.title2}>Heures majorées</Text>
+
+        <Text style={[styles.title2, fonts.bodyMedium]}>Heures majorées</Text>
         <View style={styles.inputContainer}>
-        <Text style={styles.label}>Entrez le salaire net heure majorée</Text>
+          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure majorée</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureMajoree}
@@ -116,12 +119,12 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
           />
         </View>
         <HelpBox text='Heures travaillées au-delà de 46 heures par semmaine, prévue ou non au contrat.'></HelpBox>
-        
+
       </ScrollView>
-      
+
 
       <TouchableOpacity disabled={!canContinue} style={{ ...styles.button, backgroundColor: (canContinue ? '#0058c4' : '#b8cce6') }} onPress={onclickContinue}>
-        <Text style={styles.buttonText}>Continuer</Text>
+        <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
       </TouchableOpacity>
     </View>
   );
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
   title2: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginTop:22,
+    marginTop: 22,
     color: "black",
   },
   subtitle: {
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop:16
+    marginTop: 16
   },
   buttonText: {
     color: 'white',

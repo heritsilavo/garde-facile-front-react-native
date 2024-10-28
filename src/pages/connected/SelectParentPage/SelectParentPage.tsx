@@ -195,8 +195,8 @@ const SelectParentpage = () => {
     return (
         <View style={styles.main}>
             <ScrollView style={{ flex: 1 }}>
-                <Text style={styles.title}>Choix de l'employeur</Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.title, theme.fonts.titleLarge]}>Choix de l'employeur</Text>
+                <Text style={[styles.subtitle, theme.fonts.titleMedium]}>
                     Pour quel parent employeur, rattaché à votre compte voulez-vous configurer un contrat
                 </Text>
 
@@ -207,7 +207,7 @@ const SelectParentpage = () => {
                             key={index}
                             onPress={() => handleParentSelection(Parent)}
                         >
-                            <Text style={styles.ParentName}>
+                            <Text style={[styles.ParentName, theme.fonts.bodyMedium]}>
                                 {Parent.nom + ' ' + Parent.prenom}
                             </Text>
                             <Text style={styles.ParentDob}>{Parent.pajeId}</Text>
@@ -217,7 +217,7 @@ const SelectParentpage = () => {
 
 
             </ScrollView>
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, theme.fonts.bodySmall]}>
                 Vous ne trouvez pas votre employeur dans la liste ?
                 Contactez l'admin qu'il procède à son enregistrement.
             </Text>
@@ -238,7 +238,7 @@ const SelectParentpage = () => {
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalView}>
                             <View style={styles.modalHeader}>
-                                <Text style={styles.modalTitle}>Choisissez un enfant</Text>
+                                <Text style={[styles.modalTitle, theme.fonts.titleMedium]}>Choisissez un enfant</Text>
                                 <TouchableOpacity
                                     style={styles.closeButton}
                                     onPress={() => setModalVisible(false)}
@@ -260,10 +260,10 @@ const SelectParentpage = () => {
                                         key={index}
                                         onPress={() => handleEnfantSelection(enfant)}
                                     >
-                                        <Text style={styles.EnfantName}>
+                                        <Text style={[styles.EnfantName, theme.fonts.bodyMedium]}>
                                             {enfant.nom + ' ' + enfant.prenom}
                                         </Text>
-                                        <Text style={styles.EnfantDob}>
+                                        <Text style={[styles.EnfantDob, theme.fonts.bodySmall]}>
                                             {new Date(enfant.dateNaissance).toLocaleDateString('fr-FR', {
                                                 year: 'numeric',
                                                 month: 'long',

@@ -4,6 +4,7 @@ import { Assmat } from "../classes";
 import { getAssociatedAssmatByPajeIdParent } from "../../../../utils/user";
 import { connectedUserContext } from "../../../../../App";
 import User from "../../../../models/user";
+import LoadingScreen from "../../../../components/loading/LoadingScreens";
 
 const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelectedssmat: any }) => {
     const [Assmatren, setAssmatren] = useState<Assmat[]>([]);
@@ -29,12 +30,7 @@ const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelecteds
     };
 
     if (isLoading) {
-        return (
-            <View style={{ ...styles.main, justifyContent: "center" }}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={styles.loadingText}>Chargement en cours...</Text>
-            </View>
-        );
+        return <LoadingScreen></LoadingScreen>
     }
 
     return (
@@ -77,7 +73,8 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 16,
-        color: "black"
+        color: "black",
+        fontFamily: "Roboto-Bold",
     },
     subtitle: {
         fontSize: 16,
@@ -85,6 +82,7 @@ const styles = StyleSheet.create({
         color: "black",
         textAlign: "center",
         paddingHorizontal: 20,
+        fontFamily: "Roboto-Regular",
     },
     AssmatItem: {
         padding: 16,
@@ -96,11 +94,13 @@ const styles = StyleSheet.create({
     AssmatName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: "black"
+        color: "black",
+        fontFamily: "Roboto-Bold",
     },
     AssmatDob: {
         fontSize: 14,
         color: '#666',
+        fontFamily: "Roboto-Regular",
     },
     helpText: {
         marginTop: 16,
@@ -108,11 +108,13 @@ const styles = StyleSheet.create({
         color: '#666',
         textAlign: "center",
         paddingHorizontal: 20,
+        fontFamily: "Roboto-Regular",
     },
     loadingText: {
         marginTop: 10,
         fontSize: 16,
-        color: "black"
+        color: "black",
+        fontFamily: "Roboto-Regular",
     }
 });
 

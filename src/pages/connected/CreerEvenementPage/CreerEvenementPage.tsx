@@ -1,10 +1,11 @@
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView,Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo'
 import { FamilleEvenement, getFamilleExentText } from '../../../utils/evenements/famille-evenement';
 import HelpBox from '../ConfigurerContratPage/components/HelpBox';
 import { getListeJourFerieByMonth } from '../../../utils/ListeJoursFerie';
+import { useTheme } from 'react-native-paper';
 
 export interface SelectedMonth {
   year: number;
@@ -18,75 +19,76 @@ type RootStackParamList = {
 };
 
 
-const CreerEvenementPage = ({ navigation,route } : {navigation: NavigationProp<any>, route: RouteProp<RootStackParamList, 'CreerEvenementPage'>}) => {
+const CreerEvenementPage = ({ navigation, route }: { navigation: NavigationProp<any>, route: RouteProp<RootStackParamList, 'CreerEvenementPage'> }) => {
 
-    const { month } = route.params;
+  const { month } = route.params;
+  const { fonts, colors } = useTheme();
 
-    const handleQuit  =function (){
-        navigation.goBack();
+  const handleQuit = function () {
+    navigation.goBack();
+  }
+
+  const handleSelection = (value: number) => {
+    if ((value === FamilleEvenement.ABSENCE_ASSMAT) || (value === FamilleEvenement.ABSENCE_ENFANT)) {
+      //Amplitude Evenement
+      navigation.navigate("CreerAmplitudeEvenementPage", {
+        month,
+        familleEvenement: value
+      });
+
+    } else if (value === FamilleEvenement.JOUR_FERIE) {
+      //CreerJourFerieTravaillPage
+      navigation.navigate("CreerJourFerieTravaillPage", {
+        month,
+        familleEvenement: value
+      });
+    } else if (value == FamilleEvenement.INDEMNITE) {
+      navigation.navigate("CreateIndemniteePage", {
+        month,
+        familleEvenement: value
+      });
+    } else if (value == FamilleEvenement.HEURE_JOUR_COMPLEMENTAIRE) {
+      //CreerHeureComplementairePage
+      navigation.navigate("CreerHeureComplementairePage", {
+        month,
+        familleEvenement: value
+      });
+    } else if (value == FamilleEvenement.PERIODE_ADAPTATION) {
+      //CreerPeriodeAdaptationPage
+      navigation.navigate("CreerPeriodeAdaptationPage", {
+        month,
+        familleEvenement: value
+      });
+    } else if (value == FamilleEvenement.SEMAINE_NON_TRAVAILLEE) {
+
     }
+  }
 
-   const  handleSelection = (value:number) =>{
-        if ((value === FamilleEvenement.ABSENCE_ASSMAT) || (value === FamilleEvenement.ABSENCE_ENFANT) ) {
-          //Amplitude Evenement
-          navigation.navigate("CreerAmplitudeEvenementPage", {
-            month,
-            familleEvenement:value
-          });
-
-        }else if (value === FamilleEvenement.JOUR_FERIE) {
-          //CreerJourFerieTravaillPage
-          navigation.navigate("CreerJourFerieTravaillPage", {
-            month,
-            familleEvenement:value
-          });
-        }else if(value == FamilleEvenement.INDEMNITE){
-          navigation.navigate("CreateIndemniteePage", {
-            month,
-            familleEvenement:value
-          });
-        }else if (value == FamilleEvenement.HEURE_JOUR_COMPLEMENTAIRE){
-          //CreerHeureComplementairePage
-          navigation.navigate("CreerHeureComplementairePage", {
-            month,
-            familleEvenement:value
-          });
-        }else if (value == FamilleEvenement.PERIODE_ADAPTATION){
-          //CreerPeriodeAdaptationPage
-          navigation.navigate("CreerPeriodeAdaptationPage", {
-            month,
-            familleEvenement:value
-          });
-        }else if (value == FamilleEvenement.SEMAINE_NON_TRAVAILLEE){
-
-        }
-    }
-
-    return (
+  return (
     <View style={styles.container}>
-        <View style={styles.quitButtonContainer}>
-            <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
-                <Icon name="squared-cross" size={24} color="#000" style={styles.quitButtonIcon} />
+      <View style={styles.quitButtonContainer}>
+        <TouchableOpacity onPress={handleQuit} style={styles.quitButton}>
+          <Icon name="squared-cross" size={24} color="#000" style={styles.quitButtonIcon} />
+        </TouchableOpacity>
+      </View>
+
+      <Text style={[styles.title, fonts.titleLarge]}> Ajouter un événement éxceptionnel </Text>
+
+      {
+        Object.entries(FamilleEvenement).map(([key, value], index) => {
+          if (((key != "JOUR_FERIE") || ((key === "JOUR_FERIE") && (getListeJourFerieByMonth(month).length > 0))) && (key != "SEMAINE_NON_TRAVAILLEE")) {
+            return <TouchableOpacity
+              style={styles.ListItem}
+              key={index}
+              onPress={() => { handleSelection(value) }}
+            >
+              <Text style={[styles.ListItemText, fonts.bodyMedium]}>{getFamilleExentText(key)}</Text>
             </TouchableOpacity>
-        </View>
+          } else return null
+        })
+      }
 
-        <Text style={styles.title}> Ajouter un événement éxceptionnel </Text>
-        
-        {
-            Object.entries(FamilleEvenement).map(([key,value],index) => {
-              if (((key != "JOUR_FERIE") || ((key === "JOUR_FERIE") && (getListeJourFerieByMonth(month).length > 0))) && (key != "SEMAINE_NON_TRAVAILLEE")) {
-                return <TouchableOpacity 
-                    style={styles.ListItem} 
-                    key={index} 
-                    onPress={() => {handleSelection(value)}}
-                 >
-                    <Text style={styles.ListItemText}>{getFamilleExentText(key)}</Text>
-                </TouchableOpacity>
-              } else return null
-            })
-        }
-
-        <HelpBox style={{width:"90%", marginTop:20}} text="selectionner le type d'événement"></HelpBox>
+      <HelpBox style={{ width: "90%", marginTop: 20 }} text="selectionner le type d'événement"></HelpBox>
 
     </View>
   );
@@ -96,15 +98,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f1f1f1',
-    alignItems:"center"
+    alignItems: "center"
   },
-  title:{
-    fontSize:20,
-    color:'black',
-    fontWeight:'bold',
-    textAlign:'center',
-    marginTop:50,
-    marginBottom:20
+  title: {
+    fontSize: 20,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 50,
+    marginBottom: 20
   },
   ListItem: {
     padding: 16,
@@ -112,12 +114,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     width: "90%",
     alignSelf: "center"
-    },
-    ListItemText: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: "black"
-    },
+  },
+  ListItemText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: "black"
+  },
   quitButtonContainer: {
     position: 'absolute',
     top: 20,

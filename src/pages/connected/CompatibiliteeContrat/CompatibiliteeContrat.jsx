@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { Appbar, useTheme } from 'react-native-paper';
 
 const CompatibiliteeContrat = ({ navigation }) => {
+  const {fonts} = useTheme();
+
   return (
     <View style={styles.container}>
-      {/* AppBar plus discret */}
       <Appbar.Header style={styles.appBar}>
         <Appbar.BackAction onPress={() => navigation.navigate("ElementsAMunirPage")} />
       </Appbar.Header>
@@ -17,13 +18,11 @@ const CompatibiliteeContrat = ({ navigation }) => {
         
         <View style={styles.spacing} />
         
-        {/* Texte principal */}
-        <Text style={styles.title}>Votre Contrat Est-il bien compatible ?</Text>
+        <Text style={[styles.title, fonts.titleLarge]}>Votre Contrat Est-il bien compatible ?</Text>
         
         <View style={styles.spacing} />
         
-        {/* Texte d'instruction */}
-        <Text style={styles.instruction}>
+        <Text style={[styles.instruction, fonts.bodyMedium]}>
           Pour continuer, votre contrat doit être :
         </Text>
         
@@ -32,16 +31,16 @@ const CompatibiliteeContrat = ({ navigation }) => {
         {/* Liste des éléments */}
         <View>
           <View style={styles.listItem}>
-            <Text style={styles.listIcon}>●</Text>
-            <Text style={styles.listText}>Un contrat d'assistance maternelle</Text>
+            <Text style={[styles.listIcon, fonts.bodyMedium]}>●</Text>
+            <Text style={[styles.listText, fonts.bodyMedium]}>Un contrat d'assistance maternelle</Text>
           </View>
           <View style={styles.listItem}>
-            <Text style={styles.listIcon}>●</Text>
-            <Text style={styles.listText}>Un contrat CDI</Text>
+            <Text style={[styles.listIcon, fonts.bodyMedium]}>●</Text>
+            <Text style={[styles.listText, fonts.bodyMedium]}>Un contrat CDI</Text>
           </View>
           <View style={styles.listItem}>
-            <Text style={styles.listIcon}>●</Text>
-            <Text style={styles.listText}>
+            <Text style={[styles.listIcon, fonts.bodyMedium]}>●</Text>
+            <Text style={[styles.listText, fonts.bodyMedium]}>
               Avec un planning de garde qui ne change pas d'une semaine à l'autre
             </Text>
           </View>
@@ -50,13 +49,12 @@ const CompatibiliteeContrat = ({ navigation }) => {
         <View style={styles.flexSpacer} />
       </ScrollView>
 
-      {/* Bouton */}
       <View style={styles.center}>
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate("ConfigurerContrat")}
         >
-          <Text style={styles.buttonText}>Mon contrat est compatible</Text>
+          <Text style={[styles.buttonText, fonts.bodyMedium]}>Mon contrat est compatible</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -69,8 +67,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   appBar: {
-    backgroundColor: 'transparent', // AppBar transparent pour un style plus discret
-    elevation: 0, // Retirer l'ombre pour plus de légèreté
+    backgroundColor: 'transparent',
+    elevation: 0,
   },
   content: {
     padding: 16,

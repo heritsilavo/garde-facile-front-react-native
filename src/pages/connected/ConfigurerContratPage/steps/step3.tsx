@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 
 import { Calendar, DateData } from "react-native-calendars";
 import { ConfigContratContext } from "../ConfigurerContratPage";
 import { type_A, type_B } from "../../../../utils/mode-de-garde";
+import { useTheme } from "react-native-paper";
 
 interface RenderStep3Props {
     setStep: (step: number) => void;
@@ -12,6 +13,7 @@ interface RenderStep3Props {
 const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde }) => {
     const [selectedType,setType] = useState<string>();
     const [nbrSemmaine,setNbrSemmaine]=useState<number>(0);
+    const {fonts} = useTheme()
     
     const conf = useContext(ConfigContratContext)
 
@@ -33,8 +35,8 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
     return (
         <View style={{flex:1}}>
             <ScrollView contentContainerStyle={{alignItems:"center"}} style={styles.container}>
-                <Text style={styles.title}>Acceuil annuel</Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.title, fonts.titleLarge]}>Acceuil annuel</Text>
+                <Text style={[fonts.bodyMedium]}>
                     Il existe deux types de contrat selon le nombre de semmaine d'acceuil dans une années
                 </Text>
                 {[type_A,type_B].map((type, index) => (
@@ -49,12 +51,12 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
                 ))}
 
                 <View style={{...styles.inputContainer,display:(selectedType==type_B.type)?'flex':'none'}}>
-                    <Text style={{color:"#000"}}>Nombre de semmaine de garde:</Text>
+                    <Text style={[{color:"#000"}, fonts.bodyMedium]}>Nombre de semmaine de garde:</Text>
                     <TextInput onChangeText={(text:string)=>{setNbrSemmaine(parseInt(text))}} style={styles.input} keyboardType="numeric"></TextInput>
                 </View>
             </ScrollView>
             <TouchableOpacity onPress={onclickContinue} disabled={((selectedType=='A') || (selectedType=='B' && !!nbrSemmaine))?false:true} style={{...styles.button,opacity:((selectedType=='A') || (selectedType=='B' && nbrSemmaine))?1:0.5}}>
-                <Text style={styles.buttonText}>Continuer</Text>
+                <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
             </TouchableOpacity>
         </View>
     );

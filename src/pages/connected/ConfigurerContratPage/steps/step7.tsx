@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { AutocompleteDropdown } from "react-native-autocomplete-dropdown";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, useTheme } from "react-native-paper";
 import HelpBox from "../components/HelpBox";
 import { getListeJourFerieByText, JourFerie } from "../../../../utils/ListeJoursFerie";
 import LoadingScreen from "../../../../components/loading/LoadingScreens";
@@ -22,13 +22,13 @@ const SEARCH_DEBOUNCE_TIME = 600;
 const MAX_POSTAL_CODE_SUGGESTIONS = 50;
 const MIN_SEARCH_LENGTH = 2;
 
-const HolidayItem = React.memo(({ 
-  holiday, 
-  isSelected, 
-  onToggle 
-}: { 
-  holiday: JourFerie; 
-  isSelected: boolean; 
+const HolidayItem = React.memo(({
+  holiday,
+  isSelected,
+  onToggle
+}: {
+  holiday: JourFerie;
+  isSelected: boolean;
   onToggle: (type: string) => void;
 }) => (
   <TouchableOpacity
@@ -51,11 +51,12 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
     listeJourFerie: [] as JourFerie[],
     loadingJourFerie: true,
   });
+  const { fonts } = useTheme()
 
   // Memoized postal codes filtering
   const formattedPostalCodes = useMemo<PostalCodeItem[]>(() => {
     if (state.searchQuery.length < MIN_SEARCH_LENGTH) return [];
-    
+
     return state.listeCodesPostaux
       .filter(code => code.includes(state.searchQuery))
       .slice(0, MAX_POSTAL_CODE_SUGGESTIONS)
@@ -73,10 +74,10 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
       try {
         const list = await getAllCodePostaux();
         if (mounted) {
-          setState(prev => ({ 
-            ...prev, 
-            listeCodesPostaux: list, 
-            isLoading: false 
+          setState(prev => ({
+            ...prev,
+            listeCodesPostaux: list,
+            isLoading: false
           }));
         }
       } catch (error) {
@@ -99,14 +100,14 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
       setState(prev => ({ ...prev, loadingJourFerie: true }));
       try {
         const liste = await getJourFeriesByCodePostale(
-          state.codePostale, 
+          state.codePostale,
           new Date().getFullYear()
         );
         const listeJourFeries = getListeJourFerieByText(liste);
-        setState(prev => ({ 
-          ...prev, 
-          listeJourFerie: listeJourFeries, 
-          loadingJourFerie: false 
+        setState(prev => ({
+          ...prev,
+          listeJourFerie: listeJourFeries,
+          loadingJourFerie: false
         }));
       } catch (error) {
         console.error('Failed to fetch holidays:', error);
@@ -117,7 +118,7 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
     fetchHolidays();
   }, [state.codePostale]);
 
-  const handleSelectPostalCode = useCallback((item:any) => {
+  const handleSelectPostalCode = useCallback((item: any) => {
     setState(prev => ({
       ...prev,
       codePostale: item?.title || "",
@@ -150,16 +151,16 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
         contentContainerStyle={styles.scrollContent}
         removeClippedSubviews={true}
       >
-        <Text style={styles.title}>Jours Fériées</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, fonts.titleLarge]}>Jours Fériées</Text>
+        <Text style={[styles.subtitle, fonts.bodyMedium]}>
           Ajouter les jours feriées où l'enfant sera gardé
         </Text>
-        
+
         <HelpBox
           text="Les jours fériés chômés sont rémunérés sauf s'ils tombent lors d'une période d'absence. Si travaillés, ils sont majorés de 10%. Le 1er mai est majoré de 100%."
         />
 
-        <Text style={[styles.subtitle, { marginTop: 20 }]}>
+        <Text style={[styles.subtitle, { marginTop: 20 }, fonts.bodyMedium]}>
           Code Postale de l'assistant:
         </Text>
 
@@ -186,14 +187,14 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
         />
 
         {!state.codePostaleValide && (
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorText, fonts.bodySmall]}>
             le code postale est invalide
           </Text>
         )}
 
         {!state.loadingJourFerie ? (
           <>
-            <Text style={styles.title2}>Sélectionnez les jours fériés</Text>
+            <Text style={[styles.title2, fonts.titleMedium]}>Sélectionnez les jours fériés</Text>
             {state.listeJourFerie.map(holiday => (
               <HolidayItem
                 key={holiday.type}
@@ -216,7 +217,7 @@ const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJou
         ]}
         onPress={handleContinue}
       >
-        <Text style={styles.buttonText}>Continuer</Text>
+        <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
       </TouchableOpacity>
     </View>
   );

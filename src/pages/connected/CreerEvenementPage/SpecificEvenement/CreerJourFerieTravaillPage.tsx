@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MD3Colors, Text, Checkbox, Card } from 'react-native-paper';
+import { MD3Colors, Text, Checkbox, Card, useTheme } from 'react-native-paper';
 import { Evenement } from '../../../../models/evenements';
 import { getJourFeriesByContratAndPeriode, setIsJourFerieTravaille } from '../../../../utils/evenements/evenement';
 import { getConfiguredContrat } from '../../../../utils/contrat';
@@ -18,18 +18,19 @@ type RootStackParamList = {
   };
 };
 
-const CreerJourFerieTravaillPage = ({ 
-  navigation, 
-  route 
-}: { 
-  navigation: NavigationProp<any>, 
-  route: RouteProp<RootStackParamList, 'CreerJourFerieTravaillPage'> 
+const CreerJourFerieTravaillPage = ({
+  navigation,
+  route
+}: {
+  navigation: NavigationProp<any>,
+  route: RouteProp<RootStackParamList, 'CreerJourFerieTravaillPage'>
 }) => {
   const { month, familleEvenement } = route.params;
   const [isLoading, setIsLoading] = useState(true);
   const [listeJourFerie, setListeJourFerie] = useState<Evenement[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Evenement>();
   const [isTravaille, setIsTravaille] = useState(false);
+  const {fonts} = useTheme();
 
   useEffect(() => {
     const fetchJoursFeries = async () => {
@@ -49,9 +50,7 @@ const CreerJourFerieTravaillPage = ({
     fetchJoursFeries();
   }, []);
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+
 
   const handleSelectJourFerie = (evenementId: string) => {
     const selected = listeJourFerie.find(e => e.id === evenementId);
@@ -72,14 +71,18 @@ const CreerJourFerieTravaillPage = ({
   };
 
   const pickerItems = listeJourFerie.map(j => ({ label: j.nomJourFerie, value: j.id }));
+  
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <Text variant="headlineMedium" style={styles.title}>Jour férié travaillé</Text>
+        <Text variant="headlineMedium" style={[styles.title, fonts.titleLarge]}>Jour férié travaillé</Text>
         {selectedEvent && <HelpBox style={styles.helpBox} text={getTypeEventByText(selectedEvent.typeEvenement)?.description || ""} />}
-        <Text variant="bodyLarge" style={styles.label}>Sélectionner un jour férié :</Text>
-        
+        <Text variant="bodyLarge" style={[styles.label, fonts.bodyMedium]}>Sélectionner un jour férié :</Text>
+
         <RNPickerSelect
           onValueChange={handleSelectJourFerie}
           items={pickerItems}
@@ -103,21 +106,21 @@ const CreerJourFerieTravaillPage = ({
             onPress={() => setIsTravaille(!isTravaille)}
             color={MD3Colors.primary50}
           />
-          <Text variant="bodyMedium" style={styles.checkboxLabel}>Jour férié travaillé</Text>
+          <Text variant="bodyMedium" style={[styles.checkboxLabel, fonts.bodyMedium]}>Jour férié travaillé</Text>
         </View>
       </ScrollView>
 
       <View style={styles.btnsContainer}>
         <TouchableOpacity onPress={handleReturn} style={[styles.btn, styles.annulerBtn]}>
-          <Text style={styles.btnText}>Annuler</Text>
+          <Text style={[styles.btnText, fonts.bodyMedium]}>Annuler</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={handleClickContinue} 
+        <TouchableOpacity
+          onPress={handleClickContinue}
           style={[styles.btn, styles.continueBtn, { opacity: selectedEvent ? 1 : 0.5 }]}
           disabled={!selectedEvent}
         >
-          <Text style={styles.btnText}>Continuer</Text>
+          <Text style={[styles.btnText, fonts.bodyMedium]}>Continuer</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -135,8 +138,8 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 20,
-    color: MD3Colors.primary40,
     fontWeight: 'bold',
+    textAlign: "center"
   },
   helpBox: {
     marginTop: 20,

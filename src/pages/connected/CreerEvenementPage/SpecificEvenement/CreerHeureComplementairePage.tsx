@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { View, StyleSheet, Text, Dimensions, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { Button, Switch, MD3Colors, ActivityIndicator } from 'react-native-paper';
+import { Button, Switch, MD3Colors, ActivityIndicator, useTheme } from 'react-native-paper';
 import { TimePickerModal } from 'react-native-paper-dates';
 import DateSelector from './components/DateSelector';
 import { NavigationContext, RouteProp } from '@react-navigation/native';
@@ -41,6 +41,7 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
     const [repasALachargedusalarie, setRepasALachargedusalarie] = useState(false);
     const [canContinue, setCanContinue] = useState(false);
     const [isLoadingContinue, setIsLoadingContinue] = useState<boolean>(false)
+    const {fonts} = useTheme()
 
     const { month } = route.params
 
@@ -143,7 +144,7 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Créer {typeComplementaire === TypeComplementaire.heureComplementaire ? 'une heure' : 'un jour'} complémentaire</Text>
+            <Text style={[styles.title, fonts.titleLarge]}>Créer {typeComplementaire === TypeComplementaire.heureComplementaire ? 'une heure' : 'un jour'} complémentaire</Text>
 
             <View style={styles.tabsContainer}>
                 {Object.values(TypeComplementaire).map(type => (
@@ -152,7 +153,7 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
                         style={[styles.tab, typeComplementaire === type && styles.tabSelected]}
                         onPress={() => setTypeComplementaire(type)}
                     >
-                        <Text style={[styles.tabText, typeComplementaire === type && styles.tabTextSelected]}>
+                        <Text style={[styles.tabText, typeComplementaire === type && styles.tabTextSelected, fonts.bodyMedium]}>
                             {type === TypeComplementaire.heureComplementaire ? 'Heure' : 'Jour'}
                         </Text>
                     </TouchableOpacity>
@@ -168,17 +169,17 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
                     text="La date"
                 />
 
-                <Button onPress={() => setVisibleStartTime(true)} mode="outlined" style={styles.button}>
+                <Button onPress={() => setVisibleStartTime(true)} mode="outlined" style={[styles.button, fonts.bodyMedium]}>
                     {startTime ? `Heure de début: ${startTime}` : "Sélectionner l'heure de début"}
                 </Button>
 
-                <Button onPress={() => setVisibleEndTime(true)} mode="outlined" style={styles.button}>
+                <Button onPress={() => setVisibleEndTime(true)} mode="outlined" style={[styles.button, fonts.bodyMedium]}>
                     {endTime ? `Heure de fin: ${endTime}` : "Sélectionner l'heure de fin"}
                 </Button>
 
                 {typeComplementaire === TypeComplementaire.jourComplementaire && (
                     <View style={styles.switchContainer}>
-                        <Text style={{ color: "black" }}>Repas à la charge du salarié</Text>
+                        <Text style={[{ color: "black" }, fonts.bodySmall]}>Repas à la charge du salarié</Text>
                         <Switch
                             value={repasALachargedusalarie}
                             onValueChange={setRepasALachargedusalarie}
@@ -210,7 +211,7 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
 
             <View style={styles.btnsContainer}>
                 <TouchableOpacity disabled={isLoadingContinue} onPress={() => { navigation?.navigate('Home') }} style={[styles.btn, styles.annulerBtn]}>
-                    <Text style={styles.btnText}>Annuler</Text>
+                    <Text style={[styles.btnText, fonts.bodyMedium]}>Annuler</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -222,7 +223,7 @@ const CreerHeureComplementairePage = ({ route }: { route: RouteProp<RootStackPar
                         { backgroundColor: (canContinue || isLoadingContinue) ? "#007AFF" : MD3Colors.neutral50, opacity: (canContinue || isLoadingContinue) ? 1 : 0.5 }
                     ]}
                 >
-                    {isLoadingContinue ? <ActivityIndicator color='white'></ActivityIndicator> : <Text style={styles.btnText}>Continuer</Text>}
+                    {isLoadingContinue ? <ActivityIndicator color='white'></ActivityIndicator> : <Text style={[styles.btnText, fonts.bodyMedium]}>Continuer</Text>}
                 </TouchableOpacity>
             </View>
         </View>

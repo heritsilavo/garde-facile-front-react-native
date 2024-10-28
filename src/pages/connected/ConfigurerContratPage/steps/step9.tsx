@@ -4,6 +4,7 @@ import { IndemniteType } from '../classes';
 import { Switch } from 'react-native-gesture-handler';
 import CheckBox from '@react-native-community/checkbox';
 import HelpBox from '../components/HelpBox';
+import { useTheme } from 'react-native-paper';
 
 interface RenderStep9Props {
   setStep: (step: number) => void;
@@ -12,130 +13,132 @@ interface RenderStep9Props {
 
 const RenderStep9: React.FC<RenderStep9Props> = ({ setStep, setIndemnites }) => {
 
-    const [indemniteEntretienText,setIndemniteEntretienText] = useState<string>("");
+  const [indemniteEntretienText, setIndemniteEntretienText] = useState<string>("");
 
-    const [indemniteKilometriqueText,setIndemniteKilometriqueText] = useState<string>("");
-    const [isIndemniteKilometriqueText,setIsIndemniteKilometriqueText] = useState<boolean>(false);
-    
-    const [indemniteRepasText,setIndemniteRepasText] = useState<string>("");
-    const [isIndemniteRepasText,setIsIndemniteRepasText] = useState<boolean>(false);
+  const [indemniteKilometriqueText, setIndemniteKilometriqueText] = useState<string>("");
+  const [isIndemniteKilometriqueText, setIsIndemniteKilometriqueText] = useState<boolean>(false);
 
-    const [optionRepasQuotidien,setOptionRepasQuotidien]=useState<boolean>(false);
+  const [indemniteRepasText, setIndemniteRepasText] = useState<string>("");
+  const [isIndemniteRepasText, setIsIndemniteRepasText] = useState<boolean>(false);
 
-    //Can continue
-    const [canContinue,setCanContinue]=useState<boolean>(false)
-    useEffect(function() {
-        if(!indemniteEntretienText) {
-            setCanContinue(false)
-        }
-        else{
-            const valideRepas =(!isIndemniteRepasText) || (isIndemniteRepasText && (!!indemniteRepasText))
-            console.log(valideRepas);
-            
-            const valideKilometrique = (!isIndemniteKilometriqueText) || isIndemniteKilometriqueText && (!!indemniteKilometriqueText)
-            setCanContinue(valideRepas && valideKilometrique)
-        }
-    },[indemniteEntretienText,indemniteKilometriqueText,isIndemniteKilometriqueText,indemniteRepasText,isIndemniteRepasText,optionRepasQuotidien])
+  const [optionRepasQuotidien, setOptionRepasQuotidien] = useState<boolean>(false);
 
-    const onClickContinue = function () {
-        const tmp:IndemniteType = new IndemniteType({
-            entretien:parseInt(indemniteEntretienText),
-            kilometrique:parseInt(indemniteKilometriqueText),
-            repas:parseInt(indemniteRepasText),
-            isKilometrique:isIndemniteKilometriqueText,
-            isRepas:isIndemniteRepasText,
-            optionRepasQuotidien:optionRepasQuotidien
-        })
+  const { fonts } = useTheme();
 
-        setIndemnites(tmp);
+  //Can continue
+  const [canContinue, setCanContinue] = useState<boolean>(false);
+  useEffect(function () {
+    if (!indemniteEntretienText) {
+      setCanContinue(false);
     }
+    else {
+      const valideRepas = (!isIndemniteRepasText) || (isIndemniteRepasText && (!!indemniteRepasText));
+      console.log(valideRepas);
 
-    return (
-        <View style={styles.container}>
-            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <Text style={styles.title}>Indemnités</Text>
-                <Text style={styles.subtitle}>
-                    Rappel: Les indemnitées ne font pas partie du salaire et ne sont dues que pour les jours de presence de l'enfant
-                </Text>
-                <Text style={styles.title2}>Indemnités d'entretien</Text>
-                <TextInput
-                    style={styles.input}
-                    value={indemniteEntretienText}
-                    onChangeText={setIndemniteEntretienText}
-                    keyboardType="numeric"
-                    placeholder="indemnitée d'entretien en € par jour"
-                    placeholderTextColor="#999"
-                />
+      const valideKilometrique = (!isIndemniteKilometriqueText) || isIndemniteKilometriqueText && (!!indemniteKilometriqueText);
+      setCanContinue(valideRepas && valideKilometrique);
+    }
+  }, [indemniteEntretienText, indemniteKilometriqueText, isIndemniteKilometriqueText, indemniteRepasText, isIndemniteRepasText, optionRepasQuotidien])
 
-                <View style={styles.switchContainer}>
-                    <Switch value={isIndemniteRepasText} onValueChange={()=>{ setIsIndemniteRepasText(()=>!isIndemniteRepasText) }}></Switch>
-                    <Text style={styles.switchLabel}>Indemnitées repas</Text> 
-                    <Text style={styles.switchLabel2}> (Optionelle)</Text>
-                </View>
+  const onClickContinue = function () {
+    const tmp: IndemniteType = new IndemniteType({
+      entretien: parseInt(indemniteEntretienText),
+      kilometrique: parseInt(indemniteKilometriqueText),
+      repas: parseInt(indemniteRepasText),
+      isKilometrique: isIndemniteKilometriqueText,
+      isRepas: isIndemniteRepasText,
+      optionRepasQuotidien: optionRepasQuotidien
+    });
 
-                {
-                    isIndemniteRepasText && 
-                    <View style={styles.indemnitesRepas}>
-                        <TextInput
-                            style={styles.input}
-                            value={indemniteRepasText}
-                            onChangeText={setIndemniteRepasText}
-                            keyboardType="numeric"
-                            placeholder="indemnitée repas en € par jour"
-                            placeholderTextColor="#999"
-                        />
+    setIndemnites(tmp);
+  }
 
-                        <View style={styles.repasQuotidien}>
-                            <CheckBox tintColors={{false:'gray'}} value={optionRepasQuotidien} onValueChange={()=>{ setOptionRepasQuotidien(()=>!optionRepasQuotidien) }}></CheckBox> 
-                            <Text style={styles.repasQuotidienText}> Ajouter a tous les jours du planning </Text>
-                        </View>
-                        <HelpBox style={{marginTop:10}} text='Les indemnitée repas ne seront pas comptabilisées automatiquement. Vous pourrez les ajouter manuellement au planning'></HelpBox>
-                    </View>
-                }
+  return (
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        <Text style={[styles.title, fonts.titleLarge]}>Indemnités</Text>
+        <Text style={[styles.subtitle, fonts.bodyMedium]}>
+          Rappel: Les indemnitées ne font pas partie du salaire et ne sont dues que pour les jours de presence de l'enfant
+        </Text>
+        <Text style={[styles.title2, fonts.titleSmall]}>Indemnités d'entretien</Text>
+        <TextInput
+          style={[styles.input, fonts.bodyMedium]}
+          value={indemniteEntretienText}
+          onChangeText={setIndemniteEntretienText}
+          keyboardType="numeric"
+          placeholder="indemnitée d'entretien en € par jour"
+          placeholderTextColor="#999"
+        />
 
-                <View style={styles.switchContainer}>
-                    <Switch value={isIndemniteKilometriqueText} onValueChange={()=>{ setIsIndemniteKilometriqueText(()=>!isIndemniteKilometriqueText) }}></Switch>
-                    <Text style={styles.switchLabel}>Indemnitées kilometrique</Text>
-                    <Text style={styles.switchLabel2}> (Optionelle)</Text>
-                </View>
-
-                {
-                    isIndemniteKilometriqueText && 
-                    <View style={styles.indemnitesKilometrique}>
-                        <TextInput
-                            style={styles.input}
-                            value={indemniteKilometriqueText}
-                            onChangeText={setIndemniteKilometriqueText}
-                            keyboardType="numeric"
-                            placeholder="indemnitée kilometrique en € par jour"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
-                }
-            </ScrollView>
-
-            <TouchableOpacity disabled={!canContinue} style={{ ...styles.button, backgroundColor: (canContinue ? '#0058c4' : '#b8cce6') }} onPress={onClickContinue}>
-                <Text style={styles.buttonText}>Continuer</Text>
-            </TouchableOpacity>
+        <View style={styles.switchContainer}>
+          <Switch value={isIndemniteRepasText} onValueChange={() => { setIsIndemniteRepasText(() => !isIndemniteRepasText) }}></Switch>
+          <Text style={[styles.switchLabel, fonts.titleSmall]}>Indemnitées repas</Text>
+          <Text style={[styles.switchLabel2, fonts.bodySmall]}> (Optionelle)</Text>
         </View>
-    );
+
+        {
+          isIndemniteRepasText &&
+          <View style={styles.indemnitesRepas}>
+            <TextInput
+              style={[styles.input, fonts.bodyMedium]}
+              value={indemniteRepasText}
+              onChangeText={setIndemniteRepasText}
+              keyboardType="numeric"
+              placeholder="indemnitée repas en € par jour"
+              placeholderTextColor="#999"
+            />
+
+            <View style={styles.repasQuotidien}>
+              <CheckBox tintColors={{ false: 'gray' }} value={optionRepasQuotidien} onValueChange={() => { setOptionRepasQuotidien(() => !optionRepasQuotidien) }}></CheckBox>
+              <Text style={[styles.repasQuotidienText, fonts.bodyMedium]}> Ajouter a tous les jours du planning </Text>
+            </View>
+            <HelpBox style={{ marginTop: 10 }} text='Les indemnitée repas ne seront pas comptabilisées automatiquement. Vous pourrez les ajouter manuellement au planning'></HelpBox>
+          </View>
+        }
+
+        <View style={styles.switchContainer}>
+          <Switch value={isIndemniteKilometriqueText} onValueChange={() => { setIsIndemniteKilometriqueText(() => !isIndemniteKilometriqueText) }}></Switch>
+          <Text style={[styles.switchLabel, fonts.titleSmall]}>Indemnitées kilometrique</Text>
+          <Text style={[styles.switchLabel2, fonts.bodySmall]}> (Optionelle)</Text>
+        </View>
+
+        {
+          isIndemniteKilometriqueText &&
+          <View style={styles.indemnitesKilometrique}>
+            <TextInput
+              style={[styles.input, fonts.bodyMedium]}
+              value={indemniteKilometriqueText}
+              onChangeText={setIndemniteKilometriqueText}
+              keyboardType="numeric"
+              placeholder="indemnitée kilometrique en € par jour"
+              placeholderTextColor="#999"
+            />
+          </View>
+        }
+      </ScrollView>
+
+      <TouchableOpacity disabled={!canContinue} style={{ ...styles.button, backgroundColor: (canContinue ? '#0058c4' : '#b8cce6') }} onPress={onClickContinue}>
+        <Text style={[styles.buttonText, fonts.labelLarge]}>Continuer</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-  repasQuotidien:{
-    display:'flex',
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'flex-start'
+  repasQuotidien: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start'
   },
   repasQuotidienText: {
     marginLeft: 8,
-    color:'black'
+    color: 'black'
   },
-  indemnitesRepas:{
-    
+  indemnitesRepas: {
+
   },
-  indemnitesKilometrique:{
+  indemnitesKilometrique: {
 
   },
   container: {
@@ -156,7 +159,7 @@ const styles = StyleSheet.create({
   title2: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginTop:22,
+    marginTop: 22,
     color: "black",
   },
   subtitle: {
@@ -171,12 +174,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
   },
-  switchLabel:{
+  switchLabel: {
     fontSize: 16,
     color: 'black',
     fontWeight: 'bold'
   },
-  switchLabel2:{
+  switchLabel2: {
     fontSize: 14,
     color: 'black',
   },
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop:16
+    marginTop: 16
   },
   buttonText: {
     color: 'white',
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 20,
     alignItems: 'center',
-    marginTop:40,
+    marginTop: 40,
   }
 });
 

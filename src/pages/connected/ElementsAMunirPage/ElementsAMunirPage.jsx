@@ -2,16 +2,19 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { logout } from '../../../utils/user';
+import { useTheme } from 'react-native-paper';
 
 const ElementsAMunirPage = ({ navigation }) => {
+  
   const handleLogout = async function () {
     await logout();
     navigation.reset({
       index: 0,
       routes: [{ name: 'Login' }],
     });
-
   }
+
+  const { fonts } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -29,13 +32,13 @@ const ElementsAMunirPage = ({ navigation }) => {
 
         <View style={styles.spacing} />
 
-        <Text style={styles.title}>
+        <Text style={[styles.title, fonts.titleLarge]}>
           Je configure l'application avec mon contrat
         </Text>
 
         <View style={styles.spacing} />
 
-        <Text style={styles.instruction}>
+        <Text style={[styles.instruction, fonts.bodyMedium]}>
           Afin de configurer l'application, munissez-vous des éléments suivants:
         </Text>
 
@@ -44,11 +47,11 @@ const ElementsAMunirPage = ({ navigation }) => {
         <View>
           <View style={styles.listItem}>
             <Icon name="checkmark-circle" size={20} color="green" style={styles.listIcon} />
-            <Text style={styles.listText}>Le contrat signé avec l'assistant maternelle</Text>
+            <Text style={[styles.listText, fonts.bodyMedium]}>Le contrat signé avec l'assistant maternelle</Text>
           </View>
           <View style={styles.listItem}>
             <Icon name="checkmark-circle" size={20} color="green" style={styles.listIcon} />
-            <Text style={styles.listText}>Le nombre d'enfants de votre assistant maternelle et leurs âges</Text>
+            <Text style={[styles.listText, fonts.bodyMedium]}>Le nombre d'enfants de votre assistant maternelle et leurs âges</Text>
           </View>
         </View>
 
@@ -61,7 +64,7 @@ const ElementsAMunirPage = ({ navigation }) => {
           style={styles.button}
           onPress={() => navigation.navigate("CompatibiliteDuContratPage")}
         >
-          <Text style={styles.buttonText}>Continuer</Text>
+          <Text style={[styles.buttonText, fonts.button]}>Continuer</Text>
         </TouchableOpacity>
       </View>
     </View>

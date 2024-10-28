@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import { useTheme } from 'react-native-paper';
 
 interface DaySelectorProps {
   selected: number;
@@ -8,9 +9,9 @@ interface DaySelectorProps {
 }
 
 // Days of the week array
-export const LUNDI_ID = 1000
+export const LUNDI_ID = 1000;
 const daysOfWeek = [
-  { id: LUNDI_ID, name: 'Lundi' }, //Ts mety le Zero fa considere comm false
+  { id: LUNDI_ID, name: 'Lundi' },
   { id: 1, name: 'Mardi' },
   { id: 2, name: 'Mercredi' },
   { id: 3, name: 'Jeudi' },
@@ -20,37 +21,33 @@ const daysOfWeek = [
 ];
 
 const DaySelector: React.FC<DaySelectorProps> = ({ selected, setSelected }) => {
+  const { fonts } = useTheme(); // Access theme fonts
+
   // Map days to picker items
   const pickerItems = daysOfWeek.map(day => ({
     label: day.name,
     value: day.id,
   }));
 
-  const onSelectOne = function (day:number) {
-    if(day == LUNDI_ID) setSelected(0);
-    else setSelected(day)
-  }
+  const onSelectOne = function (day: number) {
+    setSelected(day === LUNDI_ID ? 0 : day);
+  };
 
-  const getName = function (id:number) {
-    let res = "Aucun jour sélectionné"
-    
-    daysOfWeek.forEach(element => {
-      if(element.id == id) res = element.name
-    });
-
-    return res
-  }
+  const getName = function (id: number) {
+    const day = daysOfWeek.find(element => element.id === id);
+    return day ? day.name : "Aucun jour sélectionné";
+  };
 
   return (
     <View style={styles.container}>
       <RNPickerSelect
-        onValueChange={onSelectOne} // Directly passing the function
+        onValueChange={onSelectOne}
         items={pickerItems}
         value={selected}
         style={pickerSelectStyles}
         placeholder={{ label: 'Sélectionnez un jour', value: null }}
       />
-      <Text style={styles.selectedText}>
+      <Text style={[styles.selectedText, fonts.bodyMedium]}>
         Jour sélectionné: {getName(selected)}
       </Text>
     </View>
@@ -68,7 +65,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
-    width:'95%'
+    width: '95%',
   },
   selectedText: {
     marginTop: 15,

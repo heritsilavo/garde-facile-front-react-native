@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import moment from 'moment';
 import MonthSelectorCalendar from 'react-native-month-selector';
 import { ModePayement, PAYMENT_MODES } from "../../../../utils/conges";
+import { useTheme } from "react-native-paper";
 
 interface RenderStep4Props {
     setStep: (step: number) => void;
@@ -12,6 +13,7 @@ interface RenderStep4Props {
 const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge }) => {
     const [modePayement, setModePayement] = useState<ModePayement | undefined>();
     const [selectedMonth, setSelectedMonth] = useState(moment());
+    const { fonts } = useTheme()
     const moisPriseConge = selectedMonth.month() + 1;
 
     const handleMonthChange = (month: moment.Moment) => setSelectedMonth(month);
@@ -19,9 +21,9 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
     const onClickContinue = () => {
         if (!modePayement) return;
 
-        const params = { 
-            mode: modePayement.type, 
-            mois: modePayement.type === 'LORS_PRISE_CONGES_PRINCIPAUX' ? moisPriseConge : -1 
+        const params = {
+            mode: modePayement.type,
+            mois: modePayement.type === 'LORS_PRISE_CONGES_PRINCIPAUX' ? moisPriseConge : -1
         };
         setModePayementConge(params);
         setStep(5);
@@ -36,26 +38,26 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <Text style={styles.title}>Modalités de paiement des congés payés</Text>
-                <Text style={styles.subtitle}>
-                    Sélectionnez votre modalité de paiement des indemnités de congés payés 
+                <Text style={[styles.title,fonts.titleLarge]}>Modalités de paiement des congés payés</Text>
+                <Text style={[styles.subtitle, fonts.bodyMedium]}>
+                    Sélectionnez votre modalité de paiement des indemnités de congés payés
                 </Text>
                 {PAYMENT_MODES.map((modalite, index) => (
                     <View key={modalite.type}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[
                                 styles.modaliteItem,
                                 modalite.type === modePayement?.type && styles.selectedModaliteItem
                             ]}
                             onPress={() => setModePayement(modalite)}
                         >
-                            <Text style={styles.typeName}>{modalite.titre}</Text>
-                            <Text style={styles.typeDescription}>{modalite.description}</Text>
+                            <Text style={[styles.typeName, fonts.titleMedium]}>{modalite.titre}</Text>
+                            <Text style={[styles.typeDescription, fonts.bodyMedium]}>{modalite.description}</Text>
                         </TouchableOpacity>
 
                         {modalite.type === 'LORS_PRISE_CONGES_PRINCIPAUX' && modePayement?.type === 'LORS_PRISE_CONGES_PRINCIPAUX' && (
                             <View style={styles.monthSelectorContainer}>
-                                <Text style={styles.monthSelectorLabel}>Sélectionnez le mois de la prise des congés :</Text>
+                                <Text style={[styles.monthSelectorLabel, fonts.bodyMedium]}>Sélectionnez le mois de la prise des congés :</Text>
                                 <MonthSelectorCalendar
                                     selectedDate={selectedMonth}
                                     onMonthTapped={handleMonthChange}
@@ -67,12 +69,12 @@ const RenderStep4: React.FC<RenderStep4Props> = ({ setStep, setModePayementConge
                 ))}
             </ScrollView>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity 
-                    onPress={onClickContinue} 
+                <TouchableOpacity
+                    onPress={onClickContinue}
                     disabled={isButtonDisabled}
                     style={[styles.button, isButtonDisabled && styles.disabledButton]}
                 >
-                    <Text style={styles.buttonText}>Continuer</Text>
+                    <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
                 </TouchableOpacity>
             </View>
         </View>

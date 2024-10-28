@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, StyleSheet, Text, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
-import { Button, MD3Colors, ActivityIndicator } from 'react-native-paper';
+import { Button, MD3Colors, ActivityIndicator, useTheme } from 'react-native-paper';
 import DateSelector from './components/DateSelector';
 import { NavigationContext, RouteProp } from '@react-navigation/native';
 import { Evenement } from '../../../../models/evenements';
@@ -35,6 +35,7 @@ const CreerPeriodeAdaptationPage = ({ route }: { route: RouteProp<RootStackParam
     const [endDate, setEndDate] = useState<string | null>(null);
     const [canContinue, setCanContinue] = useState(false);
     const [isLoadingContinue, setIsLoadingContinue] = useState<boolean>(false);
+    const {fonts} = useTheme();
 
     const handleSubmit = async () => {
         const contratId = await getConfiguredContrat();
@@ -119,7 +120,7 @@ const CreerPeriodeAdaptationPage = ({ route }: { route: RouteProp<RootStackParam
                     onPress={() => { navigation?.navigate('Home') }}
                     style={[styles.btn, styles.annulerBtn]}
                 >
-                    <Text style={styles.btnText}>Annuler</Text>
+                    <Text style={[styles.btnText, fonts.bodyMedium]}>Annuler</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -134,7 +135,7 @@ const CreerPeriodeAdaptationPage = ({ route }: { route: RouteProp<RootStackParam
                         }
                     ]}
                 >
-                    {isLoadingContinue ? <ActivityIndicator color='white' /> : <Text style={styles.btnText}>Continuer</Text>}
+                    {isLoadingContinue ? <ActivityIndicator color='white' /> : <Text style={[styles.btnText, fonts.bodyMedium]}>Continuer</Text>}
                 </TouchableOpacity>
             </View>
         </View>

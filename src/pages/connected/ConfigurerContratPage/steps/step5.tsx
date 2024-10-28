@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { ConfigContratContext } from "../ConfigurerContratPage";
+import { useTheme } from "react-native-paper";
 
 interface RenderStep5Props {
     setStep: (step: number) => void;
@@ -22,6 +23,7 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
     const [selected, setSelected] = useState<Option | undefined>();
     const [nombreEnfant, setNombreEnfant] = useState<string>('');
     const configContrat = useContext(ConfigContratContext);
+    const {fonts} = useTheme()
 
     const onClickContinue = () => {
         if (selected) {
@@ -38,12 +40,12 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-                <Text style={styles.title}>Enfant à charge du salarié</Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.title, fonts.titleLarge]}>Enfant à charge du salarié</Text>
+                <Text style={[styles.subtitle, fonts.bodyMedium]}>
                     Votre assistant maternel a le droit à des congés supplémentaires pour chaque enfant à sa charge
                 </Text>
 
-                <Text style={styles.question}>
+                <Text style={[styles.question, fonts.bodyMedium]}>
                     {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} a-t-elle des enfants à sa charge ?
                 </Text>
 
@@ -56,13 +58,13 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
                         ]}
                         onPress={() => setSelected(item)}
                     >
-                        <Text style={styles.typeName}>{item.text}</Text>
+                        <Text style={[styles.typeName, fonts.bodyMedium]}>{item.text}</Text>
                     </TouchableOpacity>
                 ))}
 
                 {selected?.value && (
                     <View style={styles.inputContainer}>
-                        <Text style={styles.inputLabel}>Nombre d'enfants de moins de 15 ans :</Text>
+                        <Text style={[styles.inputLabel, fonts.bodyMedium]}>Nombre d'enfants de moins de 15 ans :</Text>
                         <TextInput
                             onChangeText={setNombreEnfant}
                             style={styles.input}
@@ -79,7 +81,7 @@ const RenderStep5: React.FC<RenderStep5Props> = ({ setStep, setEnfantAChargeSala
                     disabled={isButtonDisabled}
                     onPress={onClickContinue}
                 >
-                    <Text style={styles.buttonText}>Continuer</Text>
+                    <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
                 </TouchableOpacity>
             </View>
         </View>

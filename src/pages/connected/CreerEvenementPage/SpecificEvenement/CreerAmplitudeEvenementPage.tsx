@@ -9,7 +9,7 @@ import HelpBox from '../../ConfigurerContratPage/components/HelpBox';
 import DateSelector from './components/DateSelector';
 import { Amplitude, Evenement } from '../../../../models/evenements';
 import { ScrollView } from 'react-native-gesture-handler';
-import { MD3Colors } from 'react-native-paper';
+import { MD3Colors, useTheme } from 'react-native-paper';
 import { calculerDifferenceAvecPlanning } from '../../../../utils/date';
 import { getDetailConfiguredContrat } from '../../../../utils/contrat';
 import { generateGeneralId } from '../../../../utils/generateId';
@@ -26,6 +26,7 @@ type RootStackParamList = {
 
 const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: NavigationProp<any>, route: RouteProp<RootStackParamList, 'CreerAmplitudeEvenementPage'> }) => {
   const { month, familleEvenement } = route.params;
+  const {fonts} = useTheme()
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isContinueLoading, setIsContinueLoading] = useState<boolean>(false);
   const [listeTypesEvenemnts, setListeTypeEvenements] = useState<EventType[]>([]);
@@ -145,9 +146,8 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
 
   return (
     <View style={styles.container}>
-      
-      <ScrollView style={{flex:1}}>
-        <Text style={styles.label}>Sélectionnez un type d'événement:</Text>
+      <ScrollView style={{flex:1, width:"100%"}}>
+        <Text style={[styles.label, fonts.titleLarge]}>Sélectionnez un type d'événement:</Text>
         <RNPickerSelect
           onValueChange={handleSelectTypeEvenement}
           items={pickerItems}
@@ -157,7 +157,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
 
         {selectedType && <HelpBox style={{ marginTop: 20 }} text={selectedType?.description}></HelpBox>}
 
-        {selectedType && <Text style={styles.text}> Debut de lévénement:  </Text>}
+        {selectedType && <Text style={[styles.text, fonts.bodyMedium]}> Debut de lévénement:  </Text>}
 
         {selectedType && <DateSelector
           selectedDate={selectedDateDebut}
@@ -170,7 +170,7 @@ const CreerAmplitudeEvenementPage = ({ navigation, route, }: { navigation: Navig
           >
         </DateSelector>}
 
-        {selectedType && <Text style={styles.text}> Fin de lévénement:  </Text>}
+        {selectedType && <Text style={[styles.text, fonts.bodyMedium]}> Fin de lévénement:  </Text>}
 
         {selectedType && <DateSelector
           selectedDate={selectedDateFin}
@@ -238,7 +238,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginBottom: 10,
-    color: 'black'
+    color: 'black',
+    textAlign: "center"
   },
   selectedText: {
     marginTop: 20,

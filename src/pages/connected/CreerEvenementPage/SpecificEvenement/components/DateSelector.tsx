@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Modal, Portal } from 'react-native-paper';
+import { Modal, Portal, useTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { Calendar } from 'react-native-calendars';
 import { SelectedMonth } from '../../CreerEvenementPage';
 import { getDebutFinMois } from '../../../../../utils/date';
 
 interface DateSelectorProps {
-  selectedDate: string | null;
-  setSelectedDate: (date: string | null) => void;
-  selectedPeriod?: 'Matin' | 'Après-midi' | null;
-  setSelectedPeriod?: (period: 'Matin' | 'Après-midi' | null) => void;
-  month:SelectedMonth,
-  needPeriod?:boolean,
-  text:string
+    selectedDate: string | null;
+    setSelectedDate: (date: string | null) => void;
+    selectedPeriod?: 'Matin' | 'Après-midi' | null;
+    setSelectedPeriod?: (period: 'Matin' | 'Après-midi' | null) => void;
+    month: SelectedMonth,
+    needPeriod?: boolean,
+    text: string
 }
 
 const DateSelector: React.FC<DateSelectorProps> = ({
-  selectedDate,
-  setSelectedDate,
-  selectedPeriod,
-  setSelectedPeriod,
-  month,
-  needPeriod,
-  text
+    selectedDate,
+    setSelectedDate,
+    selectedPeriod,
+    setSelectedPeriod,
+    month,
+    needPeriod,
+    text
 }) => {
     const [visible, setVisible] = useState(false);
+
+    const { fonts } = useTheme();
 
     const onClick = () => {
         setVisible(true);
@@ -54,25 +56,25 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                     style={styles.addEventButton}
                 >
                     <Icon name="calendar-day" size={18} color="#FFF" style={styles.addEventButtonIcon} />
-                    <Text style={styles.addEventButtonText}>
+                    <Text style={[styles.addEventButtonText, fonts.bodyMedium]}>
                         {selectedDate ? `${text}: ${selectedDate}` : text}
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {(selectedDate && needPeriod) && 
+            {(selectedDate && needPeriod) &&
                 <View style={styles.selectDebutFin}>
-                    <TouchableOpacity 
-                        onPress={() => handlePeriodSelect('Matin')} 
+                    <TouchableOpacity
+                        onPress={() => handlePeriodSelect('Matin')}
                         style={[styles.periodButton, selectedPeriod === 'Matin' && styles.selectedPeriod]}
                     >
-                        <Text style={{color: (selectedPeriod != "Matin") ? "black" : "white"}}>Matin</Text>
+                        <Text style={[{ color: (selectedPeriod != "Matin") ? "black" : "white" }, fonts.bodyMedium]}>Matin</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                        onPress={() => handlePeriodSelect('Après-midi')} 
+                    <TouchableOpacity
+                        onPress={() => handlePeriodSelect('Après-midi')}
                         style={[styles.periodButton, selectedPeriod === 'Après-midi' && styles.selectedPeriod]}
                     >
-                        <Text style={{color: (selectedPeriod != "Après-midi") ? "black" : "white"}}>Après-midi</Text>
+                        <Text style={[{ color: (selectedPeriod != "Après-midi") ? "black" : "white" }, fonts.bodyMedium]}>Après-midi</Text>
                     </TouchableOpacity>
                 </View>
             }
@@ -80,7 +82,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
             <Portal>
                 <Modal visible={visible} onDismiss={onDismiss} contentContainerStyle={styles.modalContainer}>
                     <Calendar
-                        initialDate={(new Date(month.year,month.monthIndex +1,1)).toISOString().split("T")[0]}
+                        initialDate={(new Date(month.year, month.monthIndex + 1, 1)).toISOString().split("T")[0]}
                         minDate={getDebutFinMois(month)[0]}
                         maxDate={getDebutFinMois(month)[1]}
                         disableMonthChange={true}
@@ -89,6 +91,15 @@ const DateSelector: React.FC<DateSelectorProps> = ({
                         onDayPress={(day: { dateString: string }) => onDateSelect(day.dateString)}
                         markedDates={{
                             [selectedDate || '']: { selected: true, marked: true, selectedColor: '#007AFF' },
+                        }}
+                        headerStyle={fonts.bodyMedium}
+                        theme={{
+                            textMonthFontFamily: fonts.bodyMedium.fontFamily,
+                            textDayHeaderFontFamily: fonts.bodyMedium.fontFamily,
+                            textDayFontFamily: fonts.bodyMedium.fontFamily,
+                            textDayFontWeight: '300',
+                            textMonthFontWeight: 'bold',
+                            textDayHeaderFontWeight: '300',
                         }}
                     />
                 </Modal>
@@ -113,9 +124,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#007AFF',
         backgroundColor: '#FFF',
-        width:'35%',
-        justifyContent:'center',
-        alignItems:'center'
+        width: '35%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     selectedPeriod: {
         backgroundColor: '#007AFF',

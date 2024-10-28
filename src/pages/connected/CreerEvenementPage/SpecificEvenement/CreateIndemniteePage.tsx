@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { SelectedMonth } from '../CreerEvenementPage';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import DateSelector from './components/DateSelector';
-import { MD3Colors } from 'react-native-paper';
+import { MD3Colors, useTheme } from 'react-native-paper';
 import { Evenement } from '../../../../models/evenements';
 import { isRemunere, isTravaille, TypeEvenement } from '../../../../utils/evenements/enum-type-evenement';
 import { generateGeneralId } from '../../../../utils/generateId';
@@ -35,6 +35,7 @@ const CreateIndemniteePage = ({ navigation, route }: { navigation: NavigationPro
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [montant, setMontant] = useState<number>(0);
     const [nbKilometre, setNbKilometre] = useState<number>(0);
+    const {fonts} = useTheme()
 
     useEffect(() => {
       var valid = !!selectedDate && !!montant
@@ -137,7 +138,7 @@ const CreateIndemniteePage = ({ navigation, route }: { navigation: NavigationPro
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Ajouter des indemnités</Text>
+            <Text style={[styles.title, fonts.titleLarge]}>Ajouter des indemnités</Text>
 
             <SwitchTypeIndemnite typeIndemnite={typeIndemnite} setTypeIndemnite={setTypeIndemnite} />
 
@@ -160,7 +161,7 @@ const CreateIndemniteePage = ({ navigation, route }: { navigation: NavigationPro
 
             <View style={styles.btnsContainer}>
                 <TouchableOpacity disabled={isContinueLoading} onPress={handleReturn} style={[styles.btn, styles.annulerBtn]}>
-                    <Text style={styles.btnText}>Annuler</Text>
+                    <Text style={[styles.btnText, fonts.bodyMedium]}>Annuler</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -172,28 +173,31 @@ const CreateIndemniteePage = ({ navigation, route }: { navigation: NavigationPro
                         { backgroundColor: canContinue ? "#007AFF" : MD3Colors.neutral50, opacity: canContinue ? 1 : 0.5 }
                     ]}
                 >
-                    {isContinueLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.btnText}>Continuer</Text>}
+                    {isContinueLoading ? <ActivityIndicator color="#FFFFFF" /> : <Text style={[styles.btnText, fonts.bodyMedium]}>Continuer</Text>}
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
 
-const SwitchTypeIndemnite = ({ typeIndemnite, setTypeIndemnite }: { typeIndemnite: TypeIndemnite, setTypeIndemnite: (type: TypeIndemnite) => void }) => (
-    <View style={styles.tabsContainer}>
-        {Object.values(TypeIndemnite).map(type => (
-            <TouchableOpacity
-                key={type}
-                style={[styles.tab, typeIndemnite === type && styles.tabSelected]}
-                onPress={() => setTypeIndemnite(type)}
-            >
-                <Text style={[styles.tabText, typeIndemnite === type && styles.tabTextSelected]}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                </Text>
-            </TouchableOpacity>
-        ))}
-    </View>
-);
+const SwitchTypeIndemnite = ({ typeIndemnite, setTypeIndemnite }: { typeIndemnite: TypeIndemnite, setTypeIndemnite: (type: TypeIndemnite) => void }) => {
+    const {fonts} = useTheme()
+    return (
+        <View style={styles.tabsContainer}>
+            {Object.values(TypeIndemnite).map(type => (
+                <TouchableOpacity
+                    key={type}
+                    style={[styles.tab, typeIndemnite === type && styles.tabSelected]}
+                    onPress={() => setTypeIndemnite(type)}
+                >
+                    <Text style={[styles.tabText, typeIndemnite === type && styles.tabTextSelected, fonts.bodyMedium]}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+    );
+}
 
 const GetValue = ({ 
     typeIndemnite, 
@@ -213,42 +217,46 @@ const GetValue = ({
     setMontant: (value: number) => void, 
     nbKilometre: number, 
     setNbKilometre: (value: number) => void 
-}) => (
-    <ScrollView style={getValueStyle.container}>
-        <HelpBox text={(typeIndemnite == TypeIndemnite.kilometrique)?TypeEvenement.INDEMNITES_KM.description:TypeEvenement.INDEMNITES_REPAS.description}></HelpBox>
+}) => {
+    const {fonts} = useTheme()
 
-        <DateSelector
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            month={month}
-            needPeriod={false}
-            text="Date"
-        />
-
-        <View style={getValueStyle.inputContainer}>
-            <Text style={getValueStyle.label}>Montant :</Text>
-            <TextInput
-                onChangeText={text => setMontant(parseInt(text) || 0)}
-                placeholder="ex: 5€"
-                style={getValueStyle.input}
-                keyboardType="numeric"
-                value={!!montant?montant.toString():""}
+    return (
+        <ScrollView style={getValueStyle.container}>
+            <HelpBox text={(typeIndemnite == TypeIndemnite.kilometrique)?TypeEvenement.INDEMNITES_KM.description:TypeEvenement.INDEMNITES_REPAS.description}></HelpBox>
+    
+            <DateSelector
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                month={month}
+                needPeriod={false}
+                text="Date"
             />
-        </View>
-
-        {typeIndemnite === TypeIndemnite.kilometrique && (
+    
             <View style={getValueStyle.inputContainer}>
-                <Text style={getValueStyle.label}>Nombre de kilomètres :</Text>
+                <Text style={[getValueStyle.label, fonts.bodyMedium]}>Montant :</Text>
                 <TextInput
-                    onChangeText={text => setNbKilometre(parseInt(text) || 0)}
-                    placeholder="ex: 100"
+                    onChangeText={text => setMontant(parseInt(text) || 0)}
+                    placeholder="ex: 5€"
                     style={getValueStyle.input}
                     keyboardType="numeric"
+                    value={!!montant?montant.toString():""}
                 />
             </View>
-        )}
-    </ScrollView>
-);
+    
+            {typeIndemnite === TypeIndemnite.kilometrique && (
+                <View style={getValueStyle.inputContainer}>
+                    <Text style={getValueStyle.label}>Nombre de kilomètres :</Text>
+                    <TextInput
+                        onChangeText={text => setNbKilometre(parseInt(text) || 0)}
+                        placeholder="ex: 100"
+                        style={getValueStyle.input}
+                        keyboardType="numeric"
+                    />
+                </View>
+            )}
+        </ScrollView>
+    );
+}
 
 export default CreateIndemniteePage;
 
@@ -288,6 +296,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+        marginTop:20
     },
     tabsContainer: {
         width: '100%',

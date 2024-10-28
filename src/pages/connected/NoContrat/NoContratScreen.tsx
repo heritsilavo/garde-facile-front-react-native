@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { Text, useTheme } from 'react-native-paper';
-import { View, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, useTheme, Button as PaperButton } from 'react-native-paper';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContext, useNavigation } from '@react-navigation/native';
 import { getContratByPajeIdUser, isContratConfiguree } from '../../../utils/contrat';
 import { connectedUserContext } from '../../../../App';
@@ -26,15 +26,17 @@ const NoContractScreen = () => {
     };
 
     const handleLogout = async () => {
-        setIsLoading(true)
-        await logout()
-        navigation?.navigate("Login")
+        setIsLoading(true);
+        await logout();
+        navigation?.navigate("Login");
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Aucun contrat configuré</Text>
-            <Text style={styles.message}>
+            <Text style={[styles.title, fonts.headlineMedium]}>
+                Aucun contrat configuré
+            </Text>
+            <Text style={[styles.message, fonts.bodyLarge]}>
                 Votre employeur n'a pas encore configuré votre contrat dans l'application,
                 s'il vous plaît contactez-le pour en savoir plus.
             </Text>
@@ -42,8 +44,20 @@ const NoContractScreen = () => {
                 <ActivityIndicator size="large" color="#6200EE" />
             ) : (
                 <View style={styles.buttonContainer}>
-                    <Button title="Recommencer" onPress={handleRetry} />
-                    <Button title="Se déconnecter" onPress={handleLogout} />
+                    <PaperButton 
+                        mode="contained" 
+                        onPress={handleRetry}
+                        labelStyle={fonts.labelLarge}
+                    >
+                        Recommencer
+                    </PaperButton>
+                    <PaperButton 
+                        mode="outlined" 
+                        onPress={handleLogout}
+                        labelStyle={fonts.labelLarge}
+                    >
+                        Se déconnecter
+                    </PaperButton>
                 </View>
             )}
         </View>
@@ -59,24 +73,22 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
         color: '#000',
         marginTop: 10
     },
     message: {
-        fontSize: 16,
         color: '#555',
         textAlign: 'center',
         marginBottom: 40,
     },
     buttonContainer: {
-        flexDirection: 'row', // Pour aligner les boutons horizontalement
-        justifyContent: 'space-around', // Espacement entre les boutons
-        width: '100%', // Prendre toute la largeur disponible
-        paddingBottom: 20, // Espacement en bas
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        paddingBottom: 20,
+        gap: 16
     },
 });
 

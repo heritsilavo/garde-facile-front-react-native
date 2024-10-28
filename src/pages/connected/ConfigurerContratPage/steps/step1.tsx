@@ -8,7 +8,8 @@ import { recupererContratBySalarieParentAndEnfant, deleteContrat, saveConfigured
 import { connectedUserContext } from "../../../../../App";
 import { NavigationContext } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { Appbar } from "react-native-paper";
+import { Appbar, useTheme } from "react-native-paper";
+import LoadingScreen from "../../../../components/loading/LoadingScreens";
 
 const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelectedEnfant: any }) => {
     const [Enfantren, setEnfantren] = useState<Enfant[]>([]);
@@ -20,6 +21,7 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
     const configContrat = useContext(ConfigContratContext);
     const { connectedUser, setConnectedUser } = useContext(connectedUserContext);
     const navigation = useContext(NavigationContext);
+    const {fonts} = useTheme()
 
     const fetchEnfants = async () => {
         setIsLoading(true);
@@ -92,17 +94,14 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
 
     if (isLoading) {
         return (
-            <View style={{ ...styles.main, justifyContent: "center" }}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={styles.loadingText}>{loadingText}</Text>
-            </View>
+            <LoadingScreen></LoadingScreen>
         );
     }
 
     return (
         <View style={styles.main}>
-            <Text style={styles.title}>Choix de l'enfant</Text>
-            <Text style={styles.subtitle}>Pour quel enfant gardé par <Text style={{ fontWeight: 'bold' }}> {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} </Text> souhaitez-vous configurer un contrat ?</Text>
+            <Text style={[styles.title, fonts.titleLarge]}>Choix de l'enfant</Text>
+            <Text style={[styles.subtitle, fonts.bodyMedium]}>Pour quel enfant gardé par <Text style={{ fontWeight: 'bold' }}> {configContrat?.configContrat.body.assmat.nom} {configContrat?.configContrat.body.assmat.prenom} </Text> souhaitez-vous configurer un contrat ?</Text>
             <ScrollView style={styles.listContainer}>
                 {Enfantren.map((enfant, index) => (
                     <TouchableOpacity
@@ -115,7 +114,7 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
                     </TouchableOpacity>
                 ))}
             </ScrollView>
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, fonts.bodySmall]}>
                 Vous ne trouvez pas votre enfant dans la liste ? Contactez l'admin qu'il procède à son enregistrement.
             </Text>
 

@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch
 import { Planning } from "../classes";
 import JoursPlanningItem, { JoursPlanningItemPropsType } from "../components/JoursPlanningItem";
 import DaySelector, { LUNDI_ID } from "../components/DaySelector";
-import { Button, IconButton } from "react-native-paper";
+import { Button, IconButton, useTheme } from "react-native-paper";
 import { calculateNbHoursAndDays } from "../fonctions";
 import { ConfigContratContext } from "../ConfigurerContratPage";
 
 const DIMANCHE_INDEX = 6;
 interface RenderStep6Props {
   setStep: (step: number) => void;
-  setPlanning: (plannings: Planning[],nbHeuresNormalesHebdo:number,nbHeuresNormalesMensu:number,nbJoursMensu:number,indexJourRepos:number, nbHeuresMajoreesHebdo:number,nbHeuresMajoreesMensu:number,nbHeuresSpecifiquesHebdo:number) => void;
+  setPlanning: (plannings: Planning[], nbHeuresNormalesHebdo: number, nbHeuresNormalesMensu: number, nbJoursMensu: number, indexJourRepos: number, nbHeuresMajoreesHebdo: number, nbHeuresMajoreesMensu: number, nbHeuresSpecifiquesHebdo: number) => void;
 }
 
 export const jours: JoursPlanningItemPropsType[] = [
@@ -29,6 +29,8 @@ export const weekends: JoursPlanningItemPropsType[] = [
 const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
   const conf = useContext(ConfigContratContext)
 
+  const { fonts } = useTheme()
+
   const [weekPlanning, setWeekPlanning] = useState<Planning[]>([]);
   const [gardeWeekend, setGardeWeekend] = useState(false);
   const [canContinue, setCanContinue] = useState<boolean>(false);
@@ -38,17 +40,17 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
   const [nbHeuresNormalesHebdo, setNbHeuresNormalesHebdo] = useState<number>(0);
   const [nbHeuresNormalesMensu, setNbHeuresNormalesMensu] = useState<number>(0);
   const [nbJoursMensu, setNbJoursMensu] = useState<number>(0);
-  const [nbHeuresMajoreesHebdo,setNbHeuresMajoreesHebdo] = useState<number>(0);
-  const [nbHeuresSpecifiquesHebdo,setNbHeuresSpecifiquesHebdo] = useState<number>(0);
-  const [nbHeuresMajoreesMensu,setNbHeuresMajoreesMensu] = useState<number>(0);
+  const [nbHeuresMajoreesHebdo, setNbHeuresMajoreesHebdo] = useState<number>(0);
+  const [nbHeuresSpecifiquesHebdo, setNbHeuresSpecifiquesHebdo] = useState<number>(0);
+  const [nbHeuresMajoreesMensu, setNbHeuresMajoreesMensu] = useState<number>(0);
 
 
   //Garde weekend
-  useEffect(function(){
+  useEffect(function () {
     if (!gardeWeekend && weekPlanning.length > 5) {
       weekPlanning.splice(5, 2);
     }
-  },[gardeWeekend]);
+  }, [gardeWeekend]);
 
   //can continue
   useEffect(() => {
@@ -61,33 +63,33 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
 
 
   const onclickContinue = () => {
-    setPlanning(weekPlanning,nbHeuresNormalesHebdo,nbHeuresNormalesMensu,nbJoursMensu,indexJourRepos,nbHeuresMajoreesHebdo,nbHeuresMajoreesMensu,nbHeuresSpecifiquesHebdo);
+    setPlanning(weekPlanning, nbHeuresNormalesHebdo, nbHeuresNormalesMensu, nbJoursMensu, indexJourRepos, nbHeuresMajoreesHebdo, nbHeuresMajoreesMensu, nbHeuresSpecifiquesHebdo);
     setStep(7)
   };
 
   //Update needed values
-  useEffect(function() {
-    const [_nbHeuresNormalesHebdo,_nbHeuresNormalesMensu,_nbJoursMensu, _nbHeuresMajoreesHebdo,_nbHeuresSpecifiquesHebdo, _nbHeuresMajoreesMensu] = calculateNbHoursAndDays(weekPlanning, conf?.configContrat.body.nbSemainesTravaillees,indexJourRepos);
-    
+  useEffect(function () {
+    const [_nbHeuresNormalesHebdo, _nbHeuresNormalesMensu, _nbJoursMensu, _nbHeuresMajoreesHebdo, _nbHeuresSpecifiquesHebdo, _nbHeuresMajoreesMensu] = calculateNbHoursAndDays(weekPlanning, conf?.configContrat.body.nbSemainesTravaillees, indexJourRepos);
+
     setNbHeuresNormalesHebdo(_nbHeuresNormalesHebdo);
     setNbHeuresNormalesMensu(_nbHeuresNormalesMensu);
     setNbJoursMensu(_nbJoursMensu);
     setNbHeuresMajoreesHebdo(_nbHeuresMajoreesHebdo)
     setNbHeuresSpecifiquesHebdo(_nbHeuresSpecifiquesHebdo)
     setNbHeuresMajoreesMensu(_nbHeuresMajoreesMensu);
-  
-  },[weekPlanning,conf,indexJourRepos])
+
+  }, [weekPlanning, conf, indexJourRepos])
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Planning</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, fonts.titleLarge]}>Planning</Text>
+        <Text style={[styles.subtitle, fonts.bodyMedium]}>
           Indiquer les Jours Et Horraire de garde prevus dans votre contrat. L'application Gere seulement les planning regulier.
         </Text>
 
         <View style={styles.switchContainer}>
-          <Text style={styles.label}>L'enfant est gardée le weekend</Text>
+          <Text style={[styles.label, fonts.bodyMedium]}>L'enfant est gardée le weekend</Text>
           <Switch
             value={gardeWeekend}
             onValueChange={() => setGardeWeekend(!gardeWeekend)}
@@ -102,7 +104,7 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
           <JoursPlanningItem weekPlanning={weekPlanning} setWeekPlanning={setWeekPlanning} key={index} jour={jour} />
         ))}
 
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, fonts.bodyMedium]}>
           Sélectionner la journée non travaillée:
         </Text>
 
@@ -110,7 +112,7 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
       </ScrollView>
 
       <TouchableOpacity disabled={!canContinue} style={{ ...styles.button, backgroundColor: (canContinue ? '#0058c4' : '#b8cce6') }} onPress={onclickContinue}>
-        <Text style={styles.buttonText}>Continuer</Text>
+        <Text style={[styles.buttonText, fonts.bodyMedium]}>Continuer</Text>
       </TouchableOpacity>
 
       <IconButton
@@ -126,10 +128,10 @@ const RenderStep6: React.FC<RenderStep6Props> = ({ setStep, setPlanning }) => {
           <View style={styles.helpModalContent}>
             <Text style={styles.helpModalTitle}>Calculs</Text>
             <Text style={styles.helpModalText}>
-              Soit <Text style={{fontWeight:'bold'}}>{nbHeuresNormalesHebdo}</Text> heures par semmaine, <Text style={{fontWeight:'bold'}}>{nbHeuresNormalesMensu}</Text> heures par mois et <Text style={{fontWeight:'bold'}}>{nbJoursMensu}</Text> jours par mois.
-              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures majorees Hebdo="+nbHeuresMajoreesHebdo}</Text>, )
-              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures majorees Mensu="+nbHeuresMajoreesMensu}</Text>, )
-              (<Text style={{ lineHeight:30,fontWeight:'bold'}}>{"nombre heures specifiques Hebdo="+nbHeuresSpecifiquesHebdo}</Text> )
+              Soit <Text style={{ fontWeight: 'bold' }}>{nbHeuresNormalesHebdo}</Text> heures par semmaine, <Text style={{ fontWeight: 'bold' }}>{nbHeuresNormalesMensu}</Text> heures par mois et <Text style={{ fontWeight: 'bold' }}>{nbJoursMensu}</Text> jours par mois.
+              (<Text style={{ lineHeight: 30, fontWeight: 'bold' }}>{"nombre heures majorees Hebdo=" + nbHeuresMajoreesHebdo}</Text>, )
+              (<Text style={{ lineHeight: 30, fontWeight: 'bold' }}>{"nombre heures majorees Mensu=" + nbHeuresMajoreesMensu}</Text>, )
+              (<Text style={{ lineHeight: 30, fontWeight: 'bold' }}>{"nombre heures specifiques Hebdo=" + nbHeuresSpecifiquesHebdo}</Text> )
             </Text>
             <TouchableOpacity style={styles.helpModalCloseButton} onPress={() => setShowHelpModal(false)}>
               <Text style={styles.helpModalCloseButtonText}>Fermer</Text>
@@ -214,12 +216,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color:'black'
+    color: 'black'
   },
   helpModalText: {
     fontSize: 16,
     marginBottom: 20,
-    color:'black'
+    color: 'black'
   },
   helpModalCloseButton: {
     backgroundColor: '#007AFF',
