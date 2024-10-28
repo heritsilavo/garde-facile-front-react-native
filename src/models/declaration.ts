@@ -104,3 +104,20 @@ export interface DeclarationInfo {
     };
     contrats: Contrat[];
 }
+
+export interface DeclarationForContrat {
+    contrat: string;
+    absences: Absences;
+    salaires: ContratSalaire;
+    indemnites: Indemnites;
+    jours: JoursContrat;
+    isAnnualContract: boolean;
+    nbHeuresMensualisees: number;
+    nbHeuresQuiAuraientDuEtreEffectuees: number;
+    nbHeuresMajoreesBase: number;
+    salaireMensuelNet: number;
+    enfant: { id: number, nom: string, prenom: string, dateNaissance: string };
+    nbHeuresNormalesAbsence: number;
+    nbHeuresMajoreesAbsence: number;
+    nbHeuresMajoreesAAjouter: number;
+}

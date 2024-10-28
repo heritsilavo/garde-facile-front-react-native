@@ -6,6 +6,7 @@ import { Appbar, Text, useTheme } from 'react-native-paper';
 import { NavigationContext } from '@react-navigation/native';
 import CompteurTab from '../../../components/DeclarationScreen/CompteurTab';
 import LoadingScreen from '../../../components/loading/LoadingScreens';
+import DeclarationTab from '../../../components/DeclarationScreen/DeclarationTab';
 
 const CurrentMonthDeclaration = () => {
 
@@ -14,6 +15,7 @@ const CurrentMonthDeclaration = () => {
     const [activeTab, setActiveTab] = useState<"COMPTEUR" | "DECLARATION">("COMPTEUR")
     const navigation = useContext(NavigationContext);
     const [refreshCompteurs, setRefreshCompteur] = useState(new Date());
+    const [refreshDeclarations, setRefreshDeclaration] = useState(new Date());
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(function () {
@@ -44,12 +46,13 @@ const CurrentMonthDeclaration = () => {
                 <CustomTab
                     label="DÉCLARATION"
                     isActive={activeTab === "DECLARATION"}
-                    onPress={() => { setActiveTab("DECLARATION") }}
+                    onPress={() => { setActiveTab("DECLARATION");setRefreshDeclaration(new Date()) }}
                     theme={theme}
                 />
             </View>
 
             {activeTab == "COMPTEUR" && <CompteurTab month={currentMonth} refresh={refreshCompteurs}></CompteurTab>}
+            {activeTab == "DECLARATION" && <DeclarationTab month={currentMonth} refresh={refreshDeclarations}></DeclarationTab>}
         </View>
     )
 }
