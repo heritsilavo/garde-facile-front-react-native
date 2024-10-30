@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
+import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
 import { ConfigContratContext } from "../ConfigurerContratPage";
 import { type_A, type_B } from "../../../../utils/mode-de-garde";
-import { useTheme } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 
 interface RenderStep3Props {
     setStep: (step: number) => void;
@@ -36,7 +36,7 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
         <View style={{flex:1}}>
             <ScrollView contentContainerStyle={{alignItems:"center"}} style={styles.container}>
                 <Text style={[styles.title, fonts.titleLarge]}>Acceuil annuel</Text>
-                <Text style={[fonts.bodyMedium]}>
+                <Text style={[fonts.bodyMedium, {marginBottom:15}]}>
                     Il existe deux types de contrat selon le nombre de semmaine d'acceuil dans une années
                 </Text>
                 {[type_A,type_B].map((type, index) => (
@@ -45,8 +45,8 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
                         key={index} 
                         onPress={() => {onclickOne(type)}}
                     >
-                        <Text style={styles.TypeName}>{type.titre}</Text>
-                        <Text style={styles.TypeDob}>{type.desc}</Text>
+                        <Text style={[styles.TypeName, fonts.titleMedium]}>{type.titre}</Text>
+                        <Text style={[styles.TypeDob, fonts.bodyMedium]}>{type.desc}</Text>
                     </TouchableOpacity>
                 ))}
 

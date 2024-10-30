@@ -78,9 +78,9 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
         <Text style={[styles.title, fonts.titleLarge]}>Salaires</Text>
         <Text style={[styles.subtitle, fonts.bodyMedium]}>Saisissez vos salaires horaires  <Text style={{ fontWeight: 'bold' }}>en salaire net</Text>.</Text>
 
-        <Text style={[styles.title2, fonts.bodyMedium]}>Heures normales</Text>
+        <Text style={[styles.title2, fonts.titleMedium]}>Heures normales</Text>
         <View style={styles.inputContainer}>
-          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure normale</Text>
+          <Text style={[styles.label, fonts.bodyMedium]}>Entrez le salaire net heure normale</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureNormale}
@@ -92,9 +92,9 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
         </View>
         <HelpBox text='Heures ajoutées au contrat et en decà de 46 heures par semmaine.'></HelpBox>
 
-        <Text style={[styles.title2, fonts.bodyMedium]}>Heures complémentaires</Text>
+        <Text style={[styles.title2, fonts.titleMedium]}>Heures complémentaires</Text>
         <View style={styles.inputContainer}>
-          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure complémentaire</Text>
+          <Text style={[styles.label, fonts.bodyMedium]}>Entrez le salaire net heure complémentaire</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureComplementaire}
@@ -106,9 +106,9 @@ const RenderStep8: React.FC<RenderStep8Props> = ({ setStep, setSalaires }) => {
         </View>
         <HelpBox text='Heures ajoutées au planning et en decà de 46 heures par semmaine.'></HelpBox>
 
-        <Text style={[styles.title2, fonts.bodyMedium]}>Heures majorées</Text>
+        <Text style={[styles.title2, fonts.titleMedium]}>Heures majorées</Text>
         <View style={styles.inputContainer}>
-          <Text style={[styles.label, {fontFamily: fonts.bodyMedium.fontFamily}]}>Entrez le salaire net heure majorée</Text>
+          <Text style={[styles.label, fonts.bodyMedium]}>Entrez le salaire net heure majorée</Text>
           <TextInput
             style={styles.input}
             value={salaireNetHeureMajoree}

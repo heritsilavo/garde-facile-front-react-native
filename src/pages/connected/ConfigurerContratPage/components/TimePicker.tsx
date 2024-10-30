@@ -2,11 +2,12 @@ import React, { useEffect } from "react";
 import { View, StyleSheet, TextInput, TouchableOpacity, Text, NativeEventEmitter, NativeModules } from "react-native";
 import { TimePickerModal } from 'react-native-paper-dates';
 import { Planning } from "../classes";
+import { useTheme } from "react-native-paper";
 
 export default function TimePicker({ placeholder, value, setValue }: { placeholder: string, setValue: Function, value: string | undefined }) {
     const [visible, setVisible] = React.useState(false);
     const [selectedTime, setSelectedTime] = React.useState<{ hours: number, minutes: number } | undefined>(undefined);
-
+    const {fonts} = useTheme()
     const onDismiss = React.useCallback(() => {
         setVisible(false);
     }, [setVisible]);
@@ -37,7 +38,7 @@ export default function TimePicker({ placeholder, value, setValue }: { placehold
     return (
         <View style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
             <TouchableOpacity style={styles.button} onPress={handlePress}>
-                <Text style={styles.buttonText}>
+                <Text style={[styles.buttonText, fonts.bodyMedium]}>
                     {selectedTime ? `${selectedTime.hours}:${selectedTime.minutes < 10 ? '0' : ''}${selectedTime.minutes}` : placeholder}
                 </Text>
             </TouchableOpacity>

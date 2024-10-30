@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Switch, Button, TouchableOpacity, StyleSheet, NativeEventEmitter, NativeModules } from 'react-native';
+import { View, Text, Switch, TextInput,  TouchableOpacity, StyleSheet, NativeEventEmitter, NativeModules } from 'react-native';
 import { Planning, TrancheHoraire } from '../classes';
-import { Chip } from 'react-native-paper';
+import { Chip, useTheme, Button } from 'react-native-paper';
 import TimePicker from './TimePicker';
 
 export interface JoursPlanningItemPropsType {
@@ -25,22 +25,139 @@ const intToHour = (totalMinutes: number): string => {
     return `${formattedHours}:${formattedMinutes}`;
 }
 
-const JoursPlanningItem = ({ jour, weekPlanning, setWeekPlanning }:{jour:JoursPlanningItemPropsType, weekPlanning: Planning[], setWeekPlanning: any}) => {
+
+const JoursPlanningItem = ({ jour, weekPlanning, setWeekPlanning }: { jour: JoursPlanningItemPropsType, weekPlanning: Planning[], setWeekPlanning: any }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [avecCoupure, setAvecCoupure] = useState(false);
-    const [defini, setDefini] = useState<boolean>(false);
-    const [tranche1Debut, setTranche1Debut] = useState<string>();
-    const [tranche1Fin, setTranche1Fin] = useState<string>();
-    const [tranche2Debut, setTranche2Debut] = useState<string>();
-    const [tranche2Fin, setTranche2Fin] = useState<string>();
+    const [defini, setDefini] = useState<boolean>(false)
 
-    // Other logic remains the same...
+    const [tranche1Debut, setTranche1Debut] = useState<string>()
+    const [tranche1Fin, setTranche1Fin] = useState<string>()
+    const [tranche2Debut, setTranche2Debut] = useState<string>()
+    const [tranche2Fin, setTranche2Fin] = useState<string>()
+
+    const { fonts } = useTheme()
+
+    // Tranche1
+    const [tranche1, setTranche1] = useState<TrancheHoraire>();
+    useEffect(() => {
+        if (tranche1Debut && tranche1Fin) {
+            const tmp: TrancheHoraire = {
+                heureDebut: hourToInt(tranche1Debut),
+                heureFin: hourToInt(tranche1Fin)
+            };
+            setTranche1(tmp);
+        }
+    }, [tranche1Debut, tranche1Fin]);
+
+    // Tranche2
+    const [tranche2, setTranche2] = useState<TrancheHoraire>();
+    useEffect(() => {
+        if (tranche2Debut && tranche2Fin) {
+            const tmp: TrancheHoraire = {
+                heureDebut: hourToInt(tranche2Debut),
+                heureFin: hourToInt(tranche2Fin)
+            };
+            setTranche2(tmp);
+        }
+    }, [tranche2Debut, tranche2Fin]);
+
+    //Planning
+    const [planningDuJour, setPlanningDuJour] = useState<Planning>();
+    const myEventEmitter = new NativeEventEmitter(NativeModules.RCTDeviceInfo);
+
+    const changeOnWeekPlanning = (planning: Planning) => {
+        setWeekPlanning((old: Planning[]) => {
+            let tmpWeekPlann = [...old]
+            let index = -1;
+
+            old.forEach((P, i) => {
+                if (P?.indexJour == planning.indexJour) {
+                    index = planning.indexJour
+                }
+            });
+
+            if (index == -1) tmpWeekPlann = [...old, planning]
+            else {
+                tmpWeekPlann[index] = planning
+            }
+
+            return tmpWeekPlann
+        })
+    }
+
+    //Event Listener
+    useEffect(() => {
+        const listener = myEventEmitter.addListener('appliquerAuxAutresJours', ({ emmiterIndex, planning }: { emmiterIndex: number, planning: Planning }) => {
+            if (emmiterIndex != jour.index) {//Pour les autres jours
+
+
+                const withCoupure = (!!planning.trancheHoraire2.heureDebut && !!planning.trancheHoraire2.heureFin)
+
+                const t1Debut = intToHour(planning.trancheHoraire1.heureDebut);
+                const t1Fin = intToHour(planning.trancheHoraire1.heureFin);
+                setTranche1Debut(t1Debut)
+                setTranche1Fin(t1Fin)
+
+                if (withCoupure) {
+                    const t2Debut = intToHour(planning.trancheHoraire2.heureDebut);
+                    const t2Fin = intToHour(planning.trancheHoraire2.heureFin);
+                    setTranche2Debut(t2Debut)
+                    setTranche2Fin(t2Fin)
+                    setAvecCoupure(true);
+                } else {
+                    setAvecCoupure(false)
+                }
+            }
+        });
+
+        // Nettoyer l'écouteur lors du démontage du composant
+        return () => {
+            listener.remove();
+        };
+    }, []);
+
+    useEffect(function () {
+        let tmp: boolean = !!(tranche1?.heureDebut && tranche1?.heureFin);
+        if (avecCoupure) {
+            tmp = tmp && !!(tranche2?.heureDebut && tranche2?.heureFin);
+        }
+        setDefini(tmp);
+        if (tmp && tranche1 && tranche2) { //Si planning du jour defini
+            let planning: Planning = new Planning()
+            planning.indexJour = jour.index
+            planning.trancheHoraire1 = tranche1
+            planning.trancheHoraire2 = tranche2
+
+            setPlanningDuJour(planning)
+            changeOnWeekPlanning(planning)
+        }
+    }, [tranche1, tranche2, avecCoupure])
+
+
+    function toggleExpanded() {
+        setIsExpanded(!isExpanded);
+    }
+
+    //Handle Avec coupure
+    useEffect(function () {
+        if (!avecCoupure) {
+            const tmp: TrancheHoraire = { heureDebut: NaN, heureFin: NaN };
+            setTranche2(tmp)
+        }
+    }, [avecCoupure])
+
+    const onclickAppliOnAnotherDays = function () {
+        if (defini) {
+            myEventEmitter.emit('appliquerAuxAutresJours', { emmiterIndex: jour.index, planning: planningDuJour });
+        }
+    }
 
     return (
         <View style={{ ...styles.container, borderColor: (defini ? 'green' : 'orange') }}>
             {/* Header Section */}
-            <TouchableOpacity onPress={() => setIsExpanded(!isExpanded)} style={styles.header}>
-                <Text style={styles.headerText}>
+            <TouchableOpacity onPress={toggleExpanded} style={styles.header}>
+                <Text style={[styles.headerText,fonts.titleMedium]}>
                     {jour.text}
                 </Text>
                 <Text style={styles.toggleText}>{isExpanded ? '-' : '+'}</Text>
@@ -50,13 +167,39 @@ const JoursPlanningItem = ({ jour, weekPlanning, setWeekPlanning }:{jour:JoursPl
             {isExpanded && (
                 <View style={styles.details}>
                     <View style={styles.switchContainer}>
-                        <Text style={styles.label}>Avec coupure</Text>
+                        <Text style={[styles.label, fonts.bodyMedium]}>Avec coupure</Text>
                         <Switch
                             value={avecCoupure}
                             onValueChange={() => setAvecCoupure(!avecCoupure)}
                         />
                     </View>
-                    {/* Additional time inputs and controls here... */}
+
+                    {avecCoupure && <Text style={[{ color: "black" }, fonts.bodyMedium]}>Tranche horaire 1: </Text>}
+                    <View style={styles.timeContainer}>
+                        <Text style={[styles.label, fonts.bodySmall]}>De</Text>
+                        <TimePicker placeholder='Heure début' setValue={(text: string) => { setTranche1Debut(text); }} value={tranche1Debut}></TimePicker>
+
+                        <Text style={[styles.label, fonts.bodySmall]}>À</Text>
+                        <TimePicker placeholder='Heure fin' setValue={(text: string) => { setTranche1Fin(text); }} value={tranche1Fin}></TimePicker>
+                    </View>
+
+                    {
+                        avecCoupure && (
+                            <View>
+                                <Text style={[{ color: "black" }, fonts.bodyMedium]}>Tranche horaire 2: </Text>
+                                <View style={styles.timeContainer}>
+                                    <Text style={[styles.label, fonts.bodySmall]}>De</Text>
+                                    <TimePicker placeholder='Heure début' setValue={(text: string) => { setTranche2Debut(text); }} value={tranche2Debut}></TimePicker>
+
+                                    <Text style={[styles.label, fonts.bodySmall]}>À</Text>
+                                    <TimePicker placeholder='Heure fin' setValue={(text: string) => { setTranche2Fin(text); }} value={tranche2Fin}></TimePicker>
+                                </View>
+                            </View>
+                        )
+                    }
+                    <Button disabled={!defini} mode='contained' onPress={onclickAppliOnAnotherDays}>
+                        Appliquer aux autres jours
+                    </Button>
                 </View>
             )}
         </View>
@@ -64,12 +207,17 @@ const JoursPlanningItem = ({ jour, weekPlanning, setWeekPlanning }:{jour:JoursPl
 };
 
 const styles = StyleSheet.create({
+    afficheHeure: {
+        color: 'white',
+        backgroundColor: 'blue',
+        borderRadius: 10,
+    },
     container: {
         borderWidth: 1,
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
-        width: '100%',
+        width: '100%'
     },
     header: {
         flexDirection: 'row',
@@ -79,17 +227,14 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: 'black',
-        fontFamily: 'Roboto-Bold', // Utilisation de la police personnalisée Roboto-Bold
+        color: 'black'
     },
     toggleText: {
         fontSize: 18,
-        color: 'black',
-        fontFamily: 'Roboto-Regular', // Utilisation de la police personnalisée Roboto-Regular
+        color: 'black'
     },
     details: {
         marginTop: 10,
-        fontFamily: 'Roboto-Regular',
     },
     switchContainer: {
         flexDirection: 'row',
@@ -99,8 +244,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
-        color: 'black',
-        fontFamily: 'Roboto-Regular',
+        color: 'black'
     },
     timeContainer: {
         flexDirection: 'row',
@@ -116,8 +260,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10,
         textAlign: 'center',
-        color: 'black',
-        fontFamily: 'Roboto-Regular',
+        color: 'black'
     },
 });
 

@@ -27,7 +27,7 @@ const RenderStep2: React.FC<RenderStep2Props> = ({ setStep, setDateDebut }) => {
     return (
         <View style={{ flex: 1 }}>
             <View style={styles.container}>
-                <Text style={[styles.title, fonts.titleLarge]}>Choisissez la date de début du contrat</Text>
+                <Text style={[styles.title, fonts.titleLarge, {textAlign:"center"}]}>Choisissez la date de début du contrat</Text>
                 <Calendar
                     onDayPress={onPressDay}
                     markedDates={{
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        padding: 16,
+        paddingHorizontal: 16,
     },
     title: {
         fontSize: 24,

@@ -5,11 +5,13 @@ import { getAssociatedAssmatByPajeIdParent } from "../../../../utils/user";
 import { connectedUserContext } from "../../../../../App";
 import User from "../../../../models/user";
 import LoadingScreen from "../../../../components/loading/LoadingScreens";
+import { useTheme } from "react-native-paper";
 
 const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelectedssmat: any }) => {
     const [Assmatren, setAssmatren] = useState<Assmat[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { connectedUser }: { connectedUser: User } = useContext(connectedUserContext);
+    const {fonts} = useTheme()
 
     const fetchAssmats = async () => {
         setIsLoading(true);
@@ -35,8 +37,8 @@ const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelecteds
 
     return (
         <View style={styles.main}>
-            <Text style={styles.title}>Choix de l'assistante maternelle</Text>
-            <Text style={styles.subtitle}>Pour quelle assistante maternelle, rattachée à votre compte voulez-vous configurer un contrat</Text>
+            <Text style={[styles.title, fonts.titleLarge, {textAlign:'center'}]}>Choix de l'assistante maternelle</Text>
+            <Text style={[styles.subtitle, fonts.bodyMedium]}>Pour quelle assistante maternelle, rattachée à votre compte voulez-vous configurer un contrat</Text>
 
             <ScrollView style={styles.listContainer}>
                 {Assmatren.map((assmat, index) => (
@@ -45,8 +47,8 @@ const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelecteds
                         key={index}
                         onPress={() => { handleChildSelection(assmat) }}
                     >
-                        <Text style={styles.AssmatName}>{assmat.nom + ' ' + assmat.prenom}</Text>
-                        <Text style={styles.AssmatDob}>{assmat.pajeId}</Text>
+                        <Text style={[styles.AssmatName, fonts.bodyMedium]}>{assmat.nom + ' ' + assmat.prenom}</Text>
+                        <Text style={[styles.AssmatDob, fonts.bodySmall]}>{assmat.pajeId}</Text>
                     </TouchableOpacity>
                 ))}
             </ScrollView>

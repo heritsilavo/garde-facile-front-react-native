@@ -109,8 +109,8 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
                         key={index}
                         onPress={() => { handleChildSelection(enfant) }}
                     >
-                        <Text style={styles.EnfantName}>{enfant.nom + ' ' + enfant.prenom}</Text>
-                        <Text style={styles.EnfantDob}>{enfant.dateNaissance}</Text>
+                        <Text style={[styles.EnfantName, fonts.bodyMedium]}>{enfant.nom + ' ' + enfant.prenom}</Text>
+                        <Text style={[styles.EnfantDob, fonts.bodySmall]}>{enfant.dateNaissance}</Text>
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -126,8 +126,8 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
                 onRequestClose={() => setModalVisible(false)}
             >
                 <View style={styles.modalView}>
-                    <Text style={styles.modalTitle}>Un contrat existe déjà</Text>
-                    <Text style={styles.modalMessage}>Souhaitez-vous écraser le contrat existant ou l'utiliser ?</Text>
+                    <Text style={[styles.modalTitle, fonts.titleLarge]}>Un contrat existe déjà</Text>
+                    <Text style={[styles.modalMessage, fonts.bodyMedium]}>Souhaitez-vous écraser le contrat existant ou l'utiliser ?</Text>
                     <View style={styles.buttonContainer}>
                         <Button title="Écraser" onPress={() => handleModalChoice(true)} />
                         <Button title="Utiliser" onPress={() => handleModalChoice(false)} />

@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import React from 'react'
 import { Evenement } from '../models/evenements'
 import EventListItem from './EventListItem';
+import LoadingScreen from './loading/LoadingScreens';
 
 interface EventListeProps {
     loading: boolean;
@@ -15,9 +16,7 @@ interface EventListeProps {
 const EventsList = ({ loading, setIsLoading, events, setEvents, onDelete, onShowDetails }: EventListeProps) => {
 
     if (loading) {
-        return <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-            <ActivityIndicator color='blue'></ActivityIndicator>
-        </View>
+        return <LoadingScreen></LoadingScreen>
     }
 
     return (

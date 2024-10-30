@@ -30,14 +30,17 @@ const HolidayItem = React.memo(({
   holiday: JourFerie;
   isSelected: boolean;
   onToggle: (type: string) => void;
-}) => (
-  <TouchableOpacity
-    style={[styles.holidayItem, isSelected && styles.selectedHoliday]}
-    onPress={() => onToggle(holiday.type)}
-  >
-    <Text style={styles.label}>{holiday.text}</Text>
-  </TouchableOpacity>
-));
+}) => {
+  const { fonts } = useTheme()
+  return (
+    <TouchableOpacity
+      style={[styles.holidayItem, isSelected && styles.selectedHoliday]}
+      onPress={() => onToggle(holiday.type)}
+    >
+      <Text style={[styles.label, fonts.bodyMedium]}>{holiday.text}</Text>
+    </TouchableOpacity>
+  )
+});
 
 const RenderStep7: React.FC<RenderStep7Props> = ({ setStep, setCodePostateAndJourFerie }) => {
   // State management
@@ -260,6 +263,7 @@ const styles = StyleSheet.create({
   },
   selectedHoliday: {
     backgroundColor: "#70a3c4",
+    color: "white"
   },
   label: {
     fontSize: 16,
