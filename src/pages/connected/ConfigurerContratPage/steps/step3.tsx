@@ -31,7 +31,6 @@ const RenderStep3: React.FC<RenderStep3Props> = ({ setStep, setSemmaindeDeGarde 
         setStep(4)
     }
     
-
     return (
         <View style={{flex:1}}>
             <ScrollView contentContainerStyle={{alignItems:"center"}} style={styles.container}>

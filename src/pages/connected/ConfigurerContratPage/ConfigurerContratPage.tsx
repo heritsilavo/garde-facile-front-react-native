@@ -18,6 +18,7 @@ import { connectedUserContext } from '../../../../App';
 import User from '../../../models/user';
 import { createIndemniteForContrat, generateId, saveConfiguredContrat, saveContratInDatabase } from '../../../utils/contrat';
 import { Appbar } from 'react-native-paper';
+import LoadingScreen from '../../../components/loading/LoadingScreens';
 
 export const ConfigContratContext = createContext<{
   configContrat: ConfigContratData;
@@ -208,6 +209,10 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
     }
   };
 
+  if (loading) {
+    return <LoadingScreen></LoadingScreen>
+  }
+
   return (
     <indemniteEntityContext.Provider value={{ indemniteEntity, setIndemniteEntity }}>
       <ConfigContratContext.Provider value={{ configContrat, setConfigContrat }}>
@@ -218,11 +223,9 @@ const ContractConfigurationComponent = ({ navigation, route }: { navigation: Nav
             </Appbar.Header>
           )}
           <ScrollView contentContainerStyle={styles.content}>
-            {loading ? (
-              <ActivityIndicator size="large" color="#007AFF" />
-            ) : (
+            {
               renderCurrentStep()
-            )}
+            }
           </ScrollView>
         </View>
       </ConfigContratContext.Provider>

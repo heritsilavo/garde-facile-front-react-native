@@ -1,20 +1,47 @@
 import { StyleSheet, Touchable, View } from 'react-native'
-import React, { useContext } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { Divider, Icon, Text, useTheme } from 'react-native-paper'
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 import HelpBox from '../../../ConfigurerContratPage/components/HelpBox'
-import { getMonthName } from '../../../../../utils/date'
+import { getMonthName, Mois } from '../../../../../utils/date'
 import { NavigationContext } from '@react-navigation/native'
+import { configuredContratContext } from '../../Home'
+
+export type NamedMois = Mois & {
+    label: string
+}
+
 
 const DeclarationScreen = () => {
     const { fonts, colors } = useTheme()
     const navigation = useContext(NavigationContext);
+    const [currentMonth, setCurrentMonth] = useState<NamedMois>({ year: -1, label: '', monthIndex: -1 })
+    const { configuredContrat } = useContext(configuredContratContext)
+
+    useEffect(() => {
+        const today = new Date();
+        today.setHours(0)
+        today.setMinutes(0)
+        today.setSeconds(0)
+        today.setMilliseconds(0)
+        var tmp: NamedMois = { ...currentMonth, year: today.getFullYear() };
+        var mois = today.getMonth() + 1 - ((today.getDate() <= 5) ? 1 : 0);
+
+        console.log("DATE DEBUT CONTRAT: ", new Date(configuredContrat.dateDebut));
+        console.log("TODAY: ", today);
+        
+        
+        if ((new Date(configuredContrat.dateDebut).getTime() >= today.getTime())) mois++;
+        tmp.label = getMonthName(new Date(`${today.getFullYear()}-${mois}-${6}`))
+        tmp.monthIndex = mois
+        setCurrentMonth(tmp)
+    }, [])
 
     return (
         <View>
             <Text style={[fonts.titleLarge, styles.title, { color: colors.primary }]}>Déclaration</Text>
-            <TouchableOpacity onPress={() => navigation?.navigate("CurrentMonthDeclaration")} style={[styles.button]}>
-                <Text style={[fonts.bodyLarge]}>Déclaration {getMonthName(new Date())}</Text>
+            <TouchableOpacity onPress={() => navigation?.navigate("CurrentMonthDeclaration", { currentMonth: currentMonth })} style={[styles.button]}>
+                <Text style={[fonts.bodyLarge]}>Déclaration {currentMonth.label}</Text>
                 <Icon source="chevron-right" size={20}></Icon>
             </TouchableOpacity>
             <Divider style={{ marginHorizontal: styles.button.marginHorizontal, marginBottom: 0 }}></Divider>

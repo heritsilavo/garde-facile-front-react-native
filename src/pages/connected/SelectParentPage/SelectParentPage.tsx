@@ -10,16 +10,19 @@ import { Body as ContratEntity } from "../ConfigurerContratPage/classes";
 import Icon from 'react-native-vector-icons/Ionicons';
 import Toast from "react-native-toast-message";
 import LoadingScreen from '../../../components/loading/LoadingScreens';
+import CheckBox from "@react-native-community/checkbox";
+import { getEnfantSouvenu, removeEnfantSouvenu, saveEnfantSouvenu } from "../../../utils/utils";
 
 const SelectParentpage = () => {
     const theme = useTheme();
     const [Parents, setParents] = useState<Parent[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedParent, setSelectedParent] = useState<Parent | null>(null);
     const [enfants, setEnfants] = useState<Enfant[]>([]);
     const { connectedUser, setConnectedUser } = useContext<UserContextType>(connectedUserContext);
     const navigation = useContext(NavigationContext);
+    const [seSouvenir, setSeSouvenir] = useState(false);
 
     const fetchParents = async () => {
         setIsLoading(true);
@@ -32,11 +35,21 @@ const SelectParentpage = () => {
             setParents(val);
             setIsLoading(false);
         }
+
+        const contratId = await getEnfantSouvenu()
+        if (contratId) {
+            const saved = await saveConfiguredContrat(contratId);
+            if (saved) {
+                navigation?.reset({
+                    index: 0,
+                    routes: [{ name: "Home" }]
+                })
+            }
+        }
         setIsLoading(false);
     };
 
     useEffect(() => {
-        console.log("SelectParentpage");
         fetchParents();
     }, []);
 
@@ -71,6 +84,12 @@ const SelectParentpage = () => {
                     routes: [{ name: "Home" }]
                 })
             }
+
+            if (seSouvenir) {
+                await saveEnfantSouvenu(contrats[0].id)
+            }else{
+                removeEnfantSouvenu()
+            }
         } else {
             Toast.show({
                 type: 'error',
@@ -100,6 +119,7 @@ const SelectParentpage = () => {
             ...theme.fonts.headlineMedium,
             color: theme.colors.onBackground,
             marginBottom: 8,
+            textAlign:'center'
         },
         subtitle: {
             ...theme.fonts.bodyMedium,
@@ -272,6 +292,10 @@ const SelectParentpage = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 ))}
+                                <View style={{ flexDirection: "row", marginTop: 15, alignItems:'center' }}>
+                                    <CheckBox tintColors={{ false: 'gray' }} value={seSouvenir} onValueChange={() => { setSeSouvenir(() => !seSouvenir) }}></CheckBox>
+                                    <Text style={[{ color: 'black' }, theme.fonts.bodyMedium]}> Se souvenir de mon choix  </Text>
+                                </View>
                             </ScrollView>
                         </View>
                     </View>

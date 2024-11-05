@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, Modal, Button } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, Modal } from "react-native";
 import { Enfant } from "../classes";
 import { ConfigContratContext } from "../ConfigurerContratPage";
 import { getEnfantByPajeIdParent } from "../../../../utils/user";
@@ -8,7 +8,7 @@ import { recupererContratBySalarieParentAndEnfant, deleteContrat, saveConfigured
 import { connectedUserContext } from "../../../../../App";
 import { NavigationContext } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
-import { Appbar, useTheme } from "react-native-paper";
+import { Appbar, Button, useTheme } from "react-native-paper";
 import LoadingScreen from "../../../../components/loading/LoadingScreens";
 
 const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelectedEnfant: any }) => {
@@ -129,8 +129,8 @@ const RenderStep1 = ({ setStep, setSelectedEnfant }: { setStep: any, setSelected
                     <Text style={[styles.modalTitle, fonts.titleLarge]}>Un contrat existe déjà</Text>
                     <Text style={[styles.modalMessage, fonts.bodyMedium]}>Souhaitez-vous écraser le contrat existant ou l'utiliser ?</Text>
                     <View style={styles.buttonContainer}>
-                        <Button title="Écraser" onPress={() => handleModalChoice(true)} />
-                        <Button title="Utiliser" onPress={() => handleModalChoice(false)} />
+                        <Button children={"Écraser"} mode="contained" style={{borderRadius:5}} onPress={() => handleModalChoice(true)} />
+                        <Button children={"Utiliser"} mode="contained" style={{borderRadius:5}} onPress={() => handleModalChoice(false)} />
                     </View>
                 </View>
             </Modal>

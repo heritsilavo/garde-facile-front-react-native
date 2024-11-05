@@ -1,224 +1,255 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, Modal, FlatList } from 'react-native';
+import React, { useCallback, useContext, useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Image, 
+  ActivityIndicator, 
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
+} from 'react-native';
 import { NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { getUserByPajeId, loginUser, saveLoginToken } from '../../utils/user';
-import { getContratByPajeIdUser, isContratConfiguree } from '../../utils/contrat';
+import { isContratConfiguree } from '../../utils/contrat';
 import { connectedUserContext } from '../../../App';
 import User from '../../models/user';
 import Toast from 'react-native-toast-message';
+import { useTheme } from 'react-native-paper';
+
+const INPUT_FIELDS = {
+  IDENTIFIER: {
+    placeholder: 'Identifiant',
+    key: 'identifier'
+  },
+  PASSWORD: {
+    placeholder: 'Mot de passe',
+    key: 'password'
+  }
+};
 
 const LoginPage = ({ navigation }: { navigation: NavigationProp<any> }) => {
-  const [pajemploiId, setPajemploiId] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    pajemploiId: '',
+    password: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [salaries, setSalaries] = useState<string[]>();
-  const { connectedUser, setConnectedUser } = useContext(connectedUserContext)
-
-  useEffect(function () {
-    setIsLoading(false);
-  }, [])
+  const { setConnectedUser } = useContext(connectedUserContext);
+  const { fonts } = useTheme();
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
+      // Reset form state when screen comes into focus
+      setFormData({ pajemploiId: '', password: '' });
       setIsLoading(false);
-      setPajemploiId("")
-      setPassword("")
     }, [])
   );
 
+  const handleInputChange = (field: string) => (value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const showErrorToast = (message: string = 'Impossible de se connecter') => {
+    Toast.show({
+      type: 'error',
+      text1: message,
+      visibilityTime: 3000,
+      autoHide: true
+    });
+  };
+
+  const handleNavigation = (loggedUser: User, isContratConfigured: boolean) => {
+    const routes = {
+      PAJE_EMPLOYEUR: isContratConfigured ? 'Home' : 'ElementsAMunirPage',
+      DEFAULT: 'SelectParentpage'
+    };
+
+    const route = loggedUser.profile === 'PAJE_EMPLOYEUR' 
+      ? routes.PAJE_EMPLOYEUR 
+      : routes.DEFAULT;
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: route }]
+    });
+  };
+
   const validateAndSubmit = async () => {
+    const { pajemploiId, password } = formData;
+
     if (!pajemploiId || !password) {
-      Toast.show({
-        type: 'error',
-        text1: "Impossible de se connecter",
-        autoHide: true
-      })
-    } else {
-      console.log('Identifiant Pajemploi:', pajemploiId);
-      console.log('Mot de passe:', password);
+      showErrorToast('Veuillez remplir tous les champs');
+      return;
+    }
 
-      setIsLoading(true)
-      try {
-        var result = await loginUser({ pajeId: pajemploiId, password: password });
-        if (!!result && (result.status == 200) && !!result.data.accessToken) {
-          const accessToken = result.data.accessToken
-          //Save token
-          const isTokenSaved = await saveLoginToken(accessToken, pajemploiId)
-          if (isTokenSaved) {
-            let loggedUser: User = new User();
-            const response = await getUserByPajeId(pajemploiId)
-            loggedUser = response.data
-            setConnectedUser(loggedUser)
+    setIsLoading(true);
 
-            //Verififier la configuration d'un contrat
-            const isContratConfigured = await isContratConfiguree()
-            console.log("PROFILE: ", loggedUser.profile);
-
-            if (loggedUser.profile === "PAJE_EMPLOYEUR") {
-              if (isContratConfigured) navigation.reset({
-                index: 0,
-                routes: [{ name: "Home" }]
-              })
-              else navigation.reset({
-                index: 0,
-                routes: [{ name: "ElementsAMunirPage" }]
-              })
-            } else {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "SelectParentpage" }]
-              })
-            }
-          } else throw new Error()
-        } else {
-          throw new Error()
-        }
-        setIsLoading(true)
-      } catch (error) {
-        Toast.show({
-          type: 'error',
-          text1: 'Impossible de se connecter',
-          visibilityTime: 3000,
-          autoHide: true
-        })
-        setIsLoading(false)
+    try {
+      const loginResult = await loginUser({ pajeId: pajemploiId, password });
+      
+      if (!loginResult?.data?.accessToken || loginResult.status !== 200) {
+        throw new Error('Invalid login response');
       }
 
+      const isTokenSaved = await saveLoginToken(loginResult.data.accessToken, pajemploiId);
+      
+      if (!isTokenSaved) {
+        throw new Error('Failed to save token');
+      }
 
+      const userResponse = await getUserByPajeId(pajemploiId);
+      const loggedUser = userResponse.data;
+      setConnectedUser(loggedUser);
+
+      const isContratConfigured = await isContratConfiguree();
+      handleNavigation(loggedUser, isContratConfigured);
+
+    } catch (error) {
+      showErrorToast();
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const renderInput = ({ placeholder, key }: { placeholder: string, key: string }) => (
+    <TextInput
+      key={key}
+      style={[styles.input, fonts.bodyMedium]}
+      placeholder={placeholder}
+      placeholderTextColor="#8E8E93"
+      value={formData[key === 'identifier' ? 'pajemploiId' : 'password']}
+      onChangeText={handleInputChange(key === 'identifier' ? 'pajemploiId' : 'password')}
+      secureTextEntry={key === 'password'}
+      autoCapitalize="none"
+      autoCorrect={false}
+    />
+  );
+
   return (
-    <View style={styles.container}>
-      <View style={styles.innerContainer}>
-        <Text style={{ color: "black", fontSize: 30 }}>Connexion</Text>
-        <Image source={{ uri: 'asset:/illustrations/login.png' }} style={styles.image} />
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Identifiant"
-            placeholderTextColor={"#a2a3a2"}
-            value={pajemploiId}
-            onChangeText={setPajemploiId}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Mot de passe"
-            placeholderTextColor={"#a2a3a2"}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#007AFF" />
-        ) : (
-          <TouchableOpacity style={styles.loginButton} onPress={validateAndSubmit}>
-            <Text style={styles.loginButtonText}>Continuer</Text>
-          </TouchableOpacity>
-        )}
-        <View style={styles.links}>
-          <TouchableOpacity onPress={() => console.log('Pas de compte Pajemploi?')}>
-            <Text style={styles.linkText}>Pas de encore de compte?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Identifiant Pajemploi oublié?')}>
-            <Text style={styles.linkText}>Identifiant oublié?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('Mot de passe oublié?')}>
-            <Text style={styles.linkText}>Mot de passe oublié?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.headerContainer}>
+            <Text style={[fonts.titleLarge, styles.title]}>
+              Connexion
+            </Text>
+          </View>
+
+          <View style={styles.imageContainer}>
+            <Image 
+              source={{ uri: 'asset:/illustrations/login.png' }} 
+              style={styles.image}
+              resizeMode="contain"
+            />
+          </View>
+
+          <View style={styles.formContainer}>
+            {[INPUT_FIELDS.IDENTIFIER, INPUT_FIELDS.PASSWORD].map(renderInput)}
+          </View>
+
+          <View style={styles.buttonContainer}>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#007AFF" />
+            ) : (
+              <TouchableOpacity 
+                style={styles.loginButton} 
+                onPress={validateAndSubmit}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.loginButtonText, fonts.bodyMedium]}>
+                  Continuer
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF'
   },
-  innerContainer: {
-    flex: 1,
-    padding: 16,
+  container: {
+    flex: 1
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 24
+  },
+  headerContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    overflow:'visible',
+    padding:10,
+    marginTop:50
+  },
+  title: {
+    fontSize: 32,
+    color: '#000000',
+    fontWeight: '600',
+    paddingTop:10
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginTop:0,
   },
   image: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
+    width:  200,
+    height: 200
   },
-  form: {
+  formContainer: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 24,
+    gap: 16
   },
   input: {
-    height: 50,
-    borderColor: '#ccc',
+    height: 56,
+    borderColor: '#E5E5EA',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 12,
+    borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
     width: '100%',
-    color: "black",
+    color: '#000000',
+    backgroundColor: '#FFFFFF'
+  },
+  buttonContainer: {
+    width: '100%',
+    marginTop: 8
   },
   loginButton: {
     backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    borderRadius: 12,
+    paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 20,
     width: '100%',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: 'bold',
-  },
-  links: {
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 14,
-    marginTop: 10,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '90%',
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 20,
-    alignItems: 'center',
-    maxHeight: "90%"
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: "black",
-  },
-  salarieItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    width: '100%',
-    alignItems: 'center',
-  },
-  salarieText: {
-    fontSize: 18,
-    color: "black",
-  },
+    fontWeight: '600'
+  }
 });
 
 export default LoginPage;

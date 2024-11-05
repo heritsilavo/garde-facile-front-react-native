@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/primary_dark"/>
+    
+    <!-- Option 1: If you want to use a logo/image -->
+    <!-- Uncomment this section and add your splash image to drawable folders
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/splash"/>
+    </item>
+    -->
+    
+    <!-- Option 2: If you just want a colored background -->
+    <!-- This is currently active - simple colored background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary_dark"/>
+        </shape>
+    </item>
+</layer-list>

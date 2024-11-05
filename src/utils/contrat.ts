@@ -6,6 +6,7 @@ import { getLoginToken, getUserByPajeId, isLogedIn } from "./user";
 import axios from "axios";
 import { Body as ContratEntity } from "../pages/connected/ConfigurerContratPage/classes";
 import { ContratHistorique } from "../models/contrat-historique";
+import { removeEnfantSouvenu } from "./utils";
 
 export function generateId(): string {
     const generateSegment = (length: number): string => {
@@ -57,6 +58,7 @@ export const getConfiguredContrat = async function () {
 export const removeConfiguredContrat = async function () {
     try {
         await AsyncStorage.removeItem(CONFIG_CONTRAT);
+        await removeEnfantSouvenu()
         return false;
     } catch (e) {
         return false;
