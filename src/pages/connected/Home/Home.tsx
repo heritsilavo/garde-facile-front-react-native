@@ -9,7 +9,7 @@ import { connectedUserContext, UserContextType } from '../../../../App';
 import CongeScreen from './HomeScreens/CongesScreen/CongeScreen';
 import { BaseRoute } from 'react-native-paper/lib/typescript/components/BottomNavigation/BottomNavigation';
 import { Body as ContratType } from '../ConfigurerContratPage/classes';
-import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat } from '../../../utils/contrat';
+import { getConfiguredContrat, getContratById, getContratByPajeIdParentAndSalarie, getDetailConfiguredContrat, removeConfiguredContrat } from '../../../utils/contrat';
 import { actionEntrerAppli } from '../../../utils/utils';
 import { AxiosError } from 'axios';
 import DeclarationScreen from './HomeScreens/Declaration/DeclarationScreen';
@@ -82,19 +82,31 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
     const initializeContrat = () => {
       getConfiguredContrat()
         .then((contratId) => {
+
           if (!contratId) {
-            navigation.navigate( 
+            navigation.navigate(
               connectedUser.profile === "PAJE_EMPLOYEUR"
                 ? "ElementsAMunirPage"
                 : "SelectParentpage"
             );
-            return; 
+            return;
           }
-  
+
           return actionEntrerAppli();
         })
         .then(() => getDetailConfiguredContrat())
         .then((contratData) => {
+          
+          const listPajeIds = [contratData.numeroPajeEmployeur, contratData.numeroPajeSalarie];
+          if (!listPajeIds.includes(connectedUser.pajeId)) {
+            removeConfiguredContrat();
+            navigation.navigate(
+              connectedUser.profile === "PAJE_EMPLOYEUR"
+                ? "ElementsAMunirPage"
+                : "SelectParentpage"
+            );
+          }
+          
           setConfiguredContrat(contratData);
           setDataLoaded(true);
         })
@@ -110,7 +122,7 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
           }
         });
     };
-  
+
     initializeContrat();
   }, [connectedUser, navigation]);
 
@@ -137,7 +149,7 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
         Planning: () => <PlanningScreen refreshValue={refreshPlanningValue} />,
         Declaration: () => <DeclarationScreen></DeclarationScreen>,
         Conges: () => <CongeScreen refreshValue={refreshCongesValue}></CongeScreen>,
-        Profile: () => ( 
+        Profile: () => (
           <ProfileScreen
             isLoading={isLoadingProfile}
             setIsLoading={setIsLoadingProfile}
@@ -145,7 +157,7 @@ const HomePage = ({ navigation }: { navigation: NavigationProp<any> }) => {
           />
         ),
       }),
-    [refreshPlanningValue,refreshCongesValue, isLoadingProfile, listeContrat]
+    [refreshPlanningValue, refreshCongesValue, isLoadingProfile, listeContrat]
   );
 
   if (!dataLoaded) {

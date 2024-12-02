@@ -16,7 +16,8 @@ const RenderStep0 = ({ setStep, setSelectedssmat }: { setStep: any, setSelecteds
     const fetchAssmats = async () => {
         setIsLoading(true);
         if (connectedUser.pajeId) {
-            const val: Assmat[] = await getAssociatedAssmatByPajeIdParent(connectedUser.pajeId);
+            var val: Assmat[] = await getAssociatedAssmatByPajeIdParent(connectedUser.pajeId);
+            val = val.filter(ass => !!ass.pajeId);
             setAssmatren(val);
             setIsLoading(false);
         }

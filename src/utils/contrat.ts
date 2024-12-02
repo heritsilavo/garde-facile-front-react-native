@@ -38,6 +38,24 @@ export const saveConfiguredContrat = async function (contratId: string) {
 }
 
 /**
+ * creer un contrat
+ * @param newContrat 
+ * @returns 
+ */
+export const saveContratInDatabase = async function (newContrat: ConfigContratData) {
+    const isLogged = await isLogedIn()
+    if (isLogged) {
+        const token = await getLoginToken()
+        const response = await axios.post(`${SPRING_BOOT_URL}/contrats`, newContrat, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data
+    } else throw new Error("Vous n'etes pas connecté");
+}
+
+/**
  * load the contratId from the async storage if exist
  * @returns contratId
  */
@@ -83,23 +101,7 @@ export const isContratConfiguree = async function () {
     }
 }
 
-/**
- * creer un contrat
- * @param newContrat 
- * @returns 
- */
-export const saveContratInDatabase = async function (newContrat: ConfigContratData) {
-    const isLogged = await isLogedIn()
-    if (isLogged) {
-        const token = await getLoginToken()
-        const response = await axios.post(`${SPRING_BOOT_URL}/contrats`, newContrat, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return response.data
-    } else throw new Error("Vous n'etes pas connecté");
-}
+
 
 /**
  * creer un indemnitée

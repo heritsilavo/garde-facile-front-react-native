@@ -111,7 +111,12 @@ const ValidDeclarationPage: React.FC<DetailContratReadOnlyProps> = ({ route }) =
     const verifDate = ()=>{
         var valid = false;
         const le25DuMois = new Date(`${mois.year}-${mois.monthIndex}-${25}`)
-        const le5DuMoisSuivant = new Date(`${mois.year}-${mois.monthIndex+1}-${5}`)
+        console.log("le25DuMois: ", le25DuMois);
+        
+        const le5DuMoisSuivant = new Date(`${mois.year}-${mois.monthIndex+1}-${6}`)
+        console.log("le5DuMoisSuivant: ", le5DuMoisSuivant);
+        
+
         const today = new Date();
         valid = (le25DuMois.getTime()<=today.getTime() && today.getTime()<=le5DuMoisSuivant.getTime());
         console.log("DATE VALIDATION IS VALID?: ", valid);

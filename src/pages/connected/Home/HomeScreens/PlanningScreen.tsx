@@ -57,7 +57,16 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
   useEffect(() => {
     (async () => {
       const now = new Date();
-      setSelectedMonth({ year: now.getFullYear(), monthIndex: now.getMonth() + 1 });
+      now.setMilliseconds(0)
+      now.setSeconds(0)
+      now.setMinutes(0)
+      now.setHours(0)
+      var month = { year: now.getFullYear(), monthIndex: now.getMonth() + 1 };
+      var dateDebutContrat = new Date(configuredContrat.dateDebut)
+      var monthDebutContrat = { year: dateDebutContrat.getFullYear(), monthIndex: dateDebutContrat.getMonth() + 1 };
+      if (now.getTime() < dateDebutContrat.getTime()) setSelectedMonth(monthDebutContrat);
+      else setSelectedMonth(month);
+      
       await fetchEvents();
     })();
   }, [refreshValue]);
