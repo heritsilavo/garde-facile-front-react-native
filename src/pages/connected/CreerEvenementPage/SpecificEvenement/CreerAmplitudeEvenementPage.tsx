@@ -216,7 +216,8 @@ const styles = StyleSheet.create({
   },
   btnText:{
     padding:8,
-    fontWeight:'bold'
+    fontWeight:'bold',
+    color:"#fff"
   },
   btnsContainer:{
     marginTop:10,

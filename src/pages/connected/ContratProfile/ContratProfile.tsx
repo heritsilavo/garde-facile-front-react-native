@@ -372,6 +372,7 @@ const ContratProfile: React.FC = () => {
                                     <Text style={{ ...styles.detailText, ...fonts.bodyMedium }}>{`${contrat.assmat.prenom} ${contrat.assmat.nom}`}</Text>
                                 </View>
                             )}
+
                             {contrat.parent && (
                                 <View style={styles.detailContainerColumn}>
                                     <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}>Parent employeur:</Text>
@@ -461,6 +462,20 @@ const ContratProfile: React.FC = () => {
                             <View style={styles.detailContainer}>
                                 <Text style={{ ...styles.detailLabel, ...fonts.bodyLarge }}> {getModePayement(contrat.remunerationCongesPayes.mode)?.titre} </Text>
                             </View>
+
+                            <Divider style={styles.divider} />
+                            <View style={styles.detailContainer}>
+                                <Text style={{ ...styles.detailLabel, ...fonts.titleMedium }}>Planning hebdomadaire:</Text>
+                                <IconButton
+                                    icon="calendar-week"
+                                    size={20}
+                                    onPress={() => { navigation?.navigate("DetailPlanningPage", {
+                                        contrat: contrat
+                                    }) }}
+                                    style={styles.modifyButton}
+                                />
+                            </View>
+                            
                         </Card.Content>
                     </Card>
                 )}

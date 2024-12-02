@@ -85,7 +85,7 @@ const ValidDeclarationPage: React.FC<DetailContratReadOnlyProps> = ({ route }) =
             setIsValidating(true);
             try {
                 await saveDeclaration(declaType)
-                navigation?.navigate('CurrentMonthDeclaration');
+                navigation?.goBack()
             } catch (error:any) {
                 const message = error?.response?.data?.message || error?.message || error.toString();
                 const description = error?.response?.data?.description || "";
@@ -99,7 +99,7 @@ const ValidDeclarationPage: React.FC<DetailContratReadOnlyProps> = ({ route }) =
     const fetchDatas = async () => {
         setIsLoading(true);
         const contrat: Contrat = await getDetailConfiguredContrat()
-        var data: DeclarationType = convertToDeclarationType(declaForContrat);
+        var data: DeclarationType = convertToDeclarationType(declaForContrat, mois);
         data.uuid = generateGeneralId();
         data.numeroPajeEmployeur = contrat.numeroPajeEmployeur;
         data.numeroPajeSalarie = contrat.numeroPajeSalarie;

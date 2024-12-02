@@ -35,6 +35,7 @@ import CurrentMonthDeclaration from './src/pages/connected/CurrentMonthDeclarati
 import ValidDeclarationPage from './src/pages/connected/DeclarationPage/DeclarationPage';
 import HistoriqueDeclarationList from './src/pages/connected/HistoriqueDeclaration/HistoriqueDeclarationList';
 import DetailDeclaration from './src/pages/connected/HistoriqueDeclaration/DetailDeclaration';
+import DetailPlanningPage from './src/pages/connected/DetailPlanningPage/DetailPlanningPage';
 
 const Stack = createStackNavigator();
 
@@ -321,6 +322,7 @@ const App = () => {
                     <Stack.Screen name="ValidDeclarationPage" component={ValidDeclarationPage} />
                     <Stack.Screen name="HistoriqueDeclarationList" component={HistoriqueDeclarationList} />
                     <Stack.Screen name="DetailDeclaration" component={DetailDeclaration} />
+                    <Stack.Screen name="DetailPlanningPage" component={DetailPlanningPage} />
                   </Stack.Navigator>
                   <Toast
                     position='top'

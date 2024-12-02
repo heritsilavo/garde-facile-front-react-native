@@ -39,8 +39,6 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
   const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false)
   const [selectedEvent, setSelectedEvent] = useState<Evenement>(new Evenement())
 
-
-
   const fetchEvents = useCallback(async () => {
     if (!loadEvents) {
       setLoadEvents(true);
@@ -64,8 +62,12 @@ const PlanningScreen = ({ refreshValue }: { refreshValue: Date }) => {
       var month = { year: now.getFullYear(), monthIndex: now.getMonth() + 1 };
       var dateDebutContrat = new Date(configuredContrat.dateDebut)
       var monthDebutContrat = { year: dateDebutContrat.getFullYear(), monthIndex: dateDebutContrat.getMonth() + 1 };
-      if (now.getTime() < dateDebutContrat.getTime()) setSelectedMonth(monthDebutContrat);
-      else setSelectedMonth(month);
+      
+      if (now.getTime() < dateDebutContrat.getTime()) {
+        console.log("HEHEEEEE", now, dateDebutContrat);
+        
+        setSelectedMonth(monthDebutContrat);
+      }else setSelectedMonth(month);
       
       await fetchEvents();
     })();

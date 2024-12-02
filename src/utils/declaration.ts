@@ -3,6 +3,7 @@ import { SPRING_BOOT_URL } from "../constants/api";
 import { getLoginToken, isLogedIn } from "./user";
 import { DeclarationForContrat, DeclarationInfo } from "../models/declaration";
 import { DeclarationType } from "../models/declaration_type";
+import { Mois } from "./date";
 
 /**
  * Resupere les infos dans la declaration
@@ -178,12 +179,12 @@ export async function getHistoriqueDeclaForContrat(contratId:string):Promise<Dec
     } else throw new Error("Vous n'etes pas connecté");
 }
 
-export function convertToDeclarationType(declarationForContrat: DeclarationForContrat): DeclarationType {
+export function convertToDeclarationType(declarationForContrat: DeclarationForContrat, mois: Mois): DeclarationType {
     return {
         id: 0, // A définir ou générer si nécessaire
         uuid: '', // Générer un UUID si requis
-        annee: new Date().getFullYear(),
-        mois: new Date().getMonth() + 1,
+        annee: mois.year,
+        mois: mois.monthIndex,
         methodeRemunerationCongesPayes: "", // A définir ou générer si nécessaire
         declaration_date: new Date().toISOString(),
         numeroPajeEmployeur: "", // A définir ou générer si nécessaire

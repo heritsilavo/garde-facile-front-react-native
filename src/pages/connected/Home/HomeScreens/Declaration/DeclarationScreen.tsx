@@ -20,19 +20,22 @@ const DeclarationScreen = () => {
 
     useEffect(() => {
         const today = new Date();
-        today.setHours(0)
-        today.setMinutes(0)
-        today.setSeconds(0)
-        today.setMilliseconds(0)
+        today.setUTCHours(0, 0, 0, 0);
+
         var tmp: NamedMois = { ...currentMonth, year: today.getFullYear() };
         var mois = today.getMonth() + 1 - ((today.getDate() <= 5) ? 1 : 0);
+        var todayValue = today.getMonth() + today.getFullYear();
 
-        console.log("DATE DEBUT CONTRAT: ", new Date(configuredContrat.dateDebut));
-        console.log("TODAY: ", today);
+        const dateDebutContrat = new Date(configuredContrat.dateDebut);
+        var dateDebutContratValue = dateDebutContrat.getMonth() + dateDebutContrat.getFullYear();
         
         
-        if ((new Date(configuredContrat.dateDebut).getTime() >= today.getTime())) mois++;
-        tmp.label = getMonthName(new Date(`${today.getFullYear()}-${mois}-${6}`))
+        if (dateDebutContratValue >= todayValue) {
+
+            mois = dateDebutContrat.getMonth() + 1
+        };
+
+        tmp.label = getMonthName(new Date(`${today.getFullYear()}-${mois}-${10}`))
         tmp.monthIndex = mois
         setCurrentMonth(tmp)
     }, [])
